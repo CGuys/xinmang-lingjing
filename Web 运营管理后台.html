@@ -1,0 +1,1473 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>心芒灵境 · 运营管理后台原型</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Vue 3 CDN -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <!-- FontAwesome 图标 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <!-- Google Fonts: Cinzel & Noto Serif SC -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Noto+Serif+SC:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", sans-serif; }
+    .font-cinzel { font-family: 'Cinzel', serif; }
+    .font-serif-sc { font-family: 'Noto Serif SC', serif; }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+
+    /* 3D 空间与卡牌立体翻转环境 */
+    .perspective-1000 { perspective: 1000px; }
+    .card-perspective-stage { perspective: 1200px; }
+    .transform-style-3d { transform-style: preserve-3d; }
+    .backface-hidden { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+    .rotate-y-180 { transform: rotateY(180deg); }
+
+    /* 金色流光与古典质感边框 (参考 AI-星灵漫步) */
+    .gold-gradient-text {
+      background: linear-gradient(135deg, #fef08a 0%, #d4af37 40%, #facc15 70%, #ca8a04 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .gold-border {
+      border: 1px solid rgba(212, 175, 55, 0.55);
+      box-shadow: 0 0 25px rgba(212, 175, 55, 0.18), inset 0 0 15px rgba(212, 175, 55, 0.12);
+    }
+    .gold-border-subtle {
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    /* 3D 洗牌振动动画 */
+    @keyframes shuffleShake {
+      0% { transform: translateY(0) rotate(0deg); }
+      20% { transform: translateY(-14px) rotate(-6deg) scale(0.96); }
+      40% { transform: translateY(10px) rotate(5deg) scale(1.02); }
+      60% { transform: translateY(-6px) rotate(-3deg); }
+      80% { transform: translateY(3px) rotate(2deg); }
+      100% { transform: translateY(0) rotate(0deg); }
+    }
+    .is-shuffling {
+      animation: shuffleShake 0.6s ease-in-out;
+    }
+
+    /* 星芒脉冲微光 */
+    @keyframes cosmicGlow {
+      0%, 100% { opacity: 0.25; transform: scale(1); }
+      50% { opacity: 0.65; transform: scale(1.06); }
+    }
+    .cosmic-pulse {
+      animation: cosmicGlow 4s ease-in-out infinite;
+    }
+
+    /* 慢速星盘旋转 */
+    @keyframes spinSlow {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .animate-spin-slow {
+      animation: spinSlow 22s linear infinite;
+    }
+
+    /* 手机外壳高精度拟真阴影 */
+    .iphone-shadow {
+      box-shadow: 0 25px 60px -12px rgba(15, 23, 42, 0.5), 0 0 0 10px #1e293b, 0 0 0 12px #334155;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased">
+  <div id="app" class="flex h-screen overflow-hidden">
+
+    <!-- 侧边导航栏 -->
+    <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col justify-between flex-shrink-0 z-20">
+      <div>
+        <!-- Logo Header -->
+        <div class="h-16 flex items-center px-6 border-b border-slate-800 bg-slate-950/40">
+          <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-500 to-amber-400 flex items-center justify-center text-white mr-3 shadow-md shadow-indigo-500/20">
+            <i class="fa-solid fa-sparkles text-sm"></i>
+          </div>
+          <div>
+            <h1 class="font-bold text-white tracking-wide text-sm">心芒灵境</h1>
+            <p class="text-xs text-slate-400">运营管控中枢 v1.0</p>
+          </div>
+        </div>
+
+        <!-- 菜单列表 -->
+        <nav class="mt-4 px-3 space-y-1">
+          <button 
+            v-for="item in menuItems" 
+            :key="item.id" 
+            @click="currentTab = item.id"
+            :class="[
+              currentTab === item.id 
+                ? 'bg-indigo-600 text-white font-medium shadow-sm shadow-indigo-600/30' 
+                : 'text-slate-300 hover:bg-slate-800 hover:text-white',
+              'w-full flex items-center px-3 py-2.5 rounded-lg text-sm transition-all duration-150 text-left'
+            ]"
+          >
+            <i :class="[item.icon, 'w-5 text-center mr-3 text-base']"></i>
+            <span>{{ item.name }}</span>
+            <span v-if="item.badge" class="ml-auto text-[10px] px-1.5 py-0.5 rounded bg-amber-500 text-slate-950 font-semibold">{{ item.badge }}</span>
+          </button>
+        </nav>
+      </div>
+
+      <!-- 底部系统健康度与账号 -->
+      <div class="p-4 border-t border-slate-800 bg-slate-950/20">
+        <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+          <span>大模型 API 网关</span>
+          <span class="flex items-center text-emerald-400">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 mr-1 animate-pulse"></span> 正常
+          </span>
+        </div>
+        <div class="flex items-center justify-between pt-2 border-t border-slate-800/80">
+          <div class="flex items-center space-x-2">
+            <div class="w-7 h-7 rounded-full bg-slate-700 flex items-center justify-center text-xs text-slate-200">
+              <i class="fa-solid fa-user-shield"></i>
+            </div>
+            <div class="text-xs text-slate-300 font-medium">Admin</div>
+          </div>
+          <button class="text-xs text-slate-400 hover:text-rose-400 transition" title="退出登录">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- 主视口区域 -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <!-- 顶部 Header -->
+      <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 z-10">
+        <div class="flex items-center space-x-2 text-sm text-slate-500">
+          <span>控制台</span>
+          <span>/</span>
+          <span class="text-slate-900 font-medium">{{ currentTabName }}</span>
+        </div>
+
+        <!-- 顶部快捷操作 & 状态看板 -->
+        <div class="flex items-center space-x-4">
+          <!-- 微信审核模式快捷状态指示 -->
+          <div :class="[
+            systemConfig.isInReview 
+              ? 'bg-amber-50 border-amber-200 text-amber-700' 
+              : 'bg-emerald-50 border-emerald-200 text-emerald-700',
+            'flex items-center px-3 py-1 rounded-full border text-xs font-medium'
+          ]">
+            <span :class="[systemConfig.isInReview ? 'bg-amber-500' : 'bg-emerald-500', 'w-2 h-2 rounded-full mr-2']"></span>
+            <span>审核伪装模式：{{ systemConfig.isInReview ? '已开启 (安全过审中)' : '已关闭 (全量运行)' }}</span>
+          </div>
+
+          <button @click="showSaveToast" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-3.5 py-2 rounded-lg shadow-sm font-medium transition flex items-center">
+            <i class="fa-solid fa-cloud-arrow-up mr-1.5"></i> 一键同步至 Redis
+          </button>
+        </div>
+      </header>
+
+      <!-- 内容主体区 -->
+      <main class="flex-1 overflow-y-auto custom-scrollbar p-8">
+        
+        <!-- 页面 1: 数据概览 Dashboard -->
+        <section v-if="currentTab === 'dashboard'" class="space-y-6 max-w-7xl mx-auto">
+          <!-- 核心指标卡片 -->
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
+              <div class="flex justify-between items-start">
+                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">今日活跃用户 (DAU)</span>
+                <span class="text-xs font-semibold px-2 py-0.5 rounded bg-emerald-50 text-emerald-600">+14.8%</span>
+              </div>
+              <div class="mt-2 text-2xl font-bold text-slate-900">2,842</div>
+              <div class="mt-1 text-xs text-slate-500">累计用户: 38,910 人</div>
+            </div>
+
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
+              <div class="flex justify-between items-start">
+                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">今日抽牌总频次</span>
+                <span class="text-xs font-semibold px-2 py-0.5 rounded bg-indigo-50 text-indigo-600">总 4,120 次</span>
+              </div>
+              <div class="mt-2 text-2xl font-bold text-slate-900">3,618 <span class="text-xs font-normal text-slate-500">次免费</span></div>
+              <div class="mt-1 text-xs text-amber-600 font-medium">裂变抽牌: 502 次 (13.8%)</div>
+            </div>
+
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
+              <div class="flex justify-between items-start">
+                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">裂变系数 (K-Factor)</span>
+                <span class="text-xs font-semibold px-2 py-0.5 rounded bg-amber-50 text-amber-600">优秀</span>
+              </div>
+              <div class="mt-2 text-2xl font-bold text-slate-900">1.42</div>
+              <div class="mt-1 text-xs text-slate-500">平均每名用户带来 1.42 名新回访</div>
+            </div>
+
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
+              <div class="flex justify-between items-start">
+                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">今日 Token 消耗</span>
+                <span class="text-xs font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-600">成本可控</span>
+              </div>
+              <div class="mt-2 text-2xl font-bold text-slate-900">1,248k <span class="text-xs font-normal text-slate-500">tokens</span></div>
+              <div class="mt-1 text-xs text-slate-500">折合 API 成本: ≈ ¥ 2.49 元</div>
+            </div>
+          </div>
+
+          <!-- 裂变漏斗与近期抽牌趋势 -->
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- 裂变流失漏斗 -->
+            <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-xs lg:col-span-1">
+              <h3 class="text-sm font-bold text-slate-900 mb-4 flex items-center">
+                <i class="fa-solid fa-filter text-indigo-500 mr-2"></i> 裂变链路转化漏斗
+              </h3>
+              <div class="space-y-4">
+                <div>
+                  <div class="flex justify-between text-xs mb-1">
+                    <span class="text-slate-600">1. 首次抽牌免费用尽</span>
+                    <span class="font-semibold text-slate-900">2,842 人 (100%)</span>
+                  </div>
+                  <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                    <div class="bg-indigo-500 h-2 rounded-full" style="width: 100%"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="flex justify-between text-xs mb-1">
+                    <span class="text-slate-600">2. 触发能量不足弹窗</span>
+                    <span class="font-semibold text-slate-900">1,912 人 (67.2%)</span>
+                  </div>
+                  <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                    <div class="bg-indigo-500 h-2 rounded-full" style="width: 67.2%"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="flex justify-between text-xs mb-1">
+                    <span class="text-slate-600">3. 点击分享至好友/朋友圈</span>
+                    <span class="font-semibold text-slate-900">936 人 (32.9%)</span>
+                  </div>
+                  <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                    <div class="bg-indigo-500 h-2 rounded-full" style="width: 32.9%"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="flex justify-between text-xs mb-1">
+                    <span class="text-slate-600">4. 好友回流并成功补能</span>
+                    <span class="font-semibold text-emerald-600">502 次成功 (17.6%)</span>
+                  </div>
+                  <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                    <div class="bg-emerald-500 h-2 rounded-full" style="width: 17.6%"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 实时抽牌日志 -->
+            <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-xs lg:col-span-2">
+              <div class="flex justify-between items-center mb-4">
+                <h3 class="text-sm font-bold text-slate-900 flex items-center">
+                  <i class="fa-solid fa-list-timeline text-amber-500 mr-2"></i> 实时抽牌活动流水
+                </h3>
+                <span class="text-xs text-slate-400">每 10 秒自动刷新</span>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                  <thead class="bg-slate-50 text-slate-500 border-b border-slate-200">
+                    <tr>
+                      <th class="py-2.5 px-3">用户 ID</th>
+                      <th class="py-2.5 px-3">抽取卡牌</th>
+                      <th class="py-2.5 px-3">困惑分类</th>
+                      <th class="py-2.5 px-3">扣减方式</th>
+                      <th class="py-2.5 px-3">响应延迟</th>
+                      <th class="py-2.5 px-3">时间</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100 text-slate-700">
+                    <tr v-for="(log, idx) in activityLogs" :key="idx" class="hover:bg-slate-50/80">
+                      <td class="py-2.5 px-3 font-mono text-slate-500">{{ log.userId }}</td>
+                      <td class="py-2.5 px-3 font-medium text-slate-900">{{ log.cardName }} ({{ log.orientation }})</td>
+                      <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded bg-slate-100 text-slate-600">{{ log.theme }}</span></td>
+                      <td class="py-2.5 px-3">
+                        <span :class="log.isFree ? 'text-indigo-600' : 'text-amber-600 font-semibold'">
+                          {{ log.isFree ? '今日免费' : '分享奖励' }}
+                        </span>
+                      </td>
+                      <td class="py-2.5 px-3 text-slate-500">{{ log.latency }} ms</td>
+                      <td class="py-2.5 px-3 text-slate-400">{{ log.time }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 页面 2: 业务中控台 Strategy Config -->
+        <section v-if="currentTab === 'strategy'" class="space-y-6 max-w-4xl mx-auto">
+          <!-- 微信审核伪装中控 (重点保障安全) -->
+          <div class="bg-amber-50/50 border border-amber-200 rounded-xl p-6">
+            <div class="flex items-start justify-between">
+              <div>
+                <h3 class="text-base font-bold text-amber-900 flex items-center">
+                  <i class="fa-solid fa-shield-halved text-amber-600 mr-2"></i> 微信提审安全伪装模式 (In-Review Mode)
+                </h3>
+                <p class="text-xs text-amber-700 mt-1 max-w-xl">
+                  开启后，小程序端将<strong>完全隐藏自定义输入框</strong>，停止调用大模型，抽牌结果直接返回预设的纯文学心理学正向文案，防止微信机审或人审查封。
+                </p>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" v-model="systemConfig.isInReview" class="sr-only peer">
+                <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+              </label>
+            </div>
+          </div>
+
+          <!-- 能量与裂变规则表单 -->
+          <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-6">
+            <h3 class="text-sm font-bold text-slate-900 border-b border-slate-100 pb-3">
+              <i class="fa-solid fa-bolt text-indigo-500 mr-2"></i> 每日资产与裂变规则配置
+            </h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-2">每日自然日免费赠送点数</label>
+                <div class="flex items-center space-x-2">
+                  <input type="number" v-model="systemConfig.dailyFreeLimit" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
+                  <span class="text-xs text-slate-500 flex-shrink-0">次 / 天</span>
+                </div>
+                <p class="text-[11px] text-slate-400 mt-1">建议设为 1，次日 0 点重置，不累计。</p>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-2">单人单日分享裂变奖励上限</label>
+                <div class="flex items-center space-x-2">
+                  <input type="number" v-model="systemConfig.shareRewardLimit" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
+                  <span class="text-xs text-slate-500 flex-shrink-0">次 / 天</span>
+                </div>
+                <p class="text-[11px] text-slate-400 mt-1">防止羊毛党通过脚本无限制互点刷爆 API。</p>
+              </div>
+            </div>
+
+            <div class="pt-4 border-t border-slate-100 space-y-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="text-sm font-medium text-slate-800">启用微信好友/群裂变补能</div>
+                  <div class="text-xs text-slate-400">关闭后，用户免费用尽将直接提示“明日再来”</div>
+                </div>
+                <input type="checkbox" v-model="systemConfig.shareRewardEnabled" class="w-4 h-4 text-indigo-600 rounded">
+              </div>
+
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="text-sm font-medium text-slate-800">启用激励视频广告补能 (广告灰度预留)</div>
+                  <div class="text-xs text-slate-400">开通流量主后开启，用户可在分享与看广告之间二选一</div>
+                </div>
+                <input type="checkbox" v-model="systemConfig.adRewardEnabled" class="w-4 h-4 text-indigo-600 rounded">
+              </div>
+
+              <div v-if="systemConfig.adRewardEnabled" class="pl-4 border-l-2 border-indigo-200 mt-2">
+                <label class="block text-xs font-semibold text-slate-700 mb-1">微信激励广告位 ID (AdUnitId)</label>
+                <input type="text" v-model="systemConfig.adUnitId" placeholder="adunit-xxxxxxxx" class="w-full md:w-96 px-3 py-1.5 border border-slate-300 rounded-lg text-xs" />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 页面 3: AI 提示词与端侧高保真仿真沙盒 AI Orchestration -->
+        <section v-if="currentTab === 'ai-orchestration'" class="max-w-7xl mx-auto flex flex-col xl:flex-row gap-6 items-start">
+          <!-- 左侧：参数与 Prompt 编排配置 (占比 54%) -->
+          <div class="w-full xl:w-[54%] bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-5 flex-shrink-0">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div>
+                <h3 class="text-sm font-bold text-slate-900 flex items-center">
+                  <i class="fa-solid fa-sliders text-indigo-500 mr-2"></i> 模型网关与 System Prompt 编排
+                </h3>
+                <p class="text-xs text-slate-400 mt-0.5">参数与提示词改动将实时映射并作用于右侧微信小程序端</p>
+              </div>
+              <!-- 提审模式快速开关 -->
+              <label class="flex items-center cursor-pointer space-x-2 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200">
+                <span class="text-[11px] font-semibold text-amber-800">提审伪装：</span>
+                <input type="checkbox" v-model="systemConfig.isInReview" class="w-3.5 h-3.5 accent-amber-600 rounded">
+                <span class="text-[11px] text-amber-700">{{ systemConfig.isInReview ? '开启' : '关闭' }}</span>
+              </label>
+            </div>
+
+            <!-- 供应商与模型代码 -->
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">模型供应商</label>
+                <select v-model="aiConfig.provider" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs bg-white">
+                  <option value="deepseek">DeepSeek-V3 (推荐·低延迟高性价比)</option>
+                  <option value="zhipu">智谱 GLM-4</option>
+                  <option value="minimax">MiniMax</option>
+                  <option value="custom">自定义兼容 OpenAI 协议接口</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">模型代码 (Model)</label>
+                <input type="text" v-model="aiConfig.modelName" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs" />
+              </div>
+            </div>
+
+            <!-- 温度系数与最大 Token -->
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <div class="flex justify-between text-xs font-semibold text-slate-700 mb-1">
+                  <span>采样温度 (Temperature)</span>
+                  <span class="text-indigo-600 font-mono font-bold">{{ aiConfig.temperature }}</span>
+                </div>
+                <input type="range" min="0" max="1.5" step="0.05" v-model="aiConfig.temperature" class="w-full accent-indigo-600">
+                <span class="text-[10px] text-slate-400">越高回答越富有意象与潜意识灵性；越低越理性稳定。</span>
+              </div>
+              <div>
+                <div class="flex justify-between text-xs font-semibold text-slate-700 mb-1">
+                  <span>端侧打字机流速 (Speed)</span>
+                  <span class="text-amber-600 font-mono font-bold">{{ typeSpeed }} ms/字</span>
+                </div>
+                <input type="range" min="10" max="80" step="5" v-model="typeSpeed" class="w-full accent-amber-500">
+                <span class="text-[10px] text-slate-400">调节小程序流式打字输出速率。</span>
+              </div>
+            </div>
+
+            <!-- System Prompt -->
+            <div>
+              <div class="flex justify-between items-center mb-1">
+                <label class="text-xs font-semibold text-slate-700">合规提示词模板 (System Prompt)</label>
+                <span class="text-[10px] text-slate-400">可用变量: <code class="text-indigo-600 font-mono">{card_name}</code>, <code class="text-indigo-600 font-mono">{orientation}</code>, <code class="text-indigo-600 font-mono">{question}</code></span>
+              </div>
+              <textarea v-model="aiConfig.systemPrompt" rows="5" class="w-full font-mono text-xs p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none custom-scrollbar leading-relaxed"></textarea>
+            </div>
+
+            <!-- 快捷预设测试卡牌切换 -->
+            <div>
+              <div class="flex justify-between items-center mb-2">
+                <label class="text-xs font-bold text-slate-800 flex items-center">
+                  <i class="fa-solid fa-layer-group text-amber-500 mr-1.5"></i> 快速选择沙盒演示抽牌卡面：
+                </label>
+                <span class="text-[10px] text-slate-400">点击即切换手机端牌面</span>
+              </div>
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <button 
+                  v-for="card in cardOptions" 
+                  :key="card.id" 
+                  @click="selectCard(card)"
+                  :class="[
+                    selectedCard.id === card.id 
+                      ? 'border-amber-400 bg-amber-50/90 text-amber-950 font-bold shadow-sm ring-1 ring-amber-400' 
+                      : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100',
+                    'border rounded-lg p-2 text-left text-xs transition flex flex-col justify-between'
+                  ]"
+                >
+                  <div class="flex items-center justify-between">
+                    <span class="font-cinzel text-[10px] text-amber-700 font-bold">{{ card.roman || '#' + card.id }}</span>
+                    <i :class="[card.icon, 'text-xs text-amber-500']"></i>
+                  </div>
+                  <div class="my-1">
+                    <div class="font-bold text-xs truncate">{{ card.nameCn }}</div>
+                    <div class="text-[9px] text-slate-400 font-mono truncate">{{ card.nameEn }}</div>
+                  </div>
+                  <div class="text-[9px] text-indigo-600 bg-indigo-50/80 px-1 py-0.5 rounded text-center font-medium">
+                    {{ card.tags[0] }}
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            <!-- 用户测试问题与执行 -->
+            <div class="space-y-3 pt-2 border-t border-slate-100">
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">测试用户心绪默念输入：</label>
+                <input type="text" v-model="simulatedUserQuestion" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-indigo-500 focus:outline-none" />
+              </div>
+
+              <!-- 调试动作按钮组 -->
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
+                <button 
+                  @click="triggerPhoneDraw" 
+                  :disabled="isStreaming" 
+                  class="sm:col-span-2 bg-gradient-to-r from-indigo-600 via-indigo-700 to-amber-600 hover:from-indigo-700 hover:to-amber-700 text-white text-xs font-bold py-2.5 px-3 rounded-lg shadow-sm transition flex items-center justify-center gap-1.5 disabled:opacity-60"
+                >
+                  <i :class="[isStreaming ? 'fa-spinner fa-spin' : 'fa-wand-magic-sparkles', 'text-xs']"></i>
+                  <span>在手机中执行抽牌与流式解牌</span>
+                </button>
+                <button 
+                  @click="resetSimulator" 
+                  class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium py-2.5 px-3 rounded-lg transition flex items-center justify-center gap-1"
+                >
+                  <i class="fa-solid fa-arrows-rotate text-xs"></i>
+                  <span>重置模拟器</span>
+                </button>
+              </div>
+
+              <!-- 状态联动：模拟能量用尽测试 -->
+              <div class="flex items-center justify-between text-xs bg-slate-50 p-2.5 rounded-lg border border-slate-200/80">
+                <span class="text-slate-600 flex items-center">
+                  <i class="fa-solid fa-bolt text-amber-500 mr-1.5"></i> 模拟免费能量耗尽（测试裂变引导弹窗）：
+                </span>
+                <button 
+                  @click="toggleEnergyDepleted" 
+                  :class="[
+                    isEnergyDepleted ? 'bg-rose-100 text-rose-700 border-rose-300' : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-100',
+                    'px-2.5 py-1 rounded text-xs font-medium border transition'
+                  ]"
+                >
+                  {{ isEnergyDepleted ? '当前：能量已耗尽 (0/1)' : '当前：可用状态 (1/1)' }}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 右侧：高保真微信小程序端侧仿真器 (占比 46%，参考 AI-星灵漫步 卡牌美学) -->
+          <div class="w-full xl:w-[46%] bg-slate-900 rounded-2xl border border-slate-800 flex flex-col items-center justify-center p-6 relative overflow-hidden shadow-2xl flex-shrink-0">
+            
+            <!-- 背景星云光晕装饰 -->
+            <div class="absolute -top-16 -left-16 w-60 h-60 bg-indigo-600/15 rounded-full blur-3xl cosmic-pulse pointer-events-none"></div>
+            <div class="absolute -bottom-16 -right-16 w-60 h-60 bg-amber-500/15 rounded-full blur-3xl cosmic-pulse pointer-events-none"></div>
+
+            <!-- 仿真器顶部环境把手信息 -->
+            <div class="w-full max-w-[375px] flex items-center justify-between text-slate-400 text-[11px] font-mono mb-3 px-2">
+              <span class="flex items-center gap-1.5"><i class="fa-brands fa-apple text-sm"></i> iPhone 15 Pro</span>
+              <span class="text-amber-300/80 flex items-center gap-1"><i class="fa-brands fa-weixin text-emerald-400"></i> MiniProgram 8.0.48</span>
+            </div>
+
+            <!-- 手机实体机壳容器 (375 x 760) -->
+            <div class="w-[375px] h-[760px] bg-[#070913] rounded-[48px] iphone-shadow border-[4px] border-slate-700/80 flex flex-col overflow-hidden relative select-none">
+              
+              <!-- 灵动岛 (Dynamic Island) -->
+              <div class="absolute top-2.5 left-1/2 -translate-x-1/2 w-28 h-6 bg-black rounded-full z-50 flex items-center justify-end px-2">
+                <div class="w-2.5 h-2.5 rounded-full bg-slate-900 border border-slate-800"></div>
+              </div>
+
+              <!-- iOS 状态栏 (9:41) -->
+              <div class="h-10 w-full flex items-center justify-between px-7 pt-3 text-white text-[11px] font-semibold z-40">
+                <span>9:41</span>
+                <div class="flex items-center space-x-1.5 text-xs">
+                  <i class="fa-solid fa-signal text-[10px]"></i>
+                  <i class="fa-solid fa-wifi text-[10px]"></i>
+                  <i class="fa-solid fa-battery-full text-xs text-emerald-400"></i>
+                </div>
+              </div>
+
+              <!-- 微信小程序原生导航栏 (NavigationBar) -->
+              <div class="h-11 w-full flex items-center justify-between px-4 z-40 text-white border-b border-white/5 bg-slate-950/60 backdrop-blur-md">
+                <div class="flex items-center space-x-1 text-xs">
+                  <i class="fa-solid fa-chevron-left text-xs opacity-70"></i>
+                  <span class="text-xs font-serif-sc font-medium tracking-wide gold-gradient-text">心芒灵境 · 星灵漫步</span>
+                </div>
+                <!-- 微信官方胶囊按钮 -->
+                <div class="h-7 w-20 rounded-full border border-white/20 bg-black/50 flex items-center justify-around px-2 text-white/90">
+                  <i class="fa-solid fa-ellipsis text-xs hover:opacity-70 cursor-pointer"></i>
+                  <div class="w-[1px] h-3.5 bg-white/20"></div>
+                  <i class="fa-regular fa-circle-dot text-xs hover:opacity-70 cursor-pointer"></i>
+                </div>
+              </div>
+
+              <!-- 小程序页面内容滚动区 -->
+              <div class="flex-1 overflow-y-auto custom-scrollbar p-4 flex flex-col justify-between text-slate-100 relative bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#181533] via-[#0b0c1b] to-[#04050b]">
+                
+                <!-- 顶部资产与状态栏 -->
+                <div>
+                  <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-white/10 border border-amber-500/30 text-[11px] text-amber-300 shadow-sm">
+                      <i class="fa-solid fa-sparkles text-[10px] text-amber-400"></i>
+                      <span>今日能量：<b class="text-white">{{ isEnergyDepleted ? '0/1' : '1/1' }}</b></span>
+                    </div>
+                    <div v-if="systemConfig.isInReview" class="text-[10px] text-amber-300 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20 font-medium">
+                      <i class="fa-solid fa-shield-halved mr-1"></i> 心理觉察模式
+                    </div>
+                    <div v-else class="text-[10px] text-indigo-300 bg-indigo-500/10 px-2 py-0.5 rounded-full border border-indigo-500/20">
+                      荣格潜意识共鸣
+                    </div>
+                  </div>
+
+                  <!-- 默念心绪输入气泡 / 提审模式文案 -->
+                  <div v-if="!systemConfig.isInReview" class="bg-white/5 border border-white/10 rounded-xl p-2.5 text-xs text-slate-300 mb-2 backdrop-blur-sm">
+                    <div class="text-[10px] text-slate-400 mb-0.5 flex items-center gap-1">
+                      <i class="fa-solid fa-quote-left text-[9px] text-amber-400"></i>
+                      <span>当前默念心绪：</span>
+                    </div>
+                    <div class="italic text-amber-100/90 font-serif-sc text-[11px] px-1">"{{ simulatedUserQuestion }}"</div>
+                  </div>
+                  <div v-else class="bg-white/5 border border-white/10 rounded-xl p-2 text-xs text-center text-amber-200/90 mb-2">
+                    <span class="text-xs font-serif-sc tracking-wide">每日清晨 · 抽取一张心灵觉察卡</span>
+                  </div>
+                </div>
+
+                <!-- 3D 核心翻牌舞台 (参考 AI-星灵漫步 顶级美学与动画) -->
+                <div class="my-auto flex flex-col items-center justify-center perspective-1000 py-1">
+                  <div 
+                    @click="toggleCardFlip"
+                    :class="[
+                      isFlipped ? 'rotate-y-180' : '',
+                      isShuffling ? 'is-shuffling' : '',
+                      'w-48 h-72 rounded-2xl transform-style-3d transition-transform duration-700 cursor-pointer relative shadow-2xl shadow-indigo-950/80 select-none'
+                    ]"
+                  >
+                    <!-- 卡牌背面 (未翻开状态：古典双层烫金花边 + 曼陀罗星盘 + 四角纹路) -->
+                    <div class="card-face absolute inset-0 w-full h-full rounded-2xl backface-hidden bg-gradient-to-b from-[#13112c] via-[#0d0a21] to-[#060412] gold-border p-2.5 flex flex-col items-center justify-between overflow-hidden">
+                      <div class="w-full h-full border border-amber-500/30 rounded-xl p-2 flex flex-col items-center justify-between relative bg-black/30">
+                        <!-- 四角古典花饰 -->
+                        <div class="absolute top-1 left-1.5 text-amber-400/60 text-[10px]">❖</div>
+                        <div class="absolute top-1 right-1.5 text-amber-400/60 text-[10px]">❖</div>
+                        <div class="absolute bottom-1 left-1.5 text-amber-400/60 text-[10px]">❖</div>
+                        <div class="absolute bottom-1 right-1.5 text-amber-400/60 text-[10px]">❖</div>
+
+                        <!-- 顶部微标 -->
+                        <div class="text-[9px] font-cinzel text-amber-400/80 tracking-widest pt-1">ARCANA LABS</div>
+
+                        <!-- 背面中心曼陀罗星盘与旋转日光 -->
+                        <div class="w-24 h-24 rounded-full border border-dashed border-amber-500/40 flex items-center justify-center relative my-auto">
+                          <div class="w-20 h-20 rounded-full border border-amber-400/30 flex items-center justify-center animate-spin-slow">
+                            <i class="fa-regular fa-sun text-2xl text-amber-400/70"></i>
+                          </div>
+                          <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <i class="fa-solid fa-gem text-amber-300/50 text-sm"></i>
+                          </div>
+                        </div>
+
+                        <!-- 底部提示文字 -->
+                        <div class="text-center pb-1">
+                          <p class="text-[10px] text-amber-200/90 font-medium flex items-center justify-center gap-1">
+                            <i class="fa-solid fa-hand-pointer text-amber-400 text-[9px] animate-bounce"></i> 轻触翻转觉察
+                          </p>
+                          <span class="text-[8px] text-slate-500 font-cinzel tracking-wider">TOUCH TO REVEAL</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- 卡牌正面 (翻开后状态：星空渐变 + 罗马数字 + 发光图腾 + 关键词) -->
+                    <div class="card-face card-face-front absolute inset-0 w-full h-full rounded-2xl backface-hidden rotate-y-180 bg-gradient-to-b from-[#16192e] via-[#0d1021] to-[#060714] gold-border p-2.5 flex flex-col justify-between overflow-hidden text-center">
+                      <div class="w-full h-full border border-amber-500/30 rounded-xl p-2 flex flex-col items-center justify-between relative bg-black/20">
+                        <!-- 顶部卡牌序号与正位状态 -->
+                        <div class="w-full flex justify-between items-center text-[9px] font-cinzel text-amber-400/90 px-1 pt-0.5">
+                          <span class="tracking-widest">{{ selectedCard.roman || '#' + selectedCard.id }}</span>
+                          <span class="px-1.5 py-0.2 rounded bg-amber-400/20 text-amber-300 text-[8px] font-sans">
+                            {{ selectedCard.orientation || '正位' }}
+                          </span>
+                        </div>
+
+                        <!-- 卡牌名称 -->
+                        <div class="my-0.5">
+                          <h4 class="text-sm font-bold font-serif-sc text-amber-100 tracking-wide">{{ selectedCard.nameCn }}</h4>
+                          <span class="text-[8px] text-slate-400 font-cinzel">{{ selectedCard.nameEn }}</span>
+                        </div>
+
+                        <!-- 牌面中心发光图腾插画区 (参考 AI-星灵漫步 图标质感) -->
+                        <div class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-amber-500/20 via-indigo-500/10 to-transparent border border-amber-400/40 flex items-center justify-center relative shadow-inner my-1">
+                          <i :class="[selectedCard.icon, 'text-4xl text-amber-300 drop-shadow-[0_0_10px_rgba(251,191,36,0.6)]']"></i>
+                          <span class="absolute -bottom-2 px-2 py-0.5 rounded-full bg-slate-950 border border-amber-500/40 text-[8px] text-amber-300 font-cinzel whitespace-nowrap">
+                            {{ selectedCard.element || 'INTUITION' }}
+                          </span>
+                        </div>
+
+                        <!-- 关键词与能量标签 -->
+                        <div class="w-full space-y-1 pt-1.5">
+                          <div class="flex flex-wrap justify-center gap-1">
+                            <span v-for="tag in selectedCard.tags" :key="tag" class="text-[8px] px-1.5 py-0.5 rounded bg-indigo-950/80 text-amber-200 border border-indigo-500/30">
+                              {{ tag }}
+                            </span>
+                          </div>
+                          <!-- 启发金句 -->
+                          <p class="text-[9px] text-slate-300 line-clamp-2 px-1 font-serif-sc italic">
+                            {{ selectedCard.quote }}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="text-center mt-2">
+                    <span class="text-[10px] text-slate-400">
+                      {{ isFlipped ? '✦ 牌面已就绪 · 轻触卡牌可重新盖回' : '✦ 轻触卡牌翻开，或在左侧点击执行' }}
+                    </span>
+                  </div>
+                </div>
+
+                <!-- AI 流式解读气泡展示 (打字机区域) -->
+                <div v-if="isFlipped" class="bg-white/5 border border-white/10 rounded-2xl p-3 backdrop-blur-md mb-2">
+                  <div class="flex items-center justify-between pb-1.5 mb-1.5 border-b border-white/10">
+                    <div class="flex items-center space-x-1.5 text-xs text-amber-300 font-semibold">
+                      <i class="fa-solid fa-wand-magic-sparkles text-[11px] text-amber-400"></i>
+                      <span>潜意识投射洞见</span>
+                    </div>
+                    <button @click="showPosterModal = true" class="text-[10px] text-amber-300 hover:text-white flex items-center bg-amber-500/10 hover:bg-amber-500/20 px-2 py-0.5 rounded border border-amber-500/30 transition">
+                      <i class="fa-solid fa-image mr-1 text-[9px]"></i> 生成海报
+                    </button>
+                  </div>
+
+                  <!-- 打字机容器 -->
+                  <div class="text-[11px] text-slate-200 leading-relaxed min-h-[75px] font-sans whitespace-pre-line">
+                    <span>{{ phoneStreamText }}</span>
+                    <span v-if="isStreaming" class="inline-block w-1.5 h-3 bg-amber-400 animate-pulse ml-0.5 align-middle"></span>
+                  </div>
+                </div>
+
+                <!-- 底部端侧操作栏 -->
+                <div class="pt-1">
+                  <button 
+                    v-if="!isFlipped"
+                    @click="triggerPhoneDraw"
+                    class="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-950 font-bold text-xs shadow-lg shadow-amber-500/20 transition flex items-center justify-center gap-1"
+                  >
+                    <i class="fa-solid fa-sparkles text-xs"></i> 抽取今日觉察卡
+                  </button>
+                  <div v-else class="grid grid-cols-2 gap-2">
+                    <button @click="resetSimulator" class="py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-medium transition">
+                      重新抽取
+                    </button>
+                    <button @click="showPosterModal = true" class="py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium transition flex items-center justify-center gap-1">
+                      <i class="fa-solid fa-share-nodes text-[10px]"></i> 分享能量卡
+                    </button>
+                  </div>
+                </div>
+
+                <!-- 弹窗 1: 能量耗尽/裂变充盈引导弹窗 -->
+                <div v-if="showEnergyAlert" class="absolute inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-5">
+                  <div class="bg-slate-900 border border-amber-400/40 rounded-2xl p-5 w-full text-center relative shadow-2xl">
+                    <div class="w-10 h-10 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center mx-auto mb-2 text-lg">
+                      <i class="fa-solid fa-moon"></i>
+                    </div>
+                    <h4 class="text-sm font-bold text-white mb-1">今日免费灵感已用尽</h4>
+                    <p class="text-[11px] text-slate-400 mb-4 leading-relaxed">
+                      将当下的觉察分享给好友，或邀请好友共同探索，双方皆可充盈 1 点今日能量。
+                    </p>
+                    
+                    <div class="space-y-2">
+                      <button @click="simulateShareSuccess" class="w-full py-2 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-950 font-bold text-xs transition flex items-center justify-center gap-1.5">
+                        <i class="fa-brands fa-weixin text-emerald-800 text-sm"></i> 分享给好友 (+1 能量)
+                      </button>
+                      <button v-if="systemConfig.adRewardEnabled" @click="simulateAdWatch" class="w-full py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-medium transition flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-circle-play text-amber-400 text-xs"></i> 静心观看 15 秒短片 (+1 能量)
+                      </button>
+                      <button @click="showEnergyAlert = false" class="text-[11px] text-slate-500 block w-full py-1 hover:text-slate-400">稍后再试</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 弹窗 2: 微信端朋友圈海报预览弹窗 (750x1334 高清等比缩小) -->
+                <div v-if="showPosterModal" class="absolute inset-0 bg-black/85 backdrop-blur-md z-50 flex flex-col items-center justify-between p-5">
+                  <div class="w-full flex justify-end">
+                    <button @click="showPosterModal = false" class="text-white/60 hover:text-white text-base">
+                      <i class="fa-solid fa-xmark"></i>
+                    </button>
+                  </div>
+
+                  <!-- 750x1334 比例海报卡片 (参考 AI-星灵漫步 风格) -->
+                  <div class="w-56 h-[400px] rounded-xl bg-gradient-to-b from-[#1a1738] via-[#0e0c20] to-[#04030a] border border-amber-400/60 p-3 flex flex-col justify-between shadow-2xl relative">
+                    <div>
+                      <div class="flex justify-between items-center text-[8px] text-amber-300 font-cinzel border-b border-white/10 pb-1">
+                        <span>INNER GLOW · 心芒灵境</span>
+                        <span>{{ todayDate }}</span>
+                      </div>
+                      
+                      <div class="text-center my-2">
+                        <div class="text-[9px] font-cinzel text-amber-400/80">{{ selectedCard.roman }}</div>
+                        <div class="text-xs font-bold font-serif-sc text-white">{{ selectedCard.nameCn }}</div>
+                        <div class="text-[8px] text-amber-300/80 font-cinzel">{{ selectedCard.nameEn }} · {{ selectedCard.tags[0] }}</div>
+                      </div>
+
+                      <!-- 海报图腾插画区 -->
+                      <div class="w-24 h-24 mx-auto rounded-xl bg-gradient-to-tr from-amber-500/20 via-indigo-500/10 to-transparent border border-amber-400/40 flex items-center justify-center my-1">
+                        <i :class="[selectedCard.icon, 'text-4xl text-amber-300 drop-shadow-[0_0_8px_rgba(251,191,36,0.6)]']"></i>
+                      </div>
+
+                      <div class="mt-2 text-[8px] text-slate-300 leading-snug line-clamp-3 text-center px-1 font-serif-sc italic">
+                        "{{ phoneStreamText.slice(0, 80) || selectedCard.quote }}..."
+                      </div>
+                    </div>
+
+                    <!-- 海报底部菊花码与引导 -->
+                    <div class="flex items-center justify-between border-t border-white/10 pt-1.5">
+                      <div class="text-[7px] text-slate-400 leading-tight">
+                        <div>长按识别小程序码</div>
+                        <div class="text-amber-300">领取今日灵感觉察</div>
+                      </div>
+                      <!-- 模拟小程序太阳菊花码 -->
+                      <div class="w-7 h-7 rounded-full bg-white flex items-center justify-center p-0.5">
+                        <div class="w-full h-full rounded-full border border-indigo-900 border-dashed flex items-center justify-center">
+                          <i class="fa-solid fa-qrcode text-[10px] text-slate-900"></i>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- 保存按钮 -->
+                  <button @click="showPosterModal = false; showSaveToastMsg('已模拟生成并保存朋友圈长图至相册！')" class="w-48 py-2 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-bold text-xs shadow-lg flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-download text-xs"></i> 保存图片发朋友圈
+                  </button>
+                </div>
+
+              </div>
+
+              <!-- iOS Home 底部指示条 -->
+              <div class="h-5 w-full flex items-center justify-center">
+                <div class="w-32 h-1 bg-white/30 rounded-full"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 页面 4: 卡牌库与资产中心 Cards & Assets (高保真卡牌样式与 3D 预览) -->
+        <section v-if="currentTab === 'cards-words'" class="max-w-7xl mx-auto space-y-6">
+          <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs">
+            <!-- 头部控制栏：分类筛选与搜索 -->
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+              <div>
+                <div class="flex items-center gap-2">
+                  <h3 class="text-base font-bold text-slate-900">78 张原型卡牌资产库与心理投射标准</h3>
+                  <span class="text-xs bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full border border-amber-200 font-medium">荣格原型系统</span>
+                </div>
+                <p class="text-xs text-slate-400 mt-1">
+                  采用《星灵漫步》古典神圣几何烫金设计标准，所有卡面均已注入合规潜意识投射标签，严禁凶吉断言。
+                </p>
+              </div>
+
+              <div class="flex items-center gap-3">
+                <!-- 搜索框 -->
+                <div class="relative">
+                  <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                  <input 
+                    type="text" 
+                    v-model="cardSearchQuery" 
+                    placeholder="搜索卡牌名称、关键词..." 
+                    class="pl-8 pr-3 py-1.5 border border-slate-300 rounded-lg text-xs w-64 focus:ring-1 focus:ring-indigo-500 focus:outline-none" 
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- 分类筛选标签 -->
+            <div class="flex flex-wrap items-center gap-2 pt-4 pb-2">
+              <span class="text-xs text-slate-400 mr-1">分类过滤：</span>
+              <button 
+                v-for="cat in cardCategories" 
+                :key="cat.id" 
+                @click="selectedCategory = cat.id"
+                :class="[
+                  selectedCategory === cat.id 
+                    ? 'bg-indigo-600 text-white font-medium shadow-xs' 
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200',
+                  'px-3 py-1 rounded-full text-xs transition'
+                ]"
+              >
+                {{ cat.name }} ({{ cat.count }})
+              </button>
+            </div>
+
+            <!-- 卡牌网格：直观展示每张卡的高保真卡面样式 (参考 AI-星灵漫步) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 mt-4">
+              <div 
+                v-for="card in filteredCards" 
+                :key="card.id" 
+                class="group relative rounded-2xl bg-gradient-to-b from-[#151327] via-[#0d0b1a] to-[#06050e] gold-border-subtle hover:border-amber-400/80 transition-all duration-300 p-3.5 flex flex-col justify-between shadow-lg hover:shadow-2xl hover:-translate-y-1 overflow-hidden select-none"
+              >
+                <!-- 卡牌右上角分类标签 -->
+                <div class="flex justify-between items-center text-[10px] font-cinzel text-amber-400/90 border-b border-white/10 pb-1.5">
+                  <span class="font-bold tracking-wider">{{ card.roman || '#' + card.id }}</span>
+                  <span class="text-[9px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20">
+                    {{ card.element || 'INTUITION' }}
+                  </span>
+                </div>
+
+                <!-- 中心高保真图腾与名称 -->
+                <div class="my-3 text-center">
+                  <div class="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-tr from-amber-500/20 via-indigo-500/10 to-transparent border border-amber-400/30 flex items-center justify-center my-2 group-hover:scale-110 transition duration-300 shadow-inner">
+                    <i :class="[card.icon, 'text-3xl text-amber-300 drop-shadow-[0_0_10px_rgba(251,191,36,0.6)]']"></i>
+                  </div>
+                  <h4 class="text-sm font-bold font-serif-sc text-amber-100 tracking-wide mt-1">{{ card.nameCn }}</h4>
+                  <div class="text-[10px] text-slate-400 font-cinzel">{{ card.nameEn }}</div>
+                </div>
+
+                <!-- 心理学关键词与金句摘录 -->
+                <div class="space-y-2 border-t border-white/5 pt-2">
+                  <div class="flex flex-wrap gap-1 justify-center">
+                    <span v-for="tag in card.tags" :key="tag" class="text-[9px] px-1.5 py-0.5 rounded-full bg-white/10 text-indigo-200 border border-white/5">
+                      {{ tag }}
+                    </span>
+                  </div>
+                  <p class="text-[10px] text-slate-400 line-clamp-2 italic text-center font-serif-sc px-1">
+                    {{ card.quote }}
+                  </p>
+                </div>
+
+                <!-- 卡片底部快捷操作按钮 -->
+                <div class="mt-3 pt-2 border-t border-white/10 grid grid-cols-2 gap-2">
+                  <button 
+                    @click="openCardPreviewModal(card)" 
+                    class="py-1.5 px-2 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-200 text-xs font-medium border border-amber-500/30 transition flex items-center justify-center gap-1"
+                  >
+                    <i class="fa-solid fa-eye text-[10px]"></i> 3D 预览
+                  </button>
+                  <button 
+                    @click="loadCardToSandbox(card)" 
+                    class="py-1.5 px-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium transition flex items-center justify-center gap-1 shadow-sm"
+                  >
+                    <i class="fa-solid fa-flask text-[10px]"></i> 载入沙盒
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 空状态 -->
+            <div v-if="filteredCards.length === 0" class="py-12 text-center text-slate-400 text-xs">
+              <i class="fa-solid fa-inbox text-3xl text-slate-300 mb-2 block"></i>
+              未搜索到符合条件的卡牌
+            </div>
+          </div>
+        </section>
+
+        <!-- 全局模态框：卡牌高保真 3D 翻牌与心理学投射深度预览 Modal -->
+        <div v-if="showCardPreviewModal && previewModalCard" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div class="bg-slate-900 border border-amber-400/40 rounded-3xl max-w-4xl w-full p-6 md:p-8 relative shadow-2xl overflow-hidden flex flex-col md:flex-row gap-8">
+            
+            <!-- 关闭按钮 -->
+            <button @click="showCardPreviewModal = false" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl z-20">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <!-- 左侧：高保真 3D 翻牌舞台 (直接在弹窗中体验 3D 翻牌与洗牌) -->
+            <div class="w-full md:w-5/12 flex flex-col items-center justify-center bg-slate-950/60 rounded-2xl p-6 border border-slate-800 relative">
+              <div class="text-[11px] font-cinzel text-amber-400/80 mb-2 flex items-center gap-1">
+                <i class="fa-solid fa-cube"></i> 3D CARD ARENA
+              </div>
+
+              <!-- 3D 视界舞台 -->
+              <div class="card-perspective-stage w-52 h-[320px] relative my-2 cursor-pointer select-none" @click="isModalCardFlipped = !isModalCardFlipped">
+                <div 
+                  :class="[
+                    isModalCardFlipped ? 'rotate-y-180' : '',
+                    isModalShuffling ? 'is-shuffling' : '',
+                    'w-full h-full relative rounded-2xl transform-style-3d transition-transform duration-700 shadow-2xl'
+                  ]"
+                >
+                  <!-- 卡牌背面 -->
+                  <div class="card-face absolute inset-0 w-full h-full rounded-2xl backface-hidden bg-gradient-to-b from-[#13112c] via-[#0d0a21] to-[#060412] gold-border p-3 flex flex-col items-center justify-between overflow-hidden">
+                    <div class="w-full h-full border border-amber-500/30 rounded-xl p-2.5 flex flex-col items-center justify-between relative bg-black/30">
+                      <div class="text-[9px] font-cinzel text-amber-400/80 tracking-widest pt-1">ARCANA LABS</div>
+                      <div class="w-24 h-24 rounded-full border border-dashed border-amber-500/40 flex items-center justify-center relative my-auto">
+                        <div class="w-20 h-20 rounded-full border border-amber-400/30 flex items-center justify-center animate-spin-slow">
+                          <i class="fa-regular fa-sun text-2xl text-amber-400/70"></i>
+                        </div>
+                      </div>
+                      <div class="text-center pb-1">
+                        <p class="text-[10px] text-amber-200/90 font-medium">点击翻转查看正面</p>
+                        <span class="text-[8px] text-slate-500 font-cinzel">TOUCH TO REVEAL</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- 卡牌正面 -->
+                  <div class="card-face card-face-front absolute inset-0 w-full h-full rounded-2xl backface-hidden rotate-y-180 bg-gradient-to-b from-[#16192e] via-[#0d1021] to-[#060714] gold-border p-3 flex flex-col justify-between overflow-hidden text-center">
+                    <div class="w-full h-full border border-amber-500/30 rounded-xl p-2.5 flex flex-col items-center justify-between relative bg-black/20">
+                      <div class="w-full flex justify-between items-center text-[9px] font-cinzel text-amber-400/90 px-1 pt-0.5">
+                        <span>{{ previewModalCard.roman || '#' + previewModalCard.id }}</span>
+                        <span class="px-1.5 py-0.2 rounded bg-amber-400/20 text-amber-300 text-[8px] font-sans">{{ previewModalCard.orientation || '正位' }}</span>
+                      </div>
+                      <div class="my-0.5">
+                        <h4 class="text-sm font-bold font-serif-sc text-amber-100 tracking-wide">{{ previewModalCard.nameCn }}</h4>
+                        <span class="text-[8px] text-slate-400 font-cinzel">{{ previewModalCard.nameEn }}</span>
+                      </div>
+                      <div class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-amber-500/20 via-indigo-500/10 to-transparent border border-amber-400/40 flex items-center justify-center relative shadow-inner my-1">
+                        <i :class="[previewModalCard.icon, 'text-4xl text-amber-300 drop-shadow-[0_0_10px_rgba(251,191,36,0.6)]']"></i>
+                        <span class="absolute -bottom-2 px-2 py-0.5 rounded-full bg-slate-950 border border-amber-500/40 text-[8px] text-amber-300 font-cinzel whitespace-nowrap">
+                          {{ previewModalCard.element || 'INTUITION' }}
+                        </span>
+                      </div>
+                      <div class="w-full space-y-1 pt-1">
+                        <div class="flex flex-wrap justify-center gap-1">
+                          <span v-for="tag in previewModalCard.tags" :key="tag" class="text-[8px] px-1.5 py-0.5 rounded bg-indigo-950/80 text-amber-200 border border-indigo-500/30">
+                            {{ tag }}
+                          </span>
+                        </div>
+                        <p class="text-[9px] text-slate-300 line-clamp-2 px-1 font-serif-sc italic">
+                          {{ previewModalCard.quote }}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 翻牌与洗牌按钮 -->
+              <div class="flex items-center gap-2 mt-3 w-full">
+                <button @click="triggerModalShuffle" class="flex-1 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 text-xs font-medium border border-amber-500/30 transition flex items-center justify-center gap-1">
+                  <i class="fa-solid fa-arrows-rotate text-[10px]"></i> 洗牌动效
+                </button>
+                <button @click="isModalCardFlipped = !isModalCardFlipped" class="flex-1 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium border border-slate-700 transition flex items-center justify-center gap-1">
+                  <i class="fa-solid fa-repeat text-[10px]"></i> {{ isModalCardFlipped ? '盖回背面' : '翻转正面' }}
+                </button>
+              </div>
+            </div>
+
+            <!-- 右侧：荣格心理投射档案详情 -->
+            <div class="w-full md:w-7/12 flex flex-col justify-between space-y-4">
+              <div>
+                <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                  <div>
+                    <span class="text-xs font-cinzel text-amber-400 tracking-wider">PSYCHOLOGICAL ARCHETYPE</span>
+                    <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                      <span>{{ previewModalCard.nameCn }} ({{ previewModalCard.nameEn }})</span>
+                      <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-normal">
+                        合规心理投射
+                      </span>
+                    </h3>
+                  </div>
+                  <span class="text-xs text-slate-400 font-mono">ID: #{{ previewModalCard.id }}</span>
+                </div>
+
+                <!-- 维度结构展示 -->
+                <div class="space-y-3 mt-4 text-xs">
+                  <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800">
+                    <span class="font-bold text-amber-300 flex items-center gap-1 mb-1">
+                      <i class="fa-solid fa-compass text-xs"></i> 【核心能量定调】
+                    </span>
+                    <p class="text-slate-300 leading-relaxed">{{ previewModalCard.category || '沉稳笃定 · 潜意识投射' }}</p>
+                  </div>
+
+                  <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800">
+                    <span class="font-bold text-indigo-300 flex items-center gap-1 mb-1">
+                      <i class="fa-solid fa-brain text-xs"></i> 【潜意识投影现状】
+                    </span>
+                    <p class="text-slate-300 leading-relaxed">{{ previewModalCard.insight }}</p>
+                  </div>
+
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div class="bg-slate-950/60 p-2.5 rounded-xl border border-slate-800">
+                      <span class="font-bold text-rose-300 flex items-center gap-1 mb-1">
+                        <i class="fa-solid fa-eye text-xs"></i> 【潜在盲区】
+                      </span>
+                      <p class="text-slate-300 leading-relaxed text-[11px]">{{ previewModalCard.challenge }}</p>
+                    </div>
+                    <div class="bg-slate-950/60 p-2.5 rounded-xl border border-slate-800">
+                      <span class="font-bold text-teal-300 flex items-center gap-1 mb-1">
+                        <i class="fa-solid fa-feather-pointed text-xs"></i> 【正念行动】
+                      </span>
+                      <p class="text-slate-300 leading-relaxed text-[11px]">{{ previewModalCard.guidance }}</p>
+                    </div>
+                  </div>
+
+                  <div class="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-200 italic font-serif-sc">
+                    “{{ previewModalCard.affirmation || previewModalCard.quote }}”
+                  </div>
+                </div>
+              </div>
+
+              <!-- 操作按钮 -->
+              <div class="pt-3 border-t border-slate-800 flex items-center justify-end gap-3">
+                <button @click="showCardPreviewModal = false" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition">
+                  关闭
+                </button>
+                <button @click="loadCardToSandbox(previewModalCard); showCardPreviewModal = false;" class="px-5 py-2 rounded-lg bg-gradient-to-r from-amber-500 to-indigo-600 hover:from-amber-400 hover:to-indigo-500 text-slate-950 font-bold text-xs transition shadow-md flex items-center gap-1.5">
+                  <i class="fa-solid fa-flask"></i> 载入沙盒实时解牌测试
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- 原型交互脚本 -->
+  <script>
+    const { createApp, ref, computed } = Vue;
+
+    createApp({
+      setup() {
+        const currentTab = ref('ai-orchestration'); // 默认展示升级后的 AI 编排与沙盒
+
+        const menuItems = [
+          { id: 'dashboard', name: '数据总览看板', icon: 'fa-solid fa-chart-pie' },
+          { id: 'strategy', name: '业务策略中控台', icon: 'fa-solid fa-sliders', badge: '核心' },
+          { id: 'ai-orchestration', name: 'AI 编排与沙盒', icon: 'fa-solid fa-brain', badge: '高保真' },
+          { id: 'cards-words', name: '卡牌与资产库', icon: 'fa-solid fa-layer-group' }
+        ];
+
+        const currentTabName = computed(() => {
+          const item = menuItems.find(i => i.id === currentTab.value);
+          return item ? item.name : '';
+        });
+
+        // 策略与中控表单数据
+        const systemConfig = ref({
+          isInReview: false, // 提审模式开关 (false: 全量运行, true: 提审安全模式)
+          dailyFreeLimit: 1,
+          shareRewardLimit: 3,
+          shareRewardEnabled: true,
+          adRewardEnabled: true,
+          adUnitId: 'adunit-3921029301'
+        });
+
+        // 大模型与提示词数据
+        const aiConfig = ref({
+          provider: 'deepseek',
+          modelName: 'deepseek-chat',
+          temperature: 0.75,
+          maxTokens: 800,
+          systemPrompt: `你是资深荣格心理学与潜意识投射分析师。
+用户通过抽取心灵卡牌探索内心的困惑。
+【红线约束】：
+1. 绝对严禁断定吉凶、宿命、改运或测算未来事件。
+2. 语言风格温暖、治愈且富有洞察力，从“心态觉察”、“行动契机”、“思维盲区”三个维度展开。
+3. 请以清晰的结构输出：[核心能量定调]、[潜意识投影现状]、[转念与行动启发]。`
+        });
+
+        // 端侧仿真器调试状态
+        const typeSpeed = ref(20);
+        const simulatedUserQuestion = ref('面临职业转折，不知道是该稳定坚守还是迈出全新一步？');
+        const isEnergyDepleted = ref(false);
+        const isFlipped = ref(false);
+        const isShuffling = ref(false);
+        const isStreaming = ref(false);
+        const phoneStreamText = ref('');
+        const showEnergyAlert = ref(false);
+        const showPosterModal = ref(false);
+
+        const todayDate = computed(() => {
+          const d = new Date();
+          return `${d.getFullYear()}.${d.getMonth() + 1}.${d.getDate()}`;
+        });
+
+        // 78 张卡牌代表性资产池 (深度融合 AI-星灵漫步 美学与荣格投射标签)
+        const allCards = ref([
+          {
+            id: 17,
+            roman: "XVII",
+            nameCn: "星星",
+            nameEn: "The Star",
+            icon: "fa-solid fa-wand-magic-sparkles",
+            element: "HOPE & HEALING",
+            categoryType: "major",
+            orientation: "正位",
+            tags: ["希望治愈", "潜能觉醒", "精神蜕变"],
+            quote: "“夜色越是幽暗，星光愈是清冽。保持内在确信。”",
+            category: "心理投射 · 晨曦金",
+            insight: "当下的你正在经历一场无声的精神蜕变，过往困顿的迷雾正在消散。牌面赋予你修复自愈与信任直觉的强大磁场，你内心的犹豫源自对新阶段的敬畏。",
+            challenge: "容易过度为他人提供情绪抚慰，而忽视了自身内在能量蓄水池的枯竭。",
+            guidance: "停止反复反刍无法更改的既定事实。今日适合记录 3 件令你嘴角上扬的细碎小确幸。",
+            affirmation: "“你无需成为任何人的解药，你本身就是一片自由盛开的旷野。”",
+            streamText: `【核心能量定调】：希望重塑 · 灵感觉醒\n\n【潜意识投影现状】\n星星牌的出现，表明你当前的困惑并非来自现实的绝境，而是你内在精神秩序的更新期。过往沉重的包袱正被渐渐放下，你需要的不是急躁地向外证明，而是像静谧夜空中的恒星一样，保持稳定的自我光芒。\n\n【转念与正念行动】\n1. 盲区觉察：你是否把“他人期待的成功”与“内心的安宁”混淆了？\n2. 今日行动：允许自己在做重要决定前有 24 小时的留白思考，信任你第一瞬间的第六感。`
+          },
+          {
+            id: 0,
+            roman: "0",
+            nameCn: "愚者",
+            nameEn: "The Fool",
+            icon: "fa-solid fa-mountain-sun",
+            element: "INFINITE POTENTIAL",
+            categoryType: "major",
+            orientation: "正位",
+            tags: ["无畏启程", "纯粹好奇", "归零重启"],
+            quote: "“迈出第一步的勇气，本身就是最深奥的智慧。”",
+            category: "心灵启示 · 极光绿",
+            insight: "一个崭新的循环正在向你招手。你潜意识中渴望打破现有的枯燥秩序，哪怕前路尚未出现完整的地图。",
+            challenge: "害怕他人的审视与评判，让过多的权衡阻碍了最宝贵的灵感萌芽。",
+            guidance: "把沉重的行囊留在身后，今天允许自己做一件毫无功利心、纯粹由于好奇心驱使的事情。",
+            affirmation: "“未知的风景里，藏着千万个还未被定义的自己。”",
+            streamText: `【核心能量定调】：归零无畏 · 崭新起点\n\n【潜意识投影现状】\n愚者象征着一切可能性的原点。你感知到的焦虑，实则是潜意识对跳出舒适区的兴奋反应。过多的风险权衡正变成沉重的行囊，让你在起跑线前迟疑不决。\n\n【转念与正念行动】\n1. 盲区觉察：没有一次选择能保证 100% 正确，但探索本身就是不可替代的资产。\n2. 今日行动：像孩童一样保有对未知的纯粹好奇，迈出微小但具体的第一步。`
+          },
+          {
+            id: 1,
+            roman: "I",
+            nameCn: "魔术师",
+            nameEn: "The Magician",
+            icon: "fa-solid fa-infinity",
+            element: "MANIFESTATION",
+            categoryType: "major",
+            orientation: "正位",
+            tags: ["资源整合", "创造力量", "知行合一"],
+            quote: "“如其在上，如其在下。你已备齐所需的每一块拼图。”",
+            category: "能量聚焦 · 烈阳橙",
+            insight: "思维处于极其敏锐的高频振荡期，沟通与资源整合能力被激活。适合开启新项目或表达积压已久的方案。",
+            challenge: "想法过于繁杂容易导致精力涣散，需警惕三分钟热度。",
+            guidance: "梳理手头资源，为当下最重要的一个核心目标列出 3 步可落地的微小动作。",
+            affirmation: "“我拥有将意念塑造成现实的充沛力量。”",
+            streamText: `【核心能量定调】：万事俱备 · 借势创造\n\n【潜意识投影现状】\n所有解决当下难题的工具已经摆在你的桌面上。魔术师提示你，你所欠缺的不是能力与储备，而是将现有零散资源整合并付诸行动的决断力。\n\n【转念与正念行动】\n1. 盲区觉察：停止怀疑自己的积累，不完美的原型也远胜于脑海中完美的概念。\n2. 今日行动：将一个萦绕已久的想法，具象化为今天就能完成的一个小闭环。`
+          },
+          {
+            id: 2,
+            roman: "II",
+            nameCn: "女祭司",
+            nameEn: "The High Priestess",
+            icon: "fa-solid fa-moon",
+            element: "INTUITION & DEPTH",
+            categoryType: "major",
+            orientation: "正位",
+            tags: ["直觉内观", "静定自守", "智慧觉察"],
+            quote: "“在喧嚣静止之处，万物的真相自会浮出水面。”",
+            category: "潜意识洞见 · 幽夜蓝",
+            insight: "外部世界的嘈杂让你产生精神内耗，此时答案并不在外界的辩论中，而在你独处时的呼吸与平静里。",
+            challenge: "将敏锐的感知力转化成了隐秘的孤立感，习惯把情绪深藏而不流转。",
+            guidance: "今日安排至少 30 分钟完全远离手机电子屏幕的独处时光，泡一杯热茶，倾听内在声音。",
+            affirmation: "“我的内在拥有汪洋般的平静与深邃智慧。”",
+            streamText: `【核心能量定调】：向内探求 · 答案自现\n\n【潜意识投影现状】\n外界的声音过于嘈杂，遮蔽了你敏锐的本能洞察。女祭司提示你：此刻需要的不是向外抓取建议，而是退回内心的静谧之所。\n\n【转念与正念行动】\n1. 盲区觉察：当思绪陷入纠结时，往往是因为你在用理性推演本属于直觉感知的事情。\n2. 今日行动：给自己的思绪留白，真正的决定早已深植于你的直觉之中。`
+          },
+          {
+            id: 14,
+            roman: "XIV",
+            nameCn: "星币骑士",
+            nameEn: "Knight of Pentacles",
+            icon: "fa-solid fa-coins",
+            element: "PRACTICAL & ROOTED",
+            categoryType: "pentacles",
+            orientation: "正位",
+            tags: ["务实沉稳", "蓄势待发", "耐心根基"],
+            quote: "“沉静者胜于急躁，深根方能结出长青硕果。”",
+            category: "大地根基 · 琥珀褐",
+            insight: "星币骑士表明你当前的潜意识并非畏惧改变，而是在渴望确定性与坚实的落脚点。你内心的犹豫其实是本能的审慎防御。",
+            challenge: "把“完全准备好”当成行动的前提，导致机会在反复推敲中滑过。",
+            guidance: "列出现阶段已沉淀的三项核心优势，带着客观底气去评估新机遇。",
+            affirmation: "“脚步虽慢，土壤坚实，我正平稳扎根于丰盛之中。”",
+            streamText: `【核心能量定调】：沉稳耕耘 · 蓄势待发\n\n【潜意识投影现状】\n星币骑士的出现，表明你当前的潜意识并非抗拒前行，而是在渴望“确定性与坚实的落脚点”。对现状的犹豫，其实源自你内在对草率决策的本能防御——你希望每一步都有清晰的成果回报。\n\n【转念与正念行动】\n1. 盲区觉察：你是否把“准备好”的标准定得过于苛刻，从而把行动延宕成了内耗？\n2. 今日行动：列出你现岗位沉淀下来的核心不可替代资产，脚步虽慢，但土壤坚实。`
+          },
+          {
+            id: 19,
+            roman: "XIX",
+            nameCn: "太阳",
+            nameEn: "The Sun",
+            icon: "fa-regular fa-sun",
+            element: "VITALITY & JOY",
+            categoryType: "major",
+            orientation: "正位",
+            tags: ["充沛活力", "明澈开朗", "自我肯定"],
+            quote: "“阳光普照之处，阴影自然遁形。”",
+            category: "高维丰盛 · 辉煌金",
+            insight: "内在生命力迎来高光时刻。你的真诚与热情具有强烈的感染力，利于团队协作与人际关系破冰。",
+            challenge: "可能因过度乐观而忽视流程细节中潜藏的摩擦力。",
+            guidance: "毫无保留地接纳自己的闪光点，并真诚赞美身边一位伙伴。",
+            affirmation: "“我是自己生命中最温暖且明亮的光源。”",
+            streamText: `【核心能量定调】：明澈开朗 · 活力绽放\n\n【潜意识投影现状】\n太阳牌投射出你内心蓄积已久的积极动能。无论是人际关系还是个人追求，坦荡与真诚是你当下最有力的解题密匙。\n\n【转念与正念行动】\n1. 盲区觉察：无需隐藏自己的喜悦或为了迎合他人而调低光芒。\n2. 今日行动：走到户外沐浴 15 分钟自然光，深呼吸感受充沛的生命力量。`
+          },
+          {
+            id: 4,
+            roman: "IV",
+            nameCn: "皇帝",
+            nameEn: "The Emperor",
+            icon: "fa-solid fa-crown",
+            element: "ORDER & STRUCTURE",
+            categoryType: "major",
+            orientation: "正位",
+            tags: ["秩序建立", "掌控力量", "清晰边界"],
+            quote: "“真正的权威源自自律，而非对外界的强力控制。”",
+            category: "意志架构 · 曜石黑",
+            insight: "渴望在混乱纷繁的事务中确立秩序与规则。是重塑生活节奏、建立明确个人边界的关键时机。",
+            challenge: "容易因追求绝对掌控而陷入刚愎自用或紧绷焦虑。",
+            guidance: "在坚守底线原则的同时，给予过程适度的弹性与包容度。",
+            affirmation: "“我在自律中获得自由，在秩序中从容前行。”",
+            streamText: `【核心能量定调】：秩序建立 · 自主掌控\n\n【潜意识投影现状】\n皇帝牌反映出你对“掌控感”的强烈渴求。面对生活中的不确定性，与其焦虑失控，不如先建立微观的秩序感。\n\n【转念与正念行动】\n1. 盲区觉察：区分“你能改变的”与“你无法干预的”，将精力聚焦于自身边界内。\n2. 今日行动：制定清晰的日程优先级，坚决向一项消耗你精力但不重要的要求说不。`
+          },
+          {
+            id: 21,
+            roman: "II",
+            nameCn: "圣杯二",
+            nameEn: "Two of Cups",
+            icon: "fa-solid fa-heart",
+            element: "CONNECTION & HARMONY",
+            categoryType: "cups",
+            orientation: "正位",
+            tags: ["心灵共鸣", "亲密伙伴", "平等交换"],
+            quote: "“当两颗心在同一频率跳动，孤独便化为力量。”",
+            category: "情感共振 · 绯红粉",
+            insight: "人际与情感能量的良性互动期。双方相互理解、情感与资源平等流动的契机已经到来。",
+            challenge: "过度担忧破坏和谐，导致在表达真实诉求时吞吞吐吐。",
+            guidance: "真诚表达你的感激与需要，平等的连接源于双方的真实袒露。",
+            affirmation: "“我值得拥有被全然看见与深切理解的平等关系。”",
+            streamText: `【核心能量定调】：心灵共振 · 彼此看见\n\n【潜意识投影现状】\n圣杯二的出现象征着情感能量的对流。无论是在亲密关系、职场合作还是挚友交往中，你正在寻求一份深刻的互相托举与共识。\n\n【转念与正念行动】\n1. 盲区觉察：真正的和谐并非毫无摩擦，而是在分歧中依然保有倾听的诚意。\n2. 今日行动：给那位一直默默支持你的伙伴发一段真诚的感谢信息。`
+          }
+        ]);
+
+        // 卡牌分类与筛选
+        const cardCategories = [
+          { id: 'all', name: '全部卡牌', count: 8 },
+          { id: 'major', name: '大阿尔卡那 (精神原型)', count: 6 },
+          { id: 'pentacles', name: '星币族 (物质扎根)', count: 1 },
+          { id: 'cups', name: '圣杯族 (情感共鸣)', count: 1 }
+        ];
+        const selectedCategory = ref('all');
+        const cardSearchQuery = ref('');
+
+        const filteredCards = computed(() => {
+          return allCards.value.filter(card => {
+            const matchCat = selectedCategory.value === 'all' || card.categoryType === selectedCategory.value;
+            const query = cardSearchQuery.value.trim().toLowerCase();
+            const matchQuery = !query || 
+              card.nameCn.toLowerCase().includes(query) || 
+              card.nameEn.toLowerCase().includes(query) || 
+              card.tags.some(t => t.toLowerCase().includes(query));
+            return matchCat && matchQuery;
+          });
+        });
+
+        // 沙盒测试选项
+        const cardOptions = computed(() => allCards.value.slice(0, 4));
+        const selectedCard = ref(allCards.value[0]);
+
+        // 3D 弹窗预览状态
+        const showCardPreviewModal = ref(false);
+        const previewModalCard = ref(allCards.value[0]);
+        const isModalCardFlipped = ref(false);
+        const isModalShuffling = ref(false);
+
+        const openCardPreviewModal = (card) => {
+          previewModalCard.value = card;
+          isModalCardFlipped.value = false;
+          showCardPreviewModal.value = true;
+        };
+
+        const triggerModalShuffle = () => {
+          isModalCardFlipped.value = false;
+          isModalShuffling.value = true;
+          setTimeout(() => {
+            isModalShuffling.value = false;
+            setTimeout(() => {
+              isModalCardFlipped.value = true;
+            }, 150);
+          }, 600);
+        };
+
+        const loadCardToSandbox = (card) => {
+          selectedCard.value = card;
+          currentTab.value = 'ai-orchestration';
+          isFlipped.value = false;
+          phoneStreamText.value = '';
+          showSaveToastMsg(`已将【${card.nameCn}】载入 AI 编排沙盒！`);
+        };
+
+        const selectCard = (card) => {
+          selectedCard.value = card;
+          if (isFlipped.value) {
+            triggerPhoneDraw();
+          }
+        };
+
+        const toggleCardFlip = () => {
+          if (!isFlipped.value) {
+            triggerPhoneDraw();
+          } else {
+            isFlipped.value = false;
+            phoneStreamText.value = '';
+          }
+        };
+
+        // 在端侧手机中触发抽牌与流式解牌
+        const triggerPhoneDraw = () => {
+          if (isEnergyDepleted.value) {
+            showEnergyAlert.value = true;
+            return;
+          }
+
+          // 触发洗牌与翻转动画
+          isFlipped.value = false;
+          isShuffling.value = true;
+          isStreaming.value = true;
+          phoneStreamText.value = '';
+
+          setTimeout(() => {
+            isShuffling.value = false;
+            isFlipped.value = true;
+
+            // 审核模式 vs 全量模式文案
+            const fullText = systemConfig.value.isInReview 
+              ? `【今日心灵定调】：平整心境 · 观照自我\n\n清晨抽取【${selectedCard.value.nameCn}】，愿你拥有一份沉稳笃定的力量。无论外界节奏如何变幻，保持内心的自如与安宁。\n\n【今日正念便签】：接纳生活中的留白，给自己一句由衷的感谢。`
+              : selectedCard.value.streamText;
+
+            let idx = 0;
+            const timer = setInterval(() => {
+              if (idx < fullText.length) {
+                phoneStreamText.value += fullText[idx];
+                idx++;
+              } else {
+                clearInterval(timer);
+                isStreaming.value = false;
+              }
+            }, typeSpeed.value);
+          }, 600);
+        };
+
+        const resetSimulator = () => {
+          isFlipped.value = false;
+          isShuffling.value = false;
+          isStreaming.value = false;
+          phoneStreamText.value = '';
+          showEnergyAlert.value = false;
+          showPosterModal.value = false;
+        };
+
+        const toggleEnergyDepleted = () => {
+          isEnergyDepleted.value = !isEnergyDepleted.value;
+        };
+
+        const simulateShareSuccess = () => {
+          showEnergyAlert.value = false;
+          isEnergyDepleted.value = false;
+          alert('🎉 微信好友已成功打开分享卡，能量充盈成功（+1 点）！现在可以翻牌了。');
+        };
+
+        const simulateAdWatch = () => {
+          showEnergyAlert.value = false;
+          isEnergyDepleted.value = false;
+          alert('🎬 15 秒激励视频广告已模拟完播，获得 1 点今日觉察能量！');
+        };
+
+        const showSaveToast = () => {
+          alert('✅ 策略配置已成功持久化至 Redis 集群，全网边缘节点已生效！');
+        };
+
+        const showSaveToastMsg = (msg) => {
+          alert(msg);
+        };
+
+        // 演示日志
+        const activityLogs = ref([
+          { userId: 'u_8912x', cardName: '星星', orientation: '正位', theme: '自我成长', isFree: true, latency: 480, time: '1 分钟前' },
+          { userId: 'u_1029a', cardName: '圣杯二', orientation: '正位', theme: '亲密关系', isFree: false, latency: 512, time: '3 分钟前' },
+          { userId: 'u_3819k', cardName: '星币骑士', orientation: '正位', theme: '职业瓶颈', isFree: true, latency: 430, time: '5 分钟前' },
+          { userId: 'u_7721m', cardName: '女祭司', orientation: '正位', theme: '情绪内耗', isFree: true, latency: 490, time: '8 分钟前' }
+        ]);
+
+        return {
+          currentTab,
+          menuItems,
+          currentTabName,
+          systemConfig,
+          aiConfig,
+          typeSpeed,
+          simulatedUserQuestion,
+          isEnergyDepleted,
+          isFlipped,
+          isShuffling,
+          isStreaming,
+          phoneStreamText,
+          showEnergyAlert,
+          showPosterModal,
+          todayDate,
+          allCards,
+          cardCategories,
+          selectedCategory,
+          cardSearchQuery,
+          filteredCards,
+          cardOptions,
+          selectedCard,
+          showCardPreviewModal,
+          previewModalCard,
+          isModalCardFlipped,
+          isModalShuffling,
+          openCardPreviewModal,
+          triggerModalShuffle,
+          loadCardToSandbox,
+          selectCard,
+          toggleCardFlip,
+          triggerPhoneDraw,
+          resetSimulator,
+          toggleEnergyDepleted,
+          simulateShareSuccess,
+          simulateAdWatch,
+          showSaveToast,
+          showSaveToastMsg,
+          activityLogs
+        };
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>

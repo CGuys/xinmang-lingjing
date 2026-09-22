@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>星灵漫步 · AI 心灵能量投射与动态海报生成器</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Noto+Serif+SC:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    body {
+      font-family: 'Noto Serif SC', serif;
+      background: radial-gradient(circle at 50% 20%, #1e1b4b 0%, #0c0a1a 60%, #05040a 100%);
+      color: #e2e8f0;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    .font-cinzel {
+      font-family: 'Cinzel', serif;
+    }
+    
+    /* 3D 舞台环境设置 */
+    .card-perspective-stage {
+      perspective: 1200px;
+    }
+    
+    /* 3D 翻转卡牌容器 */
+    .tarot-card-inner {
+      transform-style: preserve-3d;
+      transition: transform 0.85s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    
+    .tarot-card-inner.is-flipped {
+      transform: rotateY(180deg);
+    }
+
+    /* 3D 洗牌振动动画 */
+    @keyframes shuffleShake {
+      0% { transform: translateY(0) rotate(0deg); }
+      20% { transform: translateY(-16px) rotate(-6deg) scale(0.96); }
+      40% { transform: translateY(12px) rotate(5deg) scale(1.02); }
+      60% { transform: translateY(-8px) rotate(-3deg); }
+      80% { transform: translateY(4px) rotate(2deg); }
+      100% { transform: translateY(0) rotate(0deg); }
+    }
+    .is-shuffling {
+      animation: shuffleShake 0.6s ease-in-out;
+    }
+
+    /* 卡牌正反两面共享样式 */
+    .card-face {
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+
+    /* 卡牌正面 (翻转后展示) */
+    .card-face-front {
+      transform: rotateY(180deg);
+    }
+
+    /* 金色流光边框与文字效果 */
+    .gold-gradient-text {
+      background: linear-gradient(135deg, #fef08a 0%, #d4af37 40%, #facc15 70%, #ca8a04 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .gold-border {
+      border: 1px solid rgba(212, 175, 55, 0.45);
+      box-shadow: 0 0 25px rgba(212, 175, 55, 0.15), inset 0 0 15px rgba(212, 175, 55, 0.1);
+    }
+
+    /* 星芒闪烁微光动画 */
+    @keyframes cosmicGlow {
+      0%, 100% { opacity: 0.3; transform: scale(1); }
+      50% { opacity: 0.75; transform: scale(1.08); }
+    }
+    .cosmic-pulse {
+      animation: cosmicGlow 4s ease-in-out infinite;
+    }
+
+    /* 自定义滚动条 */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.6);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(212, 175, 55, 0.3);
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="selection:bg-amber-500/30 selection:text-amber-200">
+
+  <header class="border-b border-amber-900/30 backdrop-blur-md bg-slate-950/40 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-600 to-indigo-600 flex items-center justify-center text-amber-200 shadow-lg shadow-amber-500/10 border border-amber-400/30">
+          <i class="fa-solid fa-moon-stars text-lg"></i>
+        </div>
+        <div>
+          <h1 class="text-lg sm:text-xl font-bold tracking-wider gold-gradient-text flex items-center gap-2">
+            星灵漫步 <span class="text-xs uppercase tracking-widest px-2 py-0.5 rounded-full border border-amber-500/30 text-amber-300 font-cinzel">AI Oracle</span>
+          </h1>
+          <p class="text-xs text-slate-400">微信小程序 3D 抽牌翻转与动态海报全栈实验室</p>
+        </div>
+      </div>
+      
+      <!-- 视图切换模式 -->
+      <div class="flex bg-slate-900/80 p-1 rounded-xl border border-slate-800">
+        <button id="tabDemoBtn" onclick="switchView('demo')" class="px-4 py-1.5 text-xs sm:text-sm font-medium rounded-lg transition-all bg-amber-500/20 text-amber-200 border border-amber-500/30 shadow-sm flex items-center gap-2">
+          <i class="fa-solid fa-wand-magic-sparkles"></i> 交互预览 & 海报
+        </button>
+        <button id="tabCodeBtn" onclick="switchView('code')" class="px-4 py-1.5 text-xs sm:text-sm font-medium rounded-lg transition-all text-slate-400 hover:text-slate-200 flex items-center gap-2">
+          <i class="fa-solid fa-code"></i> 小程序源码与避坑指南
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主内容区 -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+
+    <section id="demoSection" class="space-y-10">
+      
+      <!-- 状态指示横幅 -->
+      <div class="text-center max-w-2xl mx-auto space-y-2">
+        <span class="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-amber-300 bg-amber-950/60 px-3 py-1 rounded-full border border-amber-700/50">
+          <i class="fa-solid fa-sparkles"></i> 荣格潜意识心理投射模型
+        </span>
+        <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-slate-100">
+          静心默念问题，抽取今日共鸣能量
+        </h2>
+        <p class="text-sm text-slate-400">
+          体验纯 CSS3 3D 空间矩阵变换与拟真卡牌触感，AI 洞见输出后可一键由小程序 Canvas 2D 绘制高清分享长图。
+        </p>
+      </div>
+
+      <!-- 核心交互区：左侧 3D 牌桌，右侧解牌报告与海报面板 -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        <!-- 左侧：3D 牌桌展示与互动 -->
+        <div class="lg:col-span-5 flex flex-col items-center justify-center p-6 sm:p-8 bg-slate-900/50 rounded-3xl border border-slate-800/80 backdrop-blur relative overflow-hidden shadow-2xl">
+          <!-- 背景星图氛围装饰 -->
+          <div class="absolute -top-24 -left-24 w-72 h-72 rounded-full bg-indigo-600/10 filter blur-3xl cosmic-pulse pointer-events-none"></div>
+          <div class="absolute -bottom-24 -right-24 w-72 h-72 rounded-full bg-amber-500/10 filter blur-3xl cosmic-pulse pointer-events-none"></div>
+
+          <!-- 3D 视界舞台 -->
+          <div class="card-perspective-stage w-64 h-[380px] sm:w-72 sm:h-[420px] relative my-4 cursor-pointer select-none" onclick="toggleCardFlip()">
+            <div id="tarotCardInner" class="tarot-card-inner w-full h-full relative rounded-2xl shadow-2xl">
+              
+              <!-- 卡牌背面 (Card Back) -->
+              <div class="card-face absolute inset-0 w-full h-full rounded-2xl bg-gradient-to-b from-[#13112c] to-[#0a0718] gold-border p-3 flex flex-col items-center justify-between overflow-hidden">
+                <!-- 内部双层花边 -->
+                <div class="w-full h-full border border-amber-500/30 rounded-xl p-2.5 flex flex-col items-center justify-between relative">
+                  <!-- 四角古典花饰 -->
+                  <div class="absolute top-1 left-1 text-amber-500/60 text-xs">❖</div>
+                  <div class="absolute top-1 right-1 text-amber-500/60 text-xs">❖</div>
+                  <div class="absolute bottom-1 left-1 text-amber-500/60 text-xs">❖</div>
+                  <div class="absolute bottom-1 right-1 text-amber-500/60 text-xs">❖</div>
+
+                  <!-- 顶部微标 -->
+                  <div class="text-[10px] font-cinzel text-amber-400/70 tracking-widest pt-2">ARCANA LABS</div>
+
+                  <!-- 背面中心曼陀罗星盘 -->
+                  <div class="w-36 h-36 rounded-full border border-dashed border-amber-500/40 flex items-center justify-center relative my-auto">
+                    <div class="w-28 h-28 rounded-full border border-amber-400/30 flex items-center justify-center animate-spin" style="animation-duration: 25s;">
+                      <i class="fa-regular fa-sun text-4xl text-amber-400/60"></i>
+                    </div>
+                    <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                      <i class="fa-solid fa-gem text-amber-300/40 text-xl"></i>
+                    </div>
+                  </div>
+
+                  <!-- 底部提示文字 -->
+                  <div class="text-center pb-2">
+                    <p class="text-xs text-amber-200/90 font-medium flex items-center justify-center gap-1">
+                      <i class="fa-solid fa-hand-pointer text-amber-400 text-xs animate-bounce"></i> 点击翻转觉察
+                    </p>
+                    <span class="text-[10px] text-slate-400">TOUCH TO REVEAL</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 卡牌正面 (Card Front - 翻转后可见) -->
+              <div class="card-face card-face-front absolute inset-0 w-full h-full rounded-2xl bg-gradient-to-b from-slate-900 via-indigo-950 to-slate-950 gold-border p-4 flex flex-col items-center justify-between text-center overflow-hidden">
+                <div class="w-full h-full border border-amber-500/30 rounded-xl p-3 flex flex-col items-center justify-between relative bg-black/20">
+                  
+                  <!-- 顶部卡牌序号与名称 -->
+                  <div class="pt-1">
+                    <span id="displayCardRoman" class="text-[11px] font-cinzel text-amber-400/80 tracking-widest">XVII</span>
+                    <h3 id="displayCardName" class="text-lg font-bold text-amber-100 tracking-wider">星星 · The Star</h3>
+                  </div>
+
+                  <!-- 牌面插画图标区 -->
+                  <div class="w-28 h-28 rounded-2xl bg-gradient-to-tr from-amber-500/20 via-indigo-500/10 to-transparent border border-amber-400/30 flex items-center justify-center relative shadow-inner my-2">
+                    <i id="displayCardIcon" class="fa-solid fa-wand-magic-sparkles text-5xl text-amber-300 drop-shadow-[0_0_12px_rgba(251,191,36,0.6)]"></i>
+                    <span id="displayCardElement" class="absolute -bottom-2 px-2.5 py-0.5 rounded-full bg-slate-900 border border-amber-500/40 text-[10px] text-amber-300 font-cinzel">
+                      HOPE & HEALING
+                    </span>
+                  </div>
+
+                  <!-- 关键词与能量状态 -->
+                  <div class="w-full space-y-1.5 pb-1">
+                    <div class="flex items-center justify-center gap-2">
+                      <span class="text-xs text-slate-300 bg-indigo-950/80 px-2 py-0.5 rounded border border-indigo-500/30" id="displayCardKeyword">希望 / 潜能觉醒</span>
+                    </div>
+                    <p class="text-[11px] text-slate-300 line-clamp-2 px-2 italic" id="displayCardShortQuote">
+                      "夜色越是幽暗，星光愈是清冽。保持内在确信。"
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- 控制按钮组 -->
+          <div class="flex flex-wrap gap-3 mt-4 w-full justify-center">
+            <button onclick="shuffleAndDraw()" class="flex-1 max-w-[150px] py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-slate-950 font-bold text-xs sm:text-sm tracking-wide shadow-lg shadow-amber-600/20 flex items-center justify-center gap-2 active:scale-95 transition-all">
+              <i class="fa-solid fa-arrows-rotate"></i> 重新洗牌
+            </button>
+            <button onclick="toggleCardFlip()" class="flex-1 max-w-[150px] py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-200 border border-amber-500/30 text-xs sm:text-sm font-medium flex items-center justify-center gap-2 active:scale-95 transition-all">
+              <i class="fa-solid fa-repeat"></i> 翻转卡牌
+            </button>
+          </div>
+          <p class="text-[11px] text-slate-400 mt-3 flex items-center gap-1.5">
+            <i class="fa-regular fa-lightbulb text-amber-400"></i> 支持触摸/点击，使用 CSS preserve-3d 原生硬件加速
+          </p>
+        </div>
+
+        <!-- 右侧：AI 结构化解读输出 & 海报生成器 -->
+        <div class="lg:col-span-7 space-y-6">
+          
+          <!-- AI 流式解牌报告卡片 -->
+          <div class="bg-slate-900/60 rounded-3xl border border-slate-800 p-6 backdrop-blur shadow-xl relative">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-4">
+              <div class="flex items-center gap-2.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <h4 class="font-bold text-slate-200 text-base flex items-center gap-2">
+                  <i class="fa-solid fa-sparkles text-amber-400"></i> AI 投射能量解读报告
+                </h4>
+              </div>
+              <span id="readingCategoryTag" class="text-xs bg-amber-500/10 text-amber-300 border border-amber-500/20 px-2.5 py-1 rounded-full">
+                心理投射 · 晨曦金
+              </span>
+            </div>
+
+            <!-- 结构化报告详情 -->
+            <div class="space-y-4 text-sm leading-relaxed">
+              <div class="bg-slate-950/40 p-3.5 rounded-xl border border-slate-800/80">
+                <span class="text-xs font-semibold text-amber-300 flex items-center gap-1.5 mb-1">
+                  <i class="fa-solid fa-compass"></i> 【核心洞见 · Core Insight】
+                </span>
+                <p id="reportInsight" class="text-slate-300 text-xs sm:text-sm">
+                  当下的你正在经历一场无声的精神蜕变，过往困顿的迷雾正在消散。牌面赋予你修复自愈与信任直觉的强大磁场。
+                </p>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div class="bg-slate-950/40 p-3 rounded-xl border border-slate-800/80">
+                  <span class="text-xs font-semibold text-indigo-300 flex items-center gap-1.5 mb-1">
+                    <i class="fa-solid fa-eye"></i> 【潜在盲区】
+                  </span>
+                  <p id="reportChallenge" class="text-slate-300 text-xs">
+                    容易过度为他人提供情绪抚慰，而忽视了自身内在能量蓄水池的枯竭。
+                  </p>
+                </div>
+                <div class="bg-slate-950/40 p-3 rounded-xl border border-slate-800/80">
+                  <span class="text-xs font-semibold text-teal-300 flex items-center gap-1.5 mb-1">
+                    <i class="fa-solid fa-feather-pointed"></i> 【行动指南】
+                  </span>
+                  <p id="reportGuidance" class="text-slate-300 text-xs">
+                    停止反复复盘既定事实。今日适合记录 3 件令你嘴角上扬的细碎小确幸。
+                  </p>
+                </div>
+              </div>
+
+              <div class="border-l-2 border-amber-400 pl-3 py-1 text-xs text-amber-200/90 italic bg-amber-500/5 rounded-r">
+                <span class="font-bold not-italic">今日赋能金句：</span>
+                <span id="reportAffirmation">“你无需成为任何人的解药，你本身就是一片自由盛开的旷野。”</span>
+              </div>
+            </div>
+
+            <!-- 触发海报绘制按钮 -->
+            <div class="mt-6 pt-4 border-t border-slate-800 flex flex-wrap items-center justify-between gap-4">
+              <div class="text-xs text-slate-400">
+                <i class="fa-solid fa-circle-check text-emerald-400 mr-1"></i> 已注入双重防刷与敏感词过滤凭证
+              </div>
+              <button id="btnGeneratePoster" onclick="renderCanvasPoster()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-400 hover:to-yellow-500 text-slate-950 font-bold text-xs sm:text-sm tracking-wide shadow-lg shadow-amber-500/20 flex items-center gap-2 active:scale-95 transition-all">
+                <i class="fa-solid fa-image"></i> 模拟 Canvas 2D 绘制海报
+              </button>
+            </div>
+          </div>
+
+          <!-- 模拟小程序原生 Canvas 渲染画板与导出区 -->
+          <div id="canvasPreviewBox" class="bg-slate-900/40 rounded-3xl border border-slate-800 p-6 backdrop-blur space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <h5 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+                  <i class="fa-solid fa-paintbrush text-amber-400"></i> 小程序 Canvas 2D 实时绘图渲染引擎
+                </h5>
+                <p class="text-xs text-slate-400">高保真 2x DPI 抗锯齿渲染 · 自动折行 · 金粉背景与圆形小程序码</p>
+              </div>
+              <button onclick="downloadPosterImage()" id="btnDownloadPoster" class="hidden px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium flex items-center gap-1.5 transition-all shadow">
+                <i class="fa-solid fa-download"></i> 导出长图
+              </button>
+            </div>
+
+            <!-- 虚拟 Canvas 容器 -->
+            <div class="flex justify-center p-3 bg-black/40 rounded-2xl border border-slate-800/80 overflow-auto">
+              <canvas id="posterCanvas" width="750" height="1334" class="max-w-[280px] sm:max-w-[320px] h-auto rounded-xl shadow-2xl border border-amber-500/30"></canvas>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <section id="codeSection" class="hidden space-y-8">
+      
+      <div class="max-w-3xl mx-auto text-center space-y-2">
+        <h2 class="text-2xl font-bold text-slate-100 flex items-center justify-center gap-2">
+          <i class="fa-brands fa-weixin text-emerald-400"></i> 微信小程序 / Uni-app 原生实战工程规范
+        </h2>
+        <p class="text-sm text-slate-400">
+          基于最新 <strong>Canvas 2D (Type="2d")</strong> 接口与原生 3D CSS 硬件加速方案，直接复制即可接入生产项目。
+        </p>
+      </div>
+
+      <!-- 代码面板选项卡 -->
+      <div class="bg-slate-900/70 rounded-2xl border border-slate-800 overflow-hidden shadow-2xl">
+        <div class="flex flex-wrap border-b border-slate-800 bg-slate-950/60 p-2 gap-2">
+          <button onclick="selectCodeTab('wxml')" id="codeTab-wxml" class="px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all bg-amber-500/20 text-amber-200 border border-amber-500/30">
+            WXML 结构 (3D舞台 & Canvas)
+          </button>
+          <button onclick="selectCodeTab('wxss')" id="codeTab-wxss" class="px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all text-slate-400 hover:text-slate-200">
+            WXSS 3D 核心样式 (防穿透与硬件加速)
+          </button>
+          <button onclick="selectCodeTab('canvas')" id="codeTab-canvas" class="px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all text-slate-400 hover:text-slate-200">
+            JS: Canvas 2D 绘图与自动换行算法
+          </button>
+          <button onclick="selectCodeTab('tips')" id="codeTab-tips" class="px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all text-slate-400 hover:text-slate-200">
+            ⚠️ 审核避坑与性能风控
+          </button>
+        </div>
+
+        <!-- 代码内容块 -->
+        <div class="p-4 sm:p-6 relative">
+          <button onclick="copyCurrentCodeSnippet()" class="absolute top-4 right-4 px-3 py-1.5 rounded-md bg-slate-800 hover:bg-slate-700 text-amber-200 text-xs flex items-center gap-1.5 border border-slate-700">
+            <i class="fa-regular fa-copy"></i> 复制代码
+          </button>
+
+          <!-- WXML -->
+          <div id="codeSnippet-wxml" class="block">
+            <pre class="text-xs sm:text-sm text-slate-300 font-mono overflow-x-auto p-2 leading-relaxed"><code>&lt;!-- 1. 3D 抽牌舞台容器 --&gt;
+&lt;view class="card-stage" bindtap="onFlipCard"&gt;
+  &lt;view class="card-inner {{ isFlipped ? 'is-flipped' : '' }} {{ isShuffling ? 'is-shuffling' : '' }}"&gt;
+    
+    &lt;!-- 卡牌背面 (未翻开) --&gt;
+    &lt;view class="card-face card-back"&gt;
+      &lt;view class="mandala-pattern"&gt;
+        &lt;image class="rotate-star" src="/static/icon-star.png" mode="aspectFit" /&gt;
+        &lt;text class="tap-hint"&gt;轻触觉察深层能量&lt;/text&gt;
+      &lt;/view&gt;
+    &lt;/view&gt;
+
+    &lt;!-- 卡牌正面 (翻开后展示) --&gt;
+    &lt;view class="card-face card-front"&gt;
+      &lt;view class="card-header"&gt;
+        &lt;text class="card-roman"&gt;{{ cardData.roman }}&lt;/text&gt;
+        &lt;text class="card-title"&gt;{{ cardData.name }}&lt;/text&gt;
+      &lt;/view&gt;
+      &lt;image class="card-illus" src="{{ cardData.image }}" mode="aspectFit" /&gt;
+      &lt;text class="card-keyword"&gt;{{ cardData.keyword }}&lt;/text&gt;
+    &lt;/view&gt;
+
+  &lt;/view&gt;
+&lt;/view&gt;
+
+&lt;!-- 2. 新版 Canvas 2D 节点 (千万不要用旧版 canvas-id) --&gt;
+&lt;view class="canvas-wrapper"&gt;
+  &lt;canvas type="2d" id="posterCanvas" class="poster-canvas"&gt;&lt;/canvas&gt;
+&lt;/view&gt;
+
+&lt;!-- 底部按钮 --&gt;
+&lt;button class="btn-share" bindtap="generatePoster"&gt;生成朋友圈高光能量卡&lt;/button&gt;</code></pre>
+          </div>
+
+          <!-- WXSS -->
+          <div id="codeSnippet-wxss" class="hidden">
+            <pre class="text-xs sm:text-sm text-slate-300 font-mono overflow-x-auto p-2 leading-relaxed"><code>/* 开启 3D 透视视距 */
+.card-stage {
+  perspective: 1200rpx;
+  width: 520rpx;
+  height: 780rpx;
+  margin: 40rpx auto;
+}
+
+/* 3D 变换容器与平滑过渡 */
+.card-inner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+  will-change: transform; /* 触发 GPU 硬件加速合成层 */
+}
+
+/* 翻牌角度 */
+.card-inner.is-flipped {
+  transform: rotateY(180deg);
+}
+
+/* 卡牌两面共性：隐藏背面反光 */
+.card-face {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 28rpx;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden; /* 兼容 iOS Safari 内核 */
+  box-sizing: border-box;
+}
+
+/* 正面需预设翻转 180 度 */
+.card-front {
+  transform: rotateY(180deg);
+  background: linear-gradient(180deg, #16192b 0%, #0c0a17 100%);
+  border: 2rpx solid rgba(212, 175, 55, 0.5);
+  box-shadow: 0 10rpx 40rpx rgba(0, 0, 0, 0.6);
+}
+
+/* 背面古典纹路 */
+.card-back {
+  background: linear-gradient(180deg, #1a1735 0%, #0d091e 100%);
+  border: 2rpx solid rgba(212, 175, 55, 0.4);
+}
+
+/* 隐藏离屏用于绘制海报的 canvas (避免遮挡) */
+.canvas-wrapper {
+  position: fixed;
+  left: -9999rpx;
+  top: 0;
+}
+.poster-canvas {
+  width: 750px;
+  height: 1334px;
+}</code></pre>
+          </div>
+
+          <!-- JS / Canvas 2D -->
+          <div id="codeSnippet-canvas" class="hidden">
+            <pre class="text-xs sm:text-sm text-slate-300 font-mono overflow-x-auto p-2 leading-relaxed"><code>// 微信小程序原生 Canvas 2D 导出海报完整示范
+Page({
+  data: {
+    isFlipped: false,
+    cardData: {
+      roman: "XVII",
+      name: "星星 (The Star)",
+      keyword: "内在治愈 · 灵感觉醒",
+      insight: "过往困顿的迷雾正在消散。当下的你正在经历精神蜕变，请彻底信任你的内在直觉。",
+      affirmation: "你无需成为任何人的解药，你本身就是一片自由旷野。"
+    }
+  },
+
+  // 翻牌交互
+  onFlipCard() {
+    this.setData({ isFlipped: !this.data.isFlipped });
+  },
+
+  // 生成海报入口
+  async generatePoster() {
+    wx.showLoading({ title: '正在绘制灵性能量卡...' });
+
+    const query = wx.createSelectorQuery();
+    query.select('#posterCanvas')
+      .fields({ node: true, size: true })
+      .exec(async (res) => {
+        if (!res[0] || !res[0].node) {
+          wx.hideLoading();
+          return;
+        }
+
+        const canvas = res[0].node;
+        const ctx = canvas.getContext('2d');
+        const dpr = wx.getSystemInfoSync().pixelRatio || 2;
+
+        // 设置真实物理像素抗锯齿 (750 x 1334 标准海报尺寸)
+        const width = 750;
+        const height = 1334;
+        canvas.width = width * dpr;
+        canvas.height = height * dpr;
+        ctx.scale(dpr, dpr);
+
+        // 1. 绘制星空暗调渐变背景
+        const bgGrad = ctx.createLinearGradient(0, 0, 0, height);
+        bgGrad.addColorStop(0, '#100e24');
+        bgGrad.addColorStop(0.5, '#070611');
+        bgGrad.addColorStop(1, '#020108');
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, width, height);
+
+        // 2. 绘制金色流光边框
+        ctx.strokeStyle = 'rgba(212, 175, 55, 0.4)';
+        ctx.lineWidth = 4;
+        ctx.strokeRect(36, 36, width - 72, height - 72);
+
+        // 3. 绘制卡片标题
+        ctx.fillStyle = '#fef08a';
+        ctx.font = 'bold 36px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText("『 今日心灵投射报告 』", width / 2, 130);
+
+        // 4. 绘制牌面核心能量词
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 48px sans-serif';
+        ctx.fillText(this.data.cardData.name, width / 2, 230);
+
+        ctx.fillStyle = '#d4af37';
+        ctx.font = '26px sans-serif';
+        ctx.fillText(`【 ${this.data.cardData.keyword} 】`, width / 2, 285);
+
+        // 5. 自动换行绘制 AI 洞见正文
+        ctx.fillStyle = '#cbd5e1';
+        ctx.font = '28px sans-serif';
+        ctx.textAlign = 'left';
+        this.drawWrappedText(ctx, this.data.cardData.insight, 80, 420, 590, 48);
+
+        // 6. 绘制金句引用框
+        ctx.fillStyle = 'rgba(212, 175, 55, 0.08)';
+        ctx.fillRect(80, 680, 590, 160);
+        ctx.strokeStyle = 'rgba(212, 175, 55, 0.3)';
+        ctx.strokeRect(80, 680, 590, 160);
+
+        ctx.fillStyle = '#fde68a';
+        ctx.font = 'italic 26px sans-serif';
+        this.drawWrappedText(ctx, `“${this.data.cardData.affirmation}”`, 110, 740, 530, 42);
+
+        // 7. 绘制底部圆形小程序码与作者引导
+        // (注：真实项目通过 wx.getImageInfo 先缓存服务端生成的 SunCode 小程序码临时路径)
+        this.drawCircleQRCode(ctx, width / 2, 1060, 80);
+
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '22px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText("长按识别小程序 · 探索你的深层潜意识", width / 2, 1200);
+
+        // 8. 导出临时文件并唤起保存到相册
+        wx.canvasToTempFilePath({
+          canvas,
+          success: (fileRes) => {
+            wx.hideLoading();
+            wx.saveImageToPhotosAlbum({
+              filePath: fileRes.tempFilePath,
+              success: () => wx.showToast({ title: '已保存至相册' })
+            });
+          }
+        });
+      });
+  },
+
+  // 核心工具：Canvas 文本自动测量折行算法
+  drawWrappedText(ctx, text, x, y, maxWidth, lineHeight) {
+    let words = text.split('');
+    let line = '';
+    for (let n = 0; n < words.length; n++) {
+      let testLine = line + words[n];
+      let metrics = ctx.measureText(testLine);
+      if (metrics.width > maxWidth && n > 0) {
+        ctx.fillText(line, x, y);
+        line = words[n];
+        y += lineHeight;
+      } else {
+        line = testLine;
+      }
+    }
+    ctx.fillText(line, x, y);
+  },
+
+  // 绘制圆形小程序码占位
+  drawCircleQRCode(ctx, x, y, radius) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.strokeStyle = '#d4af37';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    ctx.fillStyle = '#1e1b4b';
+    ctx.fill();
+    ctx.fillStyle = '#facc15';
+    ctx.font = '20px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('小程序码', x, y + 8);
+    ctx.restore();
+  }
+});</code></pre>
+          </div>
+
+          <!-- Tips -->
+          <div id="codeSnippet-tips" class="hidden">
+            <div class="space-y-4 text-xs sm:text-sm text-slate-300">
+              <div class="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30">
+                <h6 class="font-bold text-amber-300 mb-1 flex items-center gap-1.5">
+                  <i class="fa-solid fa-triangle-exclamation"></i> 1. 微信审核“迷信红线”必坑准则
+                </h6>
+                <p class="text-xs text-slate-300 leading-relaxed">
+                  严禁出现“算命、八字合婚、凶吉测算、改运转运”等词汇。必须在小程序所有页面包装为<strong>“心理学潜意识投射”、“心灵疗愈卡片”、“每日灵感便签”</strong>，并在显著位置注明：<em>“本测试仅供娱乐与心理纾压，不构成任何现实指导建议”</em>。
+                </p>
+              </div>
+
+              <div class="p-4 rounded-xl bg-indigo-500/10 border border-indigo-500/30">
+                <h6 class="font-bold text-indigo-300 mb-1 flex items-center gap-1.5">
+                  <i class="fa-solid fa-microchip"></i> 2. Canvas 2D 导出模糊或白屏解决方案
+                </h6>
+                <ul class="list-disc list-inside text-xs space-y-1 text-slate-300">
+                  <li>必须使用 <code class="text-amber-200">wx.getSystemInfoSync().pixelRatio</code> 给 Canvas 物理尺寸乘上 dpr，再用 <code class="text-amber-200">ctx.scale(dpr, dpr)</code> 缩放，否则在 Retina 视网膜屏上导出海报字迹必然严重发虚。</li>
+                  <li>外部网络图片（如用户微信头像、动态小程序码）绘制前，<strong>必须先经过 <code class="text-amber-200">wx.downloadFile</code> 或 <code class="text-amber-200">wx.getImageInfo</code> 下载为本地临时路径</strong>，并配置微信公众平台的合法 downloadFile 白名单域名。</li>
+                </ul>
+              </div>
+
+              <div class="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30">
+                <h6 class="font-bold text-emerald-300 mb-1 flex items-center gap-1.5">
+                  <i class="fa-solid fa-shield-halved"></i> 3. 激励视频变现与防刷机制
+                </h6>
+                <p class="text-xs text-slate-300 leading-relaxed">
+                  前端监听激励视频 <code class="text-amber-200">rewardedVideoAd.onClose(res => res.isEnded)</code> 极易被抓包篡改。商业化必须开启微信<strong>“激励视频服务端回调 (Server-to-Server)”</strong>，由微信官方服务器直连开发者 Go/Node.js 后端加点，彻底杜绝外挂刷算力。
+                </p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <script>
+    // 经典塔罗数据池 (带荣格心理投射风格包装)
+    const TAROT_CARDS = [
+      {
+        roman: "XVII",
+        name: "星星 · The Star",
+        icon: "fa-solid fa-wand-magic-sparkles",
+        element: "HOPE & HEALING",
+        keyword: "希望 / 潜能觉醒",
+        quote: "“夜色越是幽暗，星光愈是清冽。保持内在确信。”",
+        category: "心理投射 · 晨曦金",
+        insight: "当下的你正在经历一场无声的精神蜕变，过往困顿的迷雾正在消散。牌面赋予你自我修复与信任直觉的强大共鸣磁场。",
+        challenge: "容易过度为他人提供情绪抚慰，而忽视了自身内在能量蓄水池的补给。",
+        guidance: "停止反复反刍无法更改的既定事实。今日适合记录 3 件令你嘴角上扬的细碎小确幸。",
+        affirmation: "“你无需成为任何人的解药，你本身就是一片自由盛开的旷野。”"
+      },
+      {
+        roman: "0",
+        name: "愚者 · The Fool",
+        icon: "fa-solid fa-mountain-sun",
+        element: "INFINITE POTENTIAL",
+        keyword: "破局 / 赤子之心",
+        quote: "“迈出第一步的勇气，本身就是最深奥的智慧。”",
+        category: "心灵启示 · 极光绿",
+        insight: "一个崭新的循环正在向你招手。你潜意识中渴望打破现有的枯燥秩序，哪怕前路尚未出现完整的地图。",
+        challenge: "害怕他人的审视与评判，让犹豫阻碍了最宝贵的直觉灵感。",
+        guidance: "把包袱抛在脑后，今天允许自己做一件毫无功利心、纯粹由于好奇心驱使的事情。",
+        affirmation: "“未知的风景里，藏着千万个还未被定义的自己。”"
+      },
+      {
+        roman: "I",
+        name: "魔术师 · The Magician",
+        icon: "fa-solid fa-infinity",
+        element: "MANIFESTATION",
+        keyword: "整合 / 创造力量",
+        quote: "“如其在上，如其在下。你已备齐所需的每一块拼图。”",
+        category: "能量聚焦 · 烈阳橙",
+        insight: "思维处于极其敏锐的高频振荡期，沟通与资源整合能力被激活。适合开启新项目或表达积压已久的方案。",
+        challenge: "想法繁杂容易导致注意力分散，需警惕三分钟热度。",
+        guidance: "梳理手头资源，为当下最重要的一个核心目标列出 3 步可落地的微小动作。",
+        affirmation: "“我拥有将意念塑造成现实的充沛力量。”"
+      },
+      {
+        roman: "II",
+        name: "女祭司 · The High Priestess",
+        icon: "fa-solid fa-moon",
+        element: "INTUITION & DEPTH",
+        keyword: "内省 / 静水流深",
+        quote: "“在喧嚣静止之处，万物的真相自会浮出水面。”",
+        category: "潜意识洞见 · 幽夜蓝",
+        insight: "外部世界的嘈杂可能让你产生精神内耗，此时答案并不在外界的辩论中，而在你独处时的呼吸与平静里。",
+        challenge: "将敏锐的感知力转化成了隐秘的孤独感，习惯把情绪深藏。",
+        guidance: "今日安排至少 30 分钟完全远离手机电子屏幕的独处时光，泡一杯热茶，听听内在的声音。",
+        affirmation: "“我的内在拥有汪洋般的平静与深邃智慧。”"
+      }
+    ];
+
+    let currentCardIndex = 0;
+    let isFlipped = false;
+
+    // 翻转卡牌
+    function toggleCardFlip() {
+      const cardInner = document.getElementById('tarotCardInner');
+      isFlipped = !isFlipped;
+      if (isFlipped) {
+        cardInner.classList.add('is-flipped');
+      } else {
+        cardInner.classList.remove('is-flipped');
+      }
+    }
+
+    // 洗牌动画与随机抽取
+    function shuffleAndDraw() {
+      const cardInner = document.getElementById('tarotCardInner');
+      
+      // 先翻回背面
+      if (isFlipped) {
+        cardInner.classList.remove('is-flipped');
+        isFlipped = false;
+      }
+
+      // 触发洗牌抖动
+      cardInner.classList.add('is-shuffling');
+      
+      setTimeout(() => {
+        cardInner.classList.remove('is-shuffling');
+        
+        // 随机选择不同牌
+        let nextIndex;
+        do {
+          nextIndex = Math.floor(Math.random() * TAROT_CARDS.length);
+        } while (nextIndex === currentCardIndex);
+        
+        currentCardIndex = nextIndex;
+        updateCardUI(TAROT_CARDS[currentCardIndex]);
+        
+        // 自动优雅翻开
+        setTimeout(() => {
+          toggleCardFlip();
+          // 同步自动绘制新海报
+          renderCanvasPoster();
+        }, 200);
+
+      }, 600);
+    }
+
+    // 更新 DOM 文本
+    function updateCardUI(card) {
+      document.getElementById('displayCardRoman').innerText = card.roman;
+      document.getElementById('displayCardName').innerText = card.name;
+      document.getElementById('displayCardIcon').className = `${card.icon} text-5xl text-amber-300 drop-shadow-[0_0_12px_rgba(251,191,36,0.6)]`;
+      document.getElementById('displayCardElement').innerText = card.element;
+      document.getElementById('displayCardKeyword').innerText = card.keyword;
+      document.getElementById('displayCardShortQuote').innerText = card.quote;
+
+      document.getElementById('readingCategoryTag').innerText = card.category;
+      document.getElementById('reportInsight').innerText = card.insight;
+      document.getElementById('reportChallenge').innerText = card.challenge;
+      document.getElementById('reportGuidance').innerText = card.guidance;
+      document.getElementById('reportAffirmation').innerText = card.affirmation;
+    }
+
+    // 视图切换
+    function switchView(mode) {
+      const demoSec = document.getElementById('demoSection');
+      const codeSec = document.getElementById('codeSection');
+      const tabDemoBtn = document.getElementById('tabDemoBtn');
+      const tabCodeBtn = document.getElementById('tabCodeBtn');
+
+      if (mode === 'demo') {
+        demoSec.classList.remove('hidden');
+        codeSec.classList.add('hidden');
+        tabDemoBtn.className = "px-4 py-1.5 text-xs sm:text-sm font-medium rounded-lg transition-all bg-amber-500/20 text-amber-200 border border-amber-500/30 shadow-sm flex items-center gap-2";
+        tabCodeBtn.className = "px-4 py-1.5 text-xs sm:text-sm font-medium rounded-lg transition-all text-slate-400 hover:text-slate-200 flex items-center gap-2";
+      } else {
+        demoSec.classList.add('hidden');
+        codeSec.classList.remove('hidden');
+        tabCodeBtn.className = "px-4 py-1.5 text-xs sm:text-sm font-medium rounded-lg transition-all bg-amber-500/20 text-amber-200 border border-amber-500/30 shadow-sm flex items-center gap-2";
+        tabDemoBtn.className = "px-4 py-1.5 text-xs sm:text-sm font-medium rounded-lg transition-all text-slate-400 hover:text-slate-200 flex items-center gap-2";
+      }
+    }
+
+    // 代码选项卡切换
+    function selectCodeTab(tab) {
+      const tabs = ['wxml', 'wxss', 'canvas', 'tips'];
+      tabs.forEach(t => {
+        const btn = document.getElementById(`codeTab-${t}`);
+        const block = document.getElementById(`codeSnippet-${t}`);
+        if (t === tab) {
+          btn.className = "px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all bg-amber-500/20 text-amber-200 border border-amber-500/30";
+          block.classList.remove('hidden');
+          block.classList.add('block');
+        } else {
+          btn.className = "px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all text-slate-400 hover:text-slate-200";
+          block.classList.remove('block');
+          block.classList.add('hidden');
+        }
+      });
+    }
+
+    // 复制代码
+    function copyCurrentCodeSnippet() {
+      const activeSnippet = document.querySelector('#codeSection pre:not(.hidden)');
+      if (activeSnippet) {
+        const text = activeSnippet.innerText;
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+          document.execCommand('copy');
+          showToast('代码已成功复制到剪贴板！');
+        } catch (err) {
+          showToast('复制失败，请手动选择复制');
+        }
+        document.body.removeChild(textarea);
+      }
+    }
+
+    // 仿微信 Toast
+    function showToast(msg) {
+      const toast = document.createElement('div');
+      toast.className = 'fixed bottom-10 left-1/2 -translate-x-1/2 z-50 bg-slate-900/90 text-amber-200 border border-amber-500/40 px-5 py-2.5 rounded-full text-xs sm:text-sm shadow-2xl backdrop-blur flex items-center gap-2 animate-fade-in';
+      toast.innerHTML = `<i class="fa-solid fa-circle-check text-amber-400"></i> ${msg}`;
+      document.body.appendChild(toast);
+      setTimeout(() => {
+        toast.remove();
+      }, 2500);
+    }
+
+    function renderCanvasPoster() {
+      const canvas = document.getElementById('posterCanvas');
+      const ctx = canvas.getContext('2d');
+      const card = TAROT_CARDS[currentCardIndex];
+
+      const W = 750;
+      const H = 1334;
+
+      // 1. 深邃星空背景与放射流光
+      const bgGrad = ctx.createLinearGradient(0, 0, 0, H);
+      bgGrad.addColorStop(0, '#13112a');
+      bgGrad.addColorStop(0.35, '#0a0818');
+      bgGrad.addColorStop(0.85, '#05030e');
+      bgGrad.addColorStop(1, '#020108');
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, W, H);
+
+      // 绘制金粉装饰粒子
+      ctx.fillStyle = 'rgba(250, 204, 21, 0.25)';
+      for (let i = 0; i < 60; i++) {
+        const px = Math.sin(i * 99) * W * 0.5 + W * 0.5;
+        const py = Math.cos(i * 33) * H * 0.5 + H * 0.5;
+        const pr = (i % 3 === 0) ? 2.5 : 1.2;
+        ctx.beginPath();
+        ctx.arc(px, py, pr, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // 2. 双重古典金线边框
+      ctx.strokeStyle = 'rgba(212, 175, 55, 0.45)';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(36, 36, W - 72, H - 72);
+
+      ctx.strokeStyle = 'rgba(212, 175, 55, 0.2)';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(46, 46, W - 92, H - 92);
+
+      // 四角花饰印章
+      ctx.fillStyle = '#d4af37';
+      ctx.font = '22px serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('❖', 56, 62);
+      ctx.fillText('❖', W - 56, 62);
+      ctx.fillText('❖', 56, H - 52);
+      ctx.fillText('❖', W - 56, H - 52);
+
+      // 3. 顶部标头
+      ctx.fillStyle = '#fef08a';
+      ctx.font = 'bold 30px "Noto Serif SC", serif';
+      ctx.fillText('— 星 灵 漫 步 · 灵 感 投 射 —', W / 2, 115);
+
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '18px sans-serif';
+      ctx.fillText('SOUL ARCHETYPE & DAILY ENERGY REPORT', W / 2, 150);
+
+      // 4. 卡片核心展示区（拟真立绘卡）
+      const cardBoxX = 140;
+      const cardBoxY = 190;
+      const cardBoxW = W - 280;
+      const cardBoxH = 360;
+
+      // 阴影卡槽
+      ctx.fillStyle = '#0f0e24';
+      ctx.fillRect(cardBoxX, cardBoxY, cardBoxW, cardBoxH);
+      ctx.strokeStyle = '#d4af37';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(cardBoxX, cardBoxY, cardBoxW, cardBoxH);
+
+      // 卡牌序号与大标题
+      ctx.fillStyle = '#fde68a';
+      ctx.font = 'bold 24px serif';
+      ctx.fillText(card.roman, W / 2, cardBoxY + 50);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 44px "Noto Serif SC", serif';
+      ctx.fillText(card.name, W / 2, cardBoxY + 115);
+
+      ctx.fillStyle = '#facc15';
+      ctx.font = '22px sans-serif';
+      ctx.fillText(`【 ${card.keyword} 】`, W / 2, cardBoxY + 165);
+
+      // 牌面居中图腾符号
+      ctx.fillStyle = 'rgba(212, 175, 55, 0.15)';
+      ctx.beginPath();
+      ctx.arc(W / 2, cardBoxY + 255, 60, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(212, 175, 55, 0.4)';
+      ctx.stroke();
+
+      ctx.fillStyle = '#fef08a';
+      ctx.font = 'bold 50px serif';
+      ctx.fillText('✦', W / 2, cardBoxY + 272);
+
+      // 5. 解读正文模块 (自动折行算法)
+      ctx.fillStyle = '#fef08a';
+      ctx.font = 'bold 26px "Noto Serif SC", serif';
+      ctx.textAlign = 'left';
+      ctx.fillText('【 能量觉察与洞见 】', 80, 610);
+
+      ctx.fillStyle = '#e2e8f0';
+      ctx.font = '26px "Noto Serif SC", serif';
+      drawCanvasWrappedText(ctx, card.insight, 80, 660, W - 160, 42);
+
+      // 6. 今日赋能金句框
+      const quoteY = 820;
+      ctx.fillStyle = 'rgba(212, 175, 55, 0.08)';
+      ctx.fillRect(80, quoteY, W - 160, 150);
+      ctx.strokeStyle = 'rgba(212, 175, 55, 0.35)';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(80, quoteY, W - 160, 150);
+
+      ctx.fillStyle = '#fde68a';
+      ctx.font = 'italic 24px "Noto Serif SC", serif';
+      drawCanvasWrappedText(ctx, card.affirmation, 110, quoteY + 65, W - 220, 38);
+
+      // 7. 底部专属小程序码与裂变引导
+      const qrCenterY = 1100;
+      
+      // 绘制圆形小程序码
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(W / 2, qrCenterY, 70, 0, Math.PI * 2);
+      ctx.fillStyle = '#1e1b4b';
+      ctx.fill();
+      ctx.strokeStyle = '#d4af37';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      // 小程序码太阳花瓣简笔
+      for (let k = 0; k < 12; k++) {
+        const rad = (k * 30 * Math.PI) / 180;
+        const lx = W / 2 + Math.cos(rad) * 62;
+        const ly = qrCenterY + Math.sin(rad) * 62;
+        ctx.fillStyle = 'rgba(250, 204, 21, 0.6)';
+        ctx.beginPath();
+        ctx.arc(lx, ly, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.fillStyle = '#fde047';
+      ctx.font = 'bold 22px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('星灵漫步', W / 2, qrCenterY + 8);
+      ctx.restore();
+
+      // 底部引导文字
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '22px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('长按识别小程序码 · 测测你今天的潜意识能量', W / 2, qrCenterY + 115);
+
+      // 显示下载按钮
+      document.getElementById('btnDownloadPoster').classList.remove('hidden');
+    }
+
+    // Canvas 文本折行通用函数
+    function drawCanvasWrappedText(ctx, text, x, y, maxWidth, lineHeight) {
+      const chars = text.split('');
+      let currentLine = '';
+      for (let i = 0; i < chars.length; i++) {
+        const testLine = currentLine + chars[i];
+        const metrics = ctx.measureText(testLine);
+        if (metrics.width > maxWidth && i > 0) {
+          ctx.fillText(currentLine, x, y);
+          currentLine = chars[i];
+          y += lineHeight;
+        } else {
+          currentLine = testLine;
+        }
+      }
+      ctx.fillText(currentLine, x, y);
+    }
+
+    // 导出海报图片
+    function downloadPosterImage() {
+      const canvas = document.getElementById('posterCanvas');
+      const dataUrl = canvas.toDataURL('image/png');
+      const link = document.createElement('a');
+      link.download = `星灵漫步-能量海报-${Date.now()}.png`;
+      link.href = dataUrl;
+      link.click();
+      showToast('高清海报已导出成功！');
+    }
+
+    // 页面加载完成后立即渲染一次海报
+    window.onload = function() {
+      renderCanvasPoster();
+    };
+  </script>
+</body>
+</html>

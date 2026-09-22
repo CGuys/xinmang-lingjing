@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>心芒灵境 · 微信小程序高保真交互原型</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Vue 3 CDN -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <!-- FontAwesome 6 图标库 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <!-- Google Fonts: Cinzel 古典西文字体 & Noto Serif SC 典雅宋体 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Noto+Serif+SC:wght@400;600;700;900&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", sans-serif;
+      background: radial-gradient(circle at 50% 15%, #181438 0%, #0c0a1a 50%, #05040a 100%);
+      color: #e2e8f0;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    .font-cinzel { font-family: 'Cinzel', serif; }
+    .font-serif-sc { font-family: 'Noto Serif SC', serif; }
+
+    /* 微信端 3D 卡牌立体翻转空间 */
+    .perspective-1000 { perspective: 1000px; }
+    .card-perspective-stage { perspective: 1200px; }
+    .transform-style-3d { transform-style: preserve-3d; }
+    .backface-hidden { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+    .rotate-y-180 { transform: rotateY(180deg); }
+
+    /* 金色流光与古典神圣几何质感边框 (参考 AI-星灵漫步) */
+    .gold-gradient-text {
+      background: linear-gradient(135deg, #fef08a 0%, #d4af37 40%, #facc15 70%, #ca8a04 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .gold-border {
+      border: 1px solid rgba(212, 175, 55, 0.55);
+      box-shadow: 0 0 25px rgba(212, 175, 55, 0.18), inset 0 0 15px rgba(212, 175, 55, 0.12);
+    }
+    .gold-border-subtle {
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    /* 3D 洗牌振动动画 */
+    @keyframes shuffleShake {
+      0% { transform: translateY(0) rotate(0deg); }
+      20% { transform: translateY(-16px) rotate(-6deg) scale(0.96); }
+      40% { transform: translateY(12px) rotate(5deg) scale(1.02); }
+      60% { transform: translateY(-8px) rotate(-3deg); }
+      80% { transform: translateY(4px) rotate(2deg); }
+      100% { transform: translateY(0) rotate(0deg); }
+    }
+    .is-shuffling {
+      animation: shuffleShake 0.6s ease-in-out;
+    }
+
+    /* 触感轻微震动反馈动画 (视觉化模拟 wx.vibrateShort) */
+    @keyframes tactileVibrate {
+      0% { transform: translate(0, 0); }
+      25% { transform: translate(-2px, 2px); }
+      50% { transform: translate(2px, -2px); }
+      75% { transform: translate(-1px, 1px); }
+      100% { transform: translate(0, 0); }
+    }
+    .vibrate-active {
+      animation: tactileVibrate 0.15s linear 2;
+    }
+
+    /* 星芒微光与脉冲 */
+    @keyframes cosmicGlow {
+      0%, 100% { opacity: 0.25; transform: scale(1); }
+      50% { opacity: 0.65; transform: scale(1.06); }
+    }
+    .cosmic-pulse {
+      animation: cosmicGlow 4s ease-in-out infinite;
+    }
+
+    /* 慢速星盘旋转 */
+    @keyframes spinSlow {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .animate-spin-slow {
+      animation: spinSlow 24s linear infinite;
+    }
+
+    /* 手机外壳高精度拟真阴影 */
+    .iphone-shadow {
+      box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.7), 0 0 0 10px #1e293b, 0 0 0 12px #334155;
+    }
+
+    /* 自定义滚动条 */
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(212, 175, 55, 0.3); border-radius: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+  </style>
+</head>
+<body class="selection:bg-amber-500/30 selection:text-amber-200">
+  <div id="app" class="min-h-screen flex flex-col">
+
+    <!-- 顶栏：项目元信息与原型操作控制条 -->
+    <header class="h-16 border-b border-amber-900/30 bg-slate-950/60 backdrop-blur-md px-6 flex items-center justify-between z-30 sticky top-0">
+      <div class="flex items-center space-x-3">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-indigo-600 flex items-center justify-center text-amber-200 shadow-lg shadow-amber-500/20 border border-amber-400/40">
+          <i class="fa-solid fa-moon-stars text-sm"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-bold text-white tracking-wide text-sm font-serif-sc gold-gradient-text">心芒灵境 · 微信小程序原型</h1>
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/30 font-cinzel">PRD v1.0 HIGH-FI</span>
+          </div>
+          <p class="text-[11px] text-slate-400">荣格潜意识心理投射 · 3D抽牌 · Canvas 2D 海报 · 激励裂变闭环</p>
+        </div>
+      </div>
+
+      <!-- 快速跳转路由控制 -->
+      <div class="hidden md:flex items-center bg-slate-900/90 p-1 rounded-xl border border-slate-800 space-x-1 text-xs">
+        <button 
+          v-for="route in routes" 
+          :key="route.path" 
+          @click="navigateTo(route.path)" 
+          :class="[
+            currentRoute === route.path 
+              ? 'bg-amber-500/20 text-amber-200 border-amber-500/40 font-semibold shadow-sm' 
+              : 'text-slate-400 hover:text-slate-200 border-transparent',
+            'px-3 py-1.5 rounded-lg border transition flex items-center gap-1.5'
+          ]"
+        >
+          <i :class="route.icon"></i>
+          <span>{{ route.name }}</span>
+        </button>
+      </div>
+
+      <!-- 原型调试中控开关 -->
+      <div class="flex items-center space-x-3">
+        <!-- 审核模式切换 -->
+        <div class="flex items-center space-x-2 bg-slate-900/80 px-3 py-1.5 rounded-xl border border-slate-800 text-xs">
+          <span class="text-slate-400">微信审核伪装：</span>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" v-model="isInReview" class="sr-only peer">
+            <div class="w-8 h-4 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-amber-500"></div>
+          </label>
+          <span :class="isInReview ? 'text-amber-300 font-medium' : 'text-slate-500'">{{ isInReview ? '提审态' : '全量态' }}</span>
+        </div>
+
+        <!-- 触感震动反馈模拟指示 -->
+        <button 
+          @click="toggleVibration" 
+          :class="[
+            isVibrateFeedback ? 'bg-indigo-950 text-indigo-300 border-indigo-500/40' : 'bg-slate-900 text-slate-500 border-slate-800',
+            'px-3 py-1.5 rounded-xl border text-xs flex items-center gap-1.5 transition'
+          ]"
+          title="模拟 wx.vibrateShort 触感震动"
+        >
+          <i class="fa-solid fa-mobile-screen"></i>
+          <span>触感震动: {{ isVibrateFeedback ? '开' : '关' }}</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- 主展示区：左侧真机仿真视口 + 右侧交互规格与实时特性面板 -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex flex-col lg:flex-row gap-8 items-start justify-center">
+
+      <!-- ============================================== -->
+      <!-- 微信小程序端侧真机仿真容器 (iPhone 15 Pro 外壳) -->
+      <!-- ============================================== -->
+      <div class="w-full lg:w-auto flex flex-col items-center flex-shrink-0">
+        
+        <!-- 环境标签 -->
+        <div class="w-[375px] flex items-center justify-between text-[11px] font-mono text-slate-400 mb-2.5 px-2">
+          <span class="flex items-center gap-1.5"><i class="fa-brands fa-apple text-slate-300"></i> iPhone 15 Pro · iOS 17.4</span>
+          <span class="text-emerald-400 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> WeChat 8.0.48</span>
+        </div>
+
+        <!-- 手机实体外壳 (375 x 760) -->
+        <div 
+          :class="[
+            isVibrating ? 'vibrate-active' : '',
+            'w-[375px] h-[760px] bg-[#070913] rounded-[48px] iphone-shadow border-[4px] border-slate-700/80 flex flex-col overflow-hidden relative select-none shadow-2xl transition-transform'
+          ]"
+        >
+          <!-- 灵动岛 (Dynamic Island) -->
+          <div class="absolute top-2.5 left-1/2 -translate-x-1/2 w-28 h-6 bg-black rounded-full z-50 flex items-center justify-end px-2">
+            <div class="w-2.5 h-2.5 rounded-full bg-slate-900 border border-slate-800"></div>
+          </div>
+
+          <!-- iOS 状态栏 (9:41) -->
+          <div class="h-10 w-full flex items-center justify-between px-7 pt-3 text-white text-[11px] font-semibold z-40">
+            <span>9:41</span>
+            <div class="flex items-center space-x-1.5 text-xs">
+              <i class="fa-solid fa-signal text-[10px]"></i>
+              <i class="fa-solid fa-wifi text-[10px]"></i>
+              <i class="fa-solid fa-battery-full text-xs text-emerald-400"></i>
+            </div>
+          </div>
+
+          <!-- 微信小程序标准导航栏 (NavigationBar) -->
+          <div class="h-11 w-full flex items-center justify-between px-4 z-40 text-white border-b border-white/5 bg-slate-950/60 backdrop-blur-md">
+            <div class="flex items-center space-x-1.5 text-xs">
+              <button v-if="currentRoute !== '/pages/index/index'" @click="navigateBack" class="text-slate-300 hover:text-white p-1">
+                <i class="fa-solid fa-chevron-left text-xs"></i>
+              </button>
+              <span class="font-serif-sc font-medium tracking-wide gold-gradient-text">{{ currentRouteTitle }}</span>
+            </div>
+            <!-- 微信官方胶囊按钮 -->
+            <div class="h-7 w-20 rounded-full border border-white/20 bg-black/50 flex items-center justify-around px-2 text-white/90">
+              <i @click="showToast('已唤起微信功能面板')" class="fa-solid fa-ellipsis text-xs hover:opacity-70 cursor-pointer"></i>
+              <div class="w-[1px] h-3.5 bg-white/20"></div>
+              <i @click="navigateTo('/pages/index/index')" class="fa-regular fa-circle-dot text-xs hover:opacity-70 cursor-pointer" title="返回灵境主页"></i>
+            </div>
+          </div>
+
+          <!-- 小程序页面视口区域 (根据路由渲染对应页面) -->
+          <div class="flex-1 overflow-y-auto custom-scrollbar flex flex-col justify-between relative bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#171435] via-[#0b0c1b] to-[#04050b] text-slate-100">
+            
+            <!-- 1. 页面路由：/pages/index/index (灵境主台 首页) -->
+            <div v-if="currentRoute === '/pages/index/index'" class="flex-1 p-4 flex flex-col justify-between">
+              
+              <!-- 顶部能量资产状态条 (PRD 2.1) -->
+              <div>
+                <div class="flex items-center justify-between mb-3">
+                  <div 
+                    @click="handleEnergyClick" 
+                    :class="[
+                      energyPoints > 0 
+                        ? 'bg-amber-500/15 border-amber-500/40 text-amber-300' 
+                        : 'bg-rose-500/15 border-rose-500/40 text-rose-300',
+                      'cursor-pointer flex items-center space-x-1.5 px-3 py-1 rounded-full border text-[11px] font-medium shadow-sm transition active:scale-95'
+                    ]"
+                  >
+                    <i class="fa-solid fa-sparkles text-[10px]"></i>
+                    <span v-if="energyPoints > 0">今日灵感点: <b class="text-white">{{ energyPoints }}/1</b></span>
+                    <span v-else>灵感待充盈 (点击补充)</span>
+                  </div>
+
+                  <!-- 审核模式提示 OR 潜意识标签 -->
+                  <div v-if="isInReview" class="text-[10px] text-amber-300 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20 font-medium">
+                    <i class="fa-solid fa-shield-halved mr-1"></i> 心理自省模式
+                  </div>
+                  <div v-else class="text-[10px] text-indigo-300 bg-indigo-500/10 px-2 py-0.5 rounded-full border border-indigo-500/20">
+                    荣格潜意识投射
+                  </div>
+                </div>
+
+                <!-- 意念/困惑输入模块 (PRD 2.2 - 审核模式下隐藏以规避机审查封) -->
+                <div v-if="!isInReview" class="bg-white/5 border border-white/10 rounded-2xl p-3 backdrop-blur-sm space-y-2 mb-2">
+                  <div class="flex items-center justify-between text-[11px] text-slate-300">
+                    <span class="flex items-center gap-1"><i class="fa-solid fa-feather-pointed text-amber-400"></i> 输入当下的困惑或心绪：</span>
+                    <span class="text-[9px] text-slate-400 font-mono">{{ userQuestion.length }}/50</span>
+                  </div>
+                  <input 
+                    type="text" 
+                    v-model="userQuestion" 
+                    maxlength="50"
+                    placeholder="例如：面临职业转折，不知道是该坚守还是探索新方向..." 
+                    class="w-full bg-black/40 border border-amber-500/20 rounded-xl px-2.5 py-1.5 text-xs text-amber-100 placeholder:text-slate-500 focus:outline-none focus:border-amber-400/60"
+                  />
+                  <!-- 快捷选择标签 -->
+                  <div class="flex flex-wrap gap-1.5 pt-1">
+                    <button 
+                      v-for="tag in presetTags" 
+                      :key="tag" 
+                      @click="selectPresetTag(tag)"
+                      :class="[
+                        userQuestion.includes(tag) ? 'bg-amber-500/30 text-amber-200 border-amber-500/50' : 'bg-white/5 text-slate-300 border-white/10 hover:bg-white/10',
+                        'text-[10px] px-2 py-0.5 rounded-lg border transition'
+                      ]"
+                    >
+                      【{{ tag }}】
+                    </button>
+                  </div>
+                </div>
+                <div v-else class="bg-white/5 border border-white/10 rounded-xl p-2.5 text-center text-amber-200/90 mb-2">
+                  <span class="text-xs font-serif-sc">晨起清心 · 静默深呼吸，抽取今日觉察卡</span>
+                </div>
+              </div>
+
+              <!-- 3D 核心抽牌翻转舞台 (PRD 2.2 & 参考 AI-星灵漫步) -->
+              <div class="my-auto flex flex-col items-center justify-center perspective-1000 py-2">
+                <div 
+                  @click="handleCardTap"
+                  :class="[
+                    isCardFlipped ? 'rotate-y-180' : '',
+                    isShufflingAnimation ? 'is-shuffling' : '',
+                    'w-48 h-72 rounded-2xl transform-style-3d transition-transform duration-700 cursor-pointer relative shadow-2xl shadow-indigo-950/80 select-none'
+                  ]"
+                >
+                  <!-- 卡牌背面 (未翻开状态：古典双层烫金花边 + 曼陀罗星盘 + 四角纹饰) -->
+                  <div class="card-face absolute inset-0 w-full h-full rounded-2xl backface-hidden bg-gradient-to-b from-[#13112c] via-[#0d0a21] to-[#060412] gold-border p-2.5 flex flex-col items-center justify-between overflow-hidden">
+                    <div class="w-full h-full border border-amber-500/30 rounded-xl p-2 flex flex-col items-center justify-between relative bg-black/30">
+                      <!-- 四角古典花饰 -->
+                      <div class="absolute top-1 left-1.5 text-amber-400/60 text-[10px]">❖</div>
+                      <div class="absolute top-1 right-1.5 text-amber-400/60 text-[10px]">❖</div>
+                      <div class="absolute bottom-1 left-1.5 text-amber-400/60 text-[10px]">❖</div>
+                      <div class="absolute bottom-1 right-1.5 text-amber-400/60 text-[10px]">❖</div>
+
+                      <!-- 顶部微标 -->
+                      <div class="text-[9px] font-cinzel text-amber-400/80 tracking-widest pt-1">ARCANA LABS</div>
+
+                      <!-- 背面中心曼陀罗星盘与旋转日光 -->
+                      <div class="w-24 h-24 rounded-full border border-dashed border-amber-500/40 flex items-center justify-center relative my-auto">
+                        <div class="w-20 h-20 rounded-full border border-amber-400/30 flex items-center justify-center animate-spin-slow">
+                          <i class="fa-regular fa-sun text-2xl text-amber-400/70"></i>
+                        </div>
+                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                          <i class="fa-solid fa-gem text-amber-300/50 text-sm"></i>
+                        </div>
+                      </div>
+
+                      <!-- 底部轻触提示 -->
+                      <div class="text-center pb-1">
+                        <p class="text-[10px] text-amber-200/90 font-medium flex items-center justify-center gap-1">
+                          <i class="fa-solid fa-hand-pointer text-amber-400 text-[9px] animate-bounce"></i> 轻触翻转觉察
+                        </p>
+                        <span class="text-[8px] text-slate-500 font-cinzel tracking-wider">TOUCH TO REVEAL</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- 卡牌正面 (翻开后状态：星空渐变 + 罗马数字 + 发光图腾 + 关键词) -->
+                  <div class="card-face card-face-front absolute inset-0 w-full h-full rounded-2xl backface-hidden rotate-y-180 bg-gradient-to-b from-[#16192e] via-[#0d1021] to-[#060714] gold-border p-2.5 flex flex-col justify-between overflow-hidden text-center">
+                    <div class="w-full h-full border border-amber-500/30 rounded-xl p-2 flex flex-col items-center justify-between relative bg-black/20">
+                      <!-- 顶部卡牌序号与正位状态 -->
+                      <div class="w-full flex justify-between items-center text-[9px] font-cinzel text-amber-400/90 px-1 pt-0.5">
+                        <span class="tracking-widest">{{ activeCard.roman }}</span>
+                        <span class="px-1.5 py-0.2 rounded bg-amber-400/20 text-amber-300 text-[8px] font-sans">
+                          {{ activeCard.orientation }}
+                        </span>
+                      </div>
+
+                      <!-- 卡牌名称 -->
+                      <div class="my-0.5">
+                        <h4 class="text-sm font-bold font-serif-sc text-amber-100 tracking-wide">{{ activeCard.nameCn }}</h4>
+                        <span class="text-[8px] text-slate-400 font-cinzel">{{ activeCard.nameEn }}</span>
+                      </div>
+
+                      <!-- 牌面中心发光图腾插画区 -->
+                      <div class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-amber-500/20 via-indigo-500/10 to-transparent border border-amber-400/40 flex items-center justify-center relative shadow-inner my-1">
+                        <i :class="[activeCard.icon, 'text-4xl text-amber-300 drop-shadow-[0_0_10px_rgba(251,191,36,0.6)]']"></i>
+                        <span class="absolute -bottom-2 px-2 py-0.5 rounded-full bg-slate-950 border border-amber-500/40 text-[8px] text-amber-300 font-cinzel whitespace-nowrap">
+                          {{ activeCard.element }}
+                        </span>
+                      </div>
+
+                      <!-- 关键词与启示金句 -->
+                      <div class="w-full space-y-1 pt-1.5">
+                        <div class="flex flex-wrap justify-center gap-1">
+                          <span v-for="tag in activeCard.tags" :key="tag" class="text-[8px] px-1.5 py-0.5 rounded bg-indigo-950/80 text-amber-200 border border-indigo-500/30">
+                            {{ tag }}
+                          </span>
+                        </div>
+                        <p class="text-[9px] text-slate-300 line-clamp-2 px-1 font-serif-sc italic">
+                          {{ activeCard.quote }}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="text-center mt-2.5">
+                  <span class="text-[10px] text-slate-400">
+                    {{ isCardFlipped ? '✦ 牌面已呈现 · 点击卡片查看深度解读' : '✦ 轻触卡牌或点击下方开始抽牌' }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- 底部操作按钮栏 -->
+              <div class="pt-2">
+                <button 
+                  v-if="!isCardFlipped"
+                  @click="triggerShuffleAndDraw" 
+                  class="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-bold text-xs shadow-lg shadow-amber-500/20 transition flex items-center justify-center gap-1.5 active:scale-95"
+                >
+                  <i class="fa-solid fa-wand-magic-sparkles text-xs"></i>
+                  <span>开始洗牌与抽牌</span>
+                </button>
+                <div v-else class="grid grid-cols-2 gap-2">
+                  <button 
+                    @click="resetCardState" 
+                    class="py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-medium transition"
+                  >
+                    重置卡牌
+                  </button>
+                  <button 
+                    @click="navigateTo('/pages/reading/result')" 
+                    class="py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-amber-500 text-white text-xs font-bold transition flex items-center justify-center gap-1 shadow-md"
+                  >
+                    <span>查看解读报告</span>
+                    <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. 页面路由：/pages/reading/result (能量解析页 PRD 2.3) -->
+            <div v-if="currentRoute === '/pages/reading/result'" class="flex-1 p-4 flex flex-col justify-between space-y-4">
+              
+              <!-- 顶部卡牌概览徽章 -->
+              <div class="flex items-center justify-between bg-white/5 border border-white/10 rounded-2xl p-3 backdrop-blur-md">
+                <div class="flex items-center space-x-3">
+                  <div class="w-12 h-16 rounded-lg bg-gradient-to-b from-[#13112c] to-[#080713] gold-border flex items-center justify-center flex-shrink-0">
+                    <i :class="[activeCard.icon, 'text-xl text-amber-300 drop-shadow']"></i>
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-1.5">
+                      <span class="text-xs font-cinzel text-amber-400">{{ activeCard.roman }}</span>
+                      <h3 class="text-sm font-bold font-serif-sc text-white">{{ activeCard.nameCn }}</h3>
+                      <span class="text-[9px] px-1.5 py-0.2 rounded bg-amber-400/20 text-amber-300">{{ activeCard.orientation }}</span>
+                    </div>
+                    <p class="text-[10px] text-slate-400 font-cinzel">{{ activeCard.nameEn }} · {{ activeCard.element }}</p>
+                    <div class="flex gap-1 mt-1">
+                      <span v-for="t in activeCard.tags" :key="t" class="text-[8px] px-1.5 py-0.5 rounded bg-indigo-950/80 text-amber-200">
+                        {{ t }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <button @click="navigateTo('/pages/index/index')" class="text-[10px] text-slate-400 hover:text-white p-1">
+                  重新抽牌
+                </button>
+              </div>
+
+              <!-- 结构化 AI 流式打字机内容展示区 -->
+              <div class="flex-1 overflow-y-auto custom-scrollbar space-y-3 pr-1 text-xs">
+                
+                <!-- 1. 核心能量定调 -->
+                <div class="bg-slate-950/60 p-3 rounded-2xl border border-slate-800">
+                  <div class="flex items-center justify-between text-amber-300 font-bold mb-1">
+                    <span class="flex items-center gap-1.5"><i class="fa-solid fa-compass text-xs"></i> 核心能量定调</span>
+                    <span class="text-[9px] font-mono text-slate-500">TAG</span>
+                  </div>
+                  <div class="text-sm font-bold text-amber-100 font-serif-sc">
+                    {{ displayedInsight.category || '【' + activeCard.category + '】' }}
+                  </div>
+                </div>
+
+                <!-- 2. 潜意识意象投射 -->
+                <div class="bg-slate-950/60 p-3 rounded-2xl border border-slate-800">
+                  <div class="flex items-center justify-between text-indigo-300 font-bold mb-1">
+                    <span class="flex items-center gap-1.5"><i class="fa-solid fa-brain text-xs"></i> 潜意识意象投射</span>
+                    <span class="text-[9px] font-mono text-slate-500">PROJECTION</span>
+                  </div>
+                  <p class="text-slate-300 leading-relaxed text-[11px] font-sans">
+                    {{ displayedInsight.insight }}
+                    <span v-if="isStreamingText" class="inline-block w-1.5 h-3 bg-amber-400 animate-pulse ml-0.5"></span>
+                  </p>
+                </div>
+
+                <!-- 3. 思维盲区与转念 -->
+                <div class="bg-slate-950/60 p-3 rounded-2xl border border-slate-800">
+                  <div class="flex items-center justify-between text-rose-300 font-bold mb-1">
+                    <span class="flex items-center gap-1.5"><i class="fa-solid fa-eye text-xs"></i> 思维盲区与转念</span>
+                    <span class="text-[9px] font-mono text-slate-500">BLINDSPOT</span>
+                  </div>
+                  <p class="text-slate-300 leading-relaxed text-[11px]">
+                    {{ displayedInsight.challenge }}
+                  </p>
+                </div>
+
+                <!-- 4. 今日正念行动 -->
+                <div class="bg-slate-950/60 p-3 rounded-2xl border border-slate-800">
+                  <div class="flex items-center justify-between text-teal-300 font-bold mb-1">
+                    <span class="flex items-center gap-1.5"><i class="fa-solid fa-feather-pointed text-xs"></i> 今日正念行动建议</span>
+                    <span class="text-[9px] font-mono text-slate-500">ACTION</span>
+                  </div>
+                  <p class="text-slate-300 leading-relaxed text-[11px]">
+                    {{ displayedInsight.guidance }}
+                  </p>
+                </div>
+
+                <!-- 5. 赋能金句 -->
+                <div class="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-200 italic font-serif-sc text-center">
+                  {{ displayedInsight.affirmation || activeCard.quote }}
+                </div>
+              </div>
+
+              <!-- 底部操作按钮 -->
+              <div class="pt-2 grid grid-cols-2 gap-2.5">
+                <button 
+                  @click="saveToHistory" 
+                  class="py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-medium transition flex items-center justify-center gap-1.5"
+                >
+                  <i class="fa-regular fa-bookmark"></i>
+                  <span>记录至回响</span>
+                </button>
+                <button 
+                  @click="navigateTo('/pages/poster/view')" 
+                  class="py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-950 font-bold text-xs shadow-lg shadow-amber-500/20 transition flex items-center justify-center gap-1.5"
+                >
+                  <i class="fa-solid fa-image"></i>
+                  <span>生成朋友圈海报</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- 3. 页面路由：/pages/poster/view (朋友圈海报预览页 PRD 2.5) -->
+            <div v-if="currentRoute === '/pages/poster/view'" class="flex-1 p-4 flex flex-col justify-between items-center space-y-3">
+              <div class="text-center text-xs text-slate-300 font-serif-sc">
+                ✦ 朋友圈高清能量卡 · 750×1334 Canvas 2D 绘制 ✦
+              </div>
+
+              <!-- 模拟 Canvas 2D 高保真海报卡片 (750x1334 等比缩小) -->
+              <div class="w-60 h-[420px] rounded-2xl bg-gradient-to-b from-[#181438] via-[#0d0c20] to-[#04030a] gold-border p-3.5 flex flex-col justify-between shadow-2xl relative overflow-hidden select-none">
+                <div>
+                  <!-- 顶部项目抬头与日期 -->
+                  <div class="flex justify-between items-center text-[8px] text-amber-300 font-cinzel border-b border-white/10 pb-1.5">
+                    <span>INNER GLOW · 心芒灵境</span>
+                    <span>{{ todayDateFormatted }}</span>
+                  </div>
+
+                  <!-- 卡牌信息 -->
+                  <div class="text-center my-2">
+                    <div class="text-[9px] font-cinzel text-amber-400/80">{{ activeCard.roman }}</div>
+                    <div class="text-sm font-bold font-serif-sc text-white">{{ activeCard.nameCn }}</div>
+                    <div class="text-[8px] text-amber-300/80 font-cinzel">{{ activeCard.nameEn }} · {{ activeCard.orientation }}</div>
+                  </div>
+
+                  <!-- 牌面图腾中心插画 -->
+                  <div class="w-24 h-24 mx-auto rounded-2xl bg-gradient-to-tr from-amber-500/20 via-indigo-500/10 to-transparent border border-amber-400/40 flex items-center justify-center my-1 shadow-inner">
+                    <i :class="[activeCard.icon, 'text-4xl text-amber-300 drop-shadow-[0_0_10px_rgba(251,191,36,0.6)]']"></i>
+                  </div>
+
+                  <!-- 4字定调词与金句 -->
+                  <div class="text-center my-1.5">
+                    <span class="text-[10px] font-bold text-amber-200 bg-amber-500/20 px-2 py-0.5 rounded-full border border-amber-500/30 font-serif-sc">
+                      【{{ activeCard.tags[0] }} · {{ activeCard.element }}】
+                    </span>
+                  </div>
+                  <p class="text-[9px] text-slate-300 leading-snug line-clamp-3 text-center px-1 font-serif-sc italic">
+                    {{ activeCard.quote }}
+                  </p>
+                </div>
+
+                <!-- 底部菊花码与引流文案 -->
+                <div class="flex items-center justify-between border-t border-white/10 pt-2">
+                  <div class="text-[7px] text-slate-400 leading-tight">
+                    <div>微信长按识别小程序码</div>
+                    <div class="text-amber-300">抽取你的今日潜意识灵感</div>
+                  </div>
+                  <!-- 模拟微信太阳菊花码 -->
+                  <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center p-0.5 shadow">
+                    <div class="w-full h-full rounded-full border border-indigo-900 border-dashed flex items-center justify-center">
+                      <i class="fa-solid fa-qrcode text-xs text-slate-900"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 海报操作按钮栏 -->
+              <div class="w-full space-y-2 pt-1">
+                <button 
+                  @click="savePosterToAlbum" 
+                  class="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-bold text-xs shadow-lg flex items-center justify-center gap-1.5 active:scale-95 transition"
+                >
+                  <i class="fa-solid fa-download"></i>
+                  <span>保存图片到相册分享</span>
+                </button>
+                <button 
+                  @click="navigateTo('/pages/index/index')" 
+                  class="w-full py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-medium transition text-center"
+                >
+                  返回灵境主台
+                </button>
+              </div>
+            </div>
+
+            <!-- 4. 页面路由：/pages/profile/history (往日回响 PRD 2.6) -->
+            <div v-if="currentRoute === '/pages/profile/history'" class="flex-1 p-4 flex flex-col justify-between space-y-3">
+              
+              <!-- 顶部觉察数据看板 -->
+              <div class="bg-white/5 border border-white/10 rounded-2xl p-3 backdrop-blur-md">
+                <div class="flex justify-between items-center mb-2">
+                  <span class="text-xs font-bold text-white font-serif-sc">我的心灵觉察轨迹</span>
+                  <span class="text-[10px] text-amber-300 font-mono">累计记录: {{ historyList.length }} 次</span>
+                </div>
+                <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                  <div class="bg-black/30 p-2 rounded-xl border border-white/5">
+                    <div class="text-slate-400 text-[9px]">本月觉察</div>
+                    <div class="font-bold text-amber-300 text-sm mt-0.5 font-mono">12 天</div>
+                  </div>
+                  <div class="bg-black/30 p-2 rounded-xl border border-white/5">
+                    <div class="text-slate-400 text-[9px]">主导能量</div>
+                    <div class="font-bold text-indigo-300 text-xs mt-0.5">直觉沉潜</div>
+                  </div>
+                  <div class="bg-black/30 p-2 rounded-xl border border-white/5">
+                    <div class="text-slate-400 text-[9px]">高频原型</div>
+                    <div class="font-bold text-teal-300 text-xs mt-0.5">星星牌</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 历史卡牌瀑布流列表 -->
+              <div class="flex-1 overflow-y-auto custom-scrollbar space-y-2.5 pr-1">
+                <div 
+                  v-for="item in historyList" 
+                  :key="item.id" 
+                  @click="viewHistoryDetail(item)"
+                  class="bg-slate-950/60 hover:bg-slate-900/80 border border-slate-800 hover:border-amber-500/40 rounded-xl p-3 transition cursor-pointer flex items-center justify-between"
+                >
+                  <div class="flex items-center space-x-3">
+                    <div class="w-10 h-14 rounded-lg bg-gradient-to-b from-[#16142e] to-[#070612] gold-border flex items-center justify-center flex-shrink-0">
+                      <i :class="[item.card.icon, 'text-base text-amber-300']"></i>
+                    </div>
+                    <div>
+                      <div class="flex items-center gap-1.5">
+                        <span class="text-xs font-bold text-white font-serif-sc">{{ item.card.nameCn }}</span>
+                        <span class="text-[9px] px-1 py-0.2 rounded bg-amber-400/20 text-amber-300">{{ item.card.orientation }}</span>
+                      </div>
+                      <p class="text-[10px] text-slate-400 line-clamp-1 italic mt-0.5">“{{ item.card.quote }}”</p>
+                      <span class="text-[8px] text-slate-500 font-mono">{{ item.date }} · {{ item.question || '每日例行觉察' }}</span>
+                    </div>
+                  </div>
+                  <i class="fa-solid fa-chevron-right text-slate-600 text-xs"></i>
+                </div>
+              </div>
+
+              <!-- 底部操作 -->
+              <div class="pt-1">
+                <button 
+                  @click="navigateTo('/pages/index/index')" 
+                  class="w-full py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-amber-500 text-white font-bold text-xs shadow-md transition"
+                >
+                  抽取今日觉察卡
+                </button>
+              </div>
+            </div>
+
+            <!-- 微信小程序标准 TabBar (仅在 首页 和 往日回响 展示) -->
+            <div 
+              v-if="currentRoute === '/pages/index/index' || currentRoute === '/pages/profile/history'"
+              class="h-12 w-full border-t border-white/10 bg-slate-950/80 backdrop-blur-md flex items-center justify-around text-xs z-30"
+            >
+              <button 
+                @click="navigateTo('/pages/index/index')" 
+                :class="[currentRoute === '/pages/index/index' ? 'text-amber-300 font-bold' : 'text-slate-400', 'flex flex-col items-center gap-0.5']"
+              >
+                <i class="fa-solid fa-sun text-xs"></i>
+                <span class="text-[10px]">灵境主台</span>
+              </button>
+              <button 
+                @click="navigateTo('/pages/profile/history')" 
+                :class="[currentRoute === '/pages/profile/history' ? 'text-amber-300 font-bold' : 'text-slate-400', 'flex flex-col items-center gap-0.5']"
+              >
+                <i class="fa-solid fa-clock-rotate-left text-xs"></i>
+                <span class="text-[10px]">往日回响</span>
+              </button>
+            </div>
+
+            <!-- 弹窗 1: 能量充盈弹窗 (拦截卡点 PRD 2.4) -->
+            <div v-if="showEnergyModal" class="absolute inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-5">
+              <div class="bg-slate-900 border border-amber-400/40 rounded-3xl p-5 w-full text-center relative shadow-2xl">
+                <div class="w-12 h-12 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center mx-auto mb-2.5 text-xl">
+                  <i class="fa-solid fa-moon"></i>
+                </div>
+                <h4 class="text-sm font-bold text-white font-serif-sc mb-1">今日免费灵感已用尽</h4>
+                <p class="text-[11px] text-slate-400 mb-4 leading-relaxed">
+                  今日灵感已消耗完毕。传递正向能量给好友，或静心观看短片，双方皆可重新充盈 1 点灵感。
+                </p>
+
+                <div class="space-y-2">
+                  <!-- 途径一：分享好友 (open-type="share") -->
+                  <button 
+                    @click="simulateShareSuccess" 
+                    class="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-950 font-bold text-xs shadow-md transition flex items-center justify-center gap-1.5 active:scale-95"
+                  >
+                    <i class="fa-brands fa-weixin text-emerald-800 text-sm"></i>
+                    <span>分享至微信好友 (+1 灵感点)</span>
+                  </button>
+
+                  <!-- 途径二：激励视频广告 (Server-to-Server 灰度) -->
+                  <button 
+                    @click="simulateAdWatch" 
+                    class="w-full py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-medium transition flex items-center justify-center gap-1.5"
+                  >
+                    <i class="fa-solid fa-circle-play text-amber-400 text-xs"></i>
+                    <span>静心观看 15 秒短片 (+1 灵感点)</span>
+                  </button>
+
+                  <button @click="showEnergyModal = false" class="text-[11px] text-slate-500 block w-full py-1 hover:text-slate-400">
+                    稍后再试
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Toast 消息提示组件 -->
+            <div 
+              v-if="toastMessage" 
+              class="absolute bottom-16 left-1/2 -translate-x-1/2 z-50 bg-slate-900/95 text-amber-200 border border-amber-500/40 px-4 py-2 rounded-full text-xs shadow-2xl backdrop-blur flex items-center gap-1.5 whitespace-nowrap"
+            >
+              <i class="fa-solid fa-circle-check text-amber-400"></i>
+              <span>{{ toastMessage }}</span>
+            </div>
+
+          </div>
+
+          <!-- iOS Home 底部虚拟指示条 -->
+          <div class="h-5 w-full flex items-center justify-center bg-slate-950">
+            <div class="w-32 h-1 bg-white/30 rounded-full"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================== -->
+      <!-- 右侧：PRD 规格对照表、端侧核心逻辑与调试看板 -->
+      <!-- ============================================== -->
+      <div class="flex-1 space-y-6 max-w-2xl">
+        
+        <!-- 卡片 1: 原型架构与当前端侧状态指示 -->
+        <div class="bg-slate-900/70 border border-slate-800 rounded-3xl p-6 backdrop-blur shadow-xl space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div>
+              <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <i class="fa-solid fa-compass-drafting text-amber-400"></i>
+                <span>微信小程序端侧状态监控</span>
+              </h3>
+              <p class="text-xs text-slate-400 mt-0.5">高保真实时映射 Uni-app / 微信小程序原生生命周期</p>
+            </div>
+            <span class="text-xs font-mono px-2.5 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+              {{ currentRoute }}
+            </span>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+            <div class="bg-slate-950/50 p-3 rounded-xl border border-slate-800">
+              <span class="text-slate-400 text-[10px] block">当前可用灵感点</span>
+              <span class="text-base font-bold text-amber-300 font-mono">{{ energyPoints }} / 1</span>
+              <div class="mt-1 flex gap-1">
+                <button @click="energyPoints = 1" class="text-[9px] bg-slate-800 hover:bg-slate-700 px-1.5 py-0.5 rounded text-slate-300">设为1</button>
+                <button @click="energyPoints = 0" class="text-[9px] bg-rose-950 hover:bg-rose-900 px-1.5 py-0.5 rounded text-rose-300">设为0</button>
+              </div>
+            </div>
+
+            <div class="bg-slate-950/50 p-3 rounded-xl border border-slate-800">
+              <span class="text-slate-400 text-[10px] block">3D 卡牌状态</span>
+              <span class="text-xs font-bold text-white mt-1 block">
+                {{ isCardFlipped ? '已翻开 (Front)' : '背面 (Back)' }}
+              </span>
+              <span class="text-[9px] text-amber-400 font-cinzel">{{ activeCard.roman }} · {{ activeCard.nameCn }}</span>
+            </div>
+
+            <div class="bg-slate-950/50 p-3 rounded-xl border border-slate-800">
+              <span class="text-slate-400 text-[10px] block">微信提审模式</span>
+              <span :class="isInReview ? 'text-amber-400' : 'text-emerald-400'" class="text-xs font-bold mt-1 block">
+                {{ isInReview ? '已开启 (安全过审)' : '已关闭 (全量AI)' }}
+              </span>
+              <span class="text-[9px] text-slate-500">动态隐藏问题输入</span>
+            </div>
+
+            <div class="bg-slate-950/50 p-3 rounded-xl border border-slate-800">
+              <span class="text-slate-400 text-[10px] block">打字机流速</span>
+              <span class="text-xs font-bold text-indigo-300 mt-1 block font-mono">{{ typeSpeed }} ms/字</span>
+              <input type="range" min="10" max="60" step="5" v-model="typeSpeed" class="w-full mt-1 accent-indigo-500">
+            </div>
+          </div>
+        </div>
+
+        <!-- 卡片 2: PRD 功能点覆盖说明与交互指引 -->
+        <div class="bg-slate-900/70 border border-slate-800 rounded-3xl p-6 backdrop-blur shadow-xl space-y-4">
+          <h4 class="text-sm font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-list-check text-indigo-400"></i>
+            <span>规格说明书 (PRD) 功能清单实现索引</span>
+          </h4>
+
+          <div class="space-y-3 text-xs text-slate-300">
+            <div class="p-3 rounded-xl bg-slate-950/40 border border-slate-800/80 flex items-start gap-3">
+              <span class="w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">1</span>
+              <div>
+                <strong class="text-white">静默登录与能量指示条 (PRD 2.1)</strong>
+                <p class="text-slate-400 text-[11px] mt-0.5">首页常驻展示今日灵感状态。若可用点等于 0，点击立即拦截并弹出充盈浮层。</p>
+              </div>
+            </div>
+
+            <div class="p-3 rounded-xl bg-slate-950/40 border border-slate-800/80 flex items-start gap-3">
+              <span class="w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">2</span>
+              <div>
+                <strong class="text-white">意念输入与 3D 抽牌翻转 (PRD 2.2 & 3D 样式)</strong>
+                <p class="text-slate-400 text-[11px] mt-0.5">提供 50 字以内困惑与 4 种预设心理标签。卡牌使用 CSS3 <code>preserve-3d</code> 与切牌触感模拟，180度翻开展示古典烫金牌面。</p>
+              </div>
+            </div>
+
+            <div class="p-3 rounded-xl bg-slate-950/40 border border-slate-800/80 flex items-start gap-3">
+              <span class="w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">3</span>
+              <div>
+                <strong class="text-white">AI 流式解读与维度结构 (PRD 2.3)</strong>
+                <p class="text-slate-400 text-[11px] mt-0.5">打字机效果输出：[核心能量定调]、[潜意识意象投射]、[思维盲区与转念]、[正念行动建议]、[赋能金句]。</p>
+              </div>
+            </div>
+
+            <div class="p-3 rounded-xl bg-slate-950/40 border border-slate-800/80 flex items-start gap-3">
+              <span class="w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">4</span>
+              <div>
+                <strong class="text-white">Canvas 2D 750×1334 朋友圈海报生成 (PRD 2.5)</strong>
+                <p class="text-slate-400 text-[11px] mt-0.5">星空渐变底色、牌面插画、4字能量词、核心正念金句、太阳菊花码，支持一键模拟保存至相册。</p>
+              </div>
+            </div>
+
+            <div class="p-3 rounded-xl bg-slate-950/40 border border-slate-800/80 flex items-start gap-3">
+              <span class="w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">5</span>
+              <div>
+                <strong class="text-white">往日回响归档 (PRD 2.6)</strong>
+                <p class="text-slate-400 text-[11px] mt-0.5">按日期归档觉察记录，支持随时回溯过往翻牌结果与当时的心绪。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 卡片 3: 快速测试不同卡牌 -->
+        <div class="bg-slate-900/70 border border-slate-800 rounded-3xl p-6 backdrop-blur shadow-xl space-y-3">
+          <h4 class="text-sm font-bold text-white flex items-center justify-between">
+            <span class="flex items-center gap-2">
+              <i class="fa-solid fa-layer-group text-amber-400"></i>
+              <span>快速切换测试原型卡牌</span>
+            </span>
+            <span class="text-xs text-slate-400">点击即实时注入手机端</span>
+          </h4>
+
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+            <button 
+              v-for="c in demoCards" 
+              :key="c.id" 
+              @click="switchCard(c)"
+              :class="[
+                activeCard.id === c.id 
+                  ? 'bg-amber-500/20 border-amber-400/80 text-amber-200 font-bold shadow-sm ring-1 ring-amber-400' 
+                  : 'bg-slate-950/50 border-slate-800 text-slate-400 hover:text-slate-200',
+                'p-2.5 rounded-xl border text-left text-xs transition flex flex-col justify-between'
+              ]"
+            >
+              <div class="flex justify-between items-center text-[10px] font-cinzel text-amber-400/80">
+                <span>{{ c.roman }}</span>
+                <i :class="c.icon"></i>
+              </div>
+              <div class="my-1">
+                <div class="text-xs font-bold text-white">{{ c.nameCn }}</div>
+                <div class="text-[9px] text-slate-400 font-cinzel">{{ c.nameEn }}</div>
+              </div>
+              <span class="text-[8px] text-indigo-300 bg-indigo-950/60 px-1 py-0.2 rounded text-center">
+                {{ c.tags[0] }}
+              </span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+
+    <!-- 页脚版权与技术栈标识 -->
+    <footer class="border-t border-slate-800/80 py-4 text-center text-xs text-slate-500">
+      《心芒灵境》微信小程序端交互原型 · 基于 Vue 3 & 微信小程序 PRD 规格 · 符合荣格潜意识心理投射标准规范
+    </footer>
+  </div>
+
+  <!-- Vue 3 交互逻辑 -->
+  <script>
+    const { createApp, ref, computed } = Vue;
+
+    createApp({
+      setup() {
+        // 路由清单 (PRD 3.0)
+        const routes = [
+          { path: '/pages/index/index', name: '灵境主台 (首页)', icon: 'fa-solid fa-sun' },
+          { path: '/pages/reading/result', name: '能量解析页', icon: 'fa-solid fa-wand-magic-sparkles' },
+          { path: '/pages/poster/view', name: '朋友圈海报页', icon: 'fa-solid fa-image' },
+          { path: '/pages/profile/history', name: '往日回响 (记录)', icon: 'fa-solid fa-clock-rotate-left' }
+        ];
+
+        const currentRoute = ref('/pages/index/index');
+
+        const currentRouteTitle = computed(() => {
+          switch (currentRoute.value) {
+            case '/pages/index/index': return '心芒灵境 · 星灵漫步';
+            case '/pages/reading/result': return '潜意识投射解析';
+            case '/pages/poster/view': return '朋友圈能量卡';
+            case '/pages/profile/history': return '往日回响 · 觉察记录';
+            default: return '心芒灵境';
+          }
+        });
+
+        // 业务状态
+        const energyPoints = ref(1); // 1: 满额, 0: 耗尽
+        const isInReview = ref(false); // 提审模式开关
+        const isVibrateFeedback = ref(true); // 触感震动反馈开关
+        const isVibrating = ref(false);
+        const showEnergyModal = ref(false);
+        const toastMessage = ref('');
+
+        // 卡牌数据池 (荣格原型)
+        const demoCards = ref([
+          {
+            id: 17,
+            roman: 'XVII',
+            nameCn: '星星',
+            nameEn: 'The Star',
+            icon: 'fa-solid fa-wand-magic-sparkles',
+            element: 'HOPE & HEALING',
+            orientation: '正位',
+            tags: ['希望重塑', '潜能觉醒', '自我疗愈'],
+            quote: '“夜色越是幽暗，星光愈是清冽。保持内在确信。”',
+            category: '希望重塑 · 灵感觉醒',
+            insight: '星星牌表明你当前的困惑并非来自现实的绝境，而是你内在精神秩序的更新期。过往沉重的包袱正被渐渐放下，你需要的不是急躁地向外证明，而是像静谧夜空中的恒星一样，保持稳定的自我光芒。',
+            challenge: '容易过度为他人提供情绪抚慰，而忽视了自身内在能量蓄水池的补给。',
+            guidance: '今日适合记录 3 件令你嘴角上扬的细碎小确幸，允许自己在做重大决定前有 24 小时留白。',
+            affirmation: '“你无需成为任何人的解药，你本身就是一片自由盛开的旷野。”'
+          },
+          {
+            id: 0,
+            roman: '0',
+            nameCn: '愚者',
+            nameEn: 'The Fool',
+            icon: 'fa-solid fa-mountain-sun',
+            element: 'INFINITE POTENTIAL',
+            orientation: '正位',
+            tags: ['破局启程', '纯粹好奇', '归零重启'],
+            quote: '“迈出第一步的勇气，本身就是最深奥的智慧。”',
+            category: '归零无畏 · 崭新起点',
+            insight: '愚者象征着一切可能性的原点。你感知到的焦虑，实则是潜意识对跳出舒适区的兴奋反应。过多的风险权衡正变成沉重的行囊，让你在起跑线前迟疑不决。',
+            challenge: '害怕他人的审视与评判，让犹豫阻碍了最宝贵的直觉萌芽。',
+            guidance: '允许自己今天做一件毫无功利心、纯粹由好奇心驱动的事情，迈出微小但具体的一步。',
+            affirmation: '“未知的风景里，藏着千万个还未被定义的自己。”'
+          },
+          {
+            id: 1,
+            roman: 'I',
+            nameCn: '魔术师',
+            nameEn: 'The Magician',
+            icon: 'fa-solid fa-infinity',
+            element: 'MANIFESTATION',
+            orientation: '正位',
+            tags: ['资源整合', '创造力量', '知行合一'],
+            quote: '“如其在上，如其在下。你已备齐所需的每一块拼图。”',
+            category: '万事俱备 · 借势创造',
+            insight: '所有解决当下难题的工具已经摆在你的桌面上。魔术师提示你，你所欠缺的不是能力与储备，而是将现有零散资源整合并付诸行动的决断力。',
+            challenge: '想法过于繁杂容易导致精力涣散，需警惕三分钟热度。',
+            guidance: '梳理手头资源，为当下最重要的一个核心目标列出 3 步可落地的微小动作。',
+            affirmation: '“我拥有将意念塑造成现实的充沛力量。”'
+          },
+          {
+            id: 2,
+            roman: 'II',
+            nameCn: '女祭司',
+            nameEn: 'The High Priestess',
+            icon: 'fa-solid fa-moon',
+            element: 'INTUITION & DEPTH',
+            orientation: '正位',
+            tags: ['直觉内观', '静定自守', '智慧觉察'],
+            quote: '“在喧嚣静止之处，万物的真相自会浮出水面。”',
+            category: '向内探求 · 答案自现',
+            insight: '外界的声音过于嘈杂，遮蔽了你敏锐的本能洞察。女祭司提示你：此刻需要的不是向外抓取建议，而是退回内心的静谧之所。',
+            challenge: '将敏锐的感知力转化成了隐秘的孤独感，习惯把情绪深藏。',
+            guidance: '今日安排至少 30 分钟完全远离手机电子屏幕的独处时光，泡一杯热茶，倾听内在声音。',
+            affirmation: '“我的内在拥有汪洋般的平静与深邃智慧。”'
+          }
+        ]);
+
+        const activeCard = ref(demoCards.value[0]);
+        const userQuestion = ref('面临职业转折，不知道是该坚守还是探索新方向...');
+        const presetTags = ['自我探索', '亲密关系', '职场瓶颈', '今日灵感'];
+
+        // 3D 抽牌动画状态
+        const isCardFlipped = ref(false);
+        const isShufflingAnimation = ref(false);
+        const typeSpeed = ref(25);
+
+        // 流式解读渲染
+        const isStreamingText = ref(false);
+        const displayedInsight = ref({
+          category: '',
+          insight: '',
+          challenge: '',
+          guidance: '',
+          affirmation: ''
+        });
+
+        // 历史记录列表 (PRD 2.6)
+        const historyList = ref([
+          {
+            id: 101,
+            card: demoCards.value[1],
+            date: '昨天 09:15',
+            question: '想启动副业尝试，但缺乏勇气'
+          },
+          {
+            id: 102,
+            card: demoCards.value[3],
+            date: '前天 22:30',
+            question: '人际沟通内耗严重，该如何调节'
+          },
+          {
+            id: 103,
+            card: demoCards.value[2],
+            date: '3天前 08:40',
+            question: '团队新项目方案规划'
+          }
+        ]);
+
+        const todayDateFormatted = computed(() => {
+          const d = new Date();
+          return `${d.getFullYear()}.${d.getMonth() + 1}.${d.getDate()}`;
+        });
+
+        // 震动模拟
+        const triggerVibrate = () => {
+          if (!isVibrateFeedback.value) return;
+          isVibrating.value = true;
+          setTimeout(() => {
+            isVibrating.value = false;
+          }, 300);
+        };
+
+        const toggleVibration = () => {
+          isVibrateFeedback.value = !isVibrateFeedback.value;
+          showToast(`触感震动反馈已${isVibrateFeedback.value ? '开启' : '关闭'}`);
+        };
+
+        // 预设问题选择
+        const selectPresetTag = (tag) => {
+          userQuestion.value = `当下面临【${tag}】方面的困惑与选择，希望获得潜意识指引`;
+          triggerVibrate();
+        };
+
+        // 路由导航
+        const navigateTo = (path) => {
+          currentRoute.value = path;
+          triggerVibrate();
+          if (path === '/pages/reading/result') {
+            startStreamTyping();
+          }
+        };
+
+        const navigateBack = () => {
+          if (currentRoute.value === '/pages/reading/result' || currentRoute.value === '/pages/poster/view') {
+            currentRoute.value = '/pages/index/index';
+          } else if (currentRoute.value === '/pages/profile/history') {
+            currentRoute.value = '/pages/index/index';
+          }
+          triggerVibrate();
+        };
+
+        // 能量检查与拦截
+        const handleEnergyClick = () => {
+          if (energyPoints.value === 0) {
+            showEnergyModal.value = true;
+          } else {
+            showToast('今日拥有 1 次充沛灵感点');
+          }
+        };
+
+        // 抽牌动作 (PRD 2.2)
+        const triggerShuffleAndDraw = () => {
+          // 能量拦截
+          if (energyPoints.value <= 0) {
+            showEnergyModal.value = true;
+            triggerVibrate();
+            return;
+          }
+
+          // 执行洗牌动效
+          isCardFlipped.value = false;
+          isShufflingAnimation.value = true;
+          triggerVibrate();
+
+          setTimeout(() => {
+            isShufflingAnimation.value = false;
+            isCardFlipped.value = true;
+            energyPoints.value = 0; // 扣减能量
+            triggerVibrate();
+            showToast('卡牌已翻开 · 灵感点扣减 1');
+          }, 600);
+        };
+
+        const handleCardTap = () => {
+          if (!isCardFlipped.value) {
+            triggerShuffleAndDraw();
+          } else {
+            navigateTo('/pages/reading/result');
+          }
+        };
+
+        const resetCardState = () => {
+          isCardFlipped.value = false;
+          triggerVibrate();
+        };
+
+        // 打字机流式输出 (PRD 2.3)
+        const startStreamTyping = () => {
+          isStreamingText.value = true;
+          displayedInsight.value = {
+            category: isInReview.value ? '【晨起清心 · 心理自省】' : `【${activeCard.value.category}】`,
+            insight: '',
+            challenge: activeCard.value.challenge,
+            guidance: activeCard.value.guidance,
+            affirmation: activeCard.value.affirmation
+          };
+
+          const fullText = isInReview.value 
+            ? `抽取【${activeCard.value.nameCn}】，愿你拥有一份沉稳笃定的力量。无论外界节奏如何变幻，保持内心的自如与安宁。接纳生活中的留白，给自己一句由衷的感谢。`
+            : activeCard.value.insight;
+
+          let idx = 0;
+          const timer = setInterval(() => {
+            if (idx < fullText.length) {
+              displayedInsight.value.insight += fullText[idx];
+              idx++;
+            } else {
+              clearInterval(timer);
+              isStreamingText.value = false;
+            }
+          }, typeSpeed.value);
+        };
+
+        // 补能闭环模拟 (PRD 2.4)
+        const simulateShareSuccess = () => {
+          showEnergyModal.value = false;
+          energyPoints.value = 1;
+          showToast('🎉 好友已接收共鸣！灵感充盈 +1');
+          triggerVibrate();
+        };
+
+        const simulateAdWatch = () => {
+          showEnergyModal.value = false;
+          energyPoints.value = 1;
+          showToast('🎬 15 秒短片已完播！灵感充盈 +1');
+          triggerVibrate();
+        };
+
+        // 保存海报 (PRD 2.5)
+        const savePosterToAlbum = () => {
+          showToast('✅ 海报已模拟保存至系统相册 (750x1334)');
+          triggerVibrate();
+        };
+
+        // 记录至往日回响 (PRD 2.6)
+        const saveToHistory = () => {
+          historyList.value.unshift({
+            id: Date.now(),
+            card: activeCard.value,
+            date: '刚刚',
+            question: userQuestion.value || '每日例行觉察'
+          });
+          showToast('已成功归档至【往日回响】');
+          triggerVibrate();
+        };
+
+        const viewHistoryDetail = (item) => {
+          activeCard.value = item.card;
+          userQuestion.value = item.question;
+          navigateTo('/pages/reading/result');
+        };
+
+        const switchCard = (c) => {
+          activeCard.value = c;
+          isCardFlipped.value = false;
+          showToast(`已切换当前卡面为【${c.nameCn}】`);
+          triggerVibrate();
+        };
+
+        const showToast = (msg) => {
+          toastMessage.value = msg;
+          setTimeout(() => {
+            toastMessage.value = '';
+          }, 2400);
+        };
+
+        return {
+          routes,
+          currentRoute,
+          currentRouteTitle,
+          energyPoints,
+          isInReview,
+          isVibrateFeedback,
+          isVibrating,
+          showEnergyModal,
+          toastMessage,
+          demoCards,
+          activeCard,
+          userQuestion,
+          presetTags,
+          isCardFlipped,
+          isShufflingAnimation,
+          typeSpeed,
+          isStreamingText,
+          displayedInsight,
+          historyList,
+          todayDateFormatted,
+          toggleVibration,
+          selectPresetTag,
+          navigateTo,
+          navigateBack,
+          handleEnergyClick,
+          triggerShuffleAndDraw,
+          handleCardTap,
+          resetCardState,
+          simulateShareSuccess,
+          simulateAdWatch,
+          savePosterToAlbum,
+          saveToHistory,
+          viewHistoryDetail,
+          switchCard,
+          showToast
+        };
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>
