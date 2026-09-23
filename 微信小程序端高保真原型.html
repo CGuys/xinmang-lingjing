@@ -10,6 +10,8 @@
   <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
   <!-- FontAwesome 6 图标库 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <!-- 本地塔罗牌 78 张全量卡牌资产库定义 -->
+  <script src="assets/tarot/cards-data.js"></script>
   <!-- Google Fonts: Cinzel 古典西文字体 & Noto Serif SC 典雅宋体 -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -292,72 +294,44 @@
                     'w-48 h-72 rounded-2xl transform-style-3d transition-transform duration-700 cursor-pointer relative shadow-2xl shadow-indigo-950/80 select-none'
                   ]"
                 >
-                  <!-- 卡牌背面 (未翻开状态：古典双层烫金花边 + 曼陀罗星盘 + 四角纹饰) -->
-                  <div class="card-face absolute inset-0 w-full h-full rounded-2xl backface-hidden bg-gradient-to-b from-[#13112c] via-[#0d0a21] to-[#060412] gold-border p-2.5 flex flex-col items-center justify-between overflow-hidden">
-                    <div class="w-full h-full border border-amber-500/30 rounded-xl p-2 flex flex-col items-center justify-between relative bg-black/30">
-                      <!-- 四角古典花饰 -->
-                      <div class="absolute top-1 left-1.5 text-amber-400/60 text-[10px]">❖</div>
-                      <div class="absolute top-1 right-1.5 text-amber-400/60 text-[10px]">❖</div>
-                      <div class="absolute bottom-1 left-1.5 text-amber-400/60 text-[10px]">❖</div>
-                      <div class="absolute bottom-1 right-1.5 text-amber-400/60 text-[10px]">❖</div>
-
-                      <!-- 顶部微标 -->
-                      <div class="text-[9px] font-cinzel text-amber-400/80 tracking-widest pt-1">ARCANA LABS</div>
-
-                      <!-- 背面中心曼陀罗星盘与旋转日光 -->
-                      <div class="w-24 h-24 rounded-full border border-dashed border-amber-500/40 flex items-center justify-center relative my-auto">
-                        <div class="w-20 h-20 rounded-full border border-amber-400/30 flex items-center justify-center animate-spin-slow">
-                          <i class="fa-regular fa-sun text-2xl text-amber-400/70"></i>
-                        </div>
-                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-                          <i class="fa-solid fa-gem text-amber-300/50 text-sm"></i>
-                        </div>
+                  <!-- 卡牌背面 (使用真实 assets/tarot/back.jpg 艺术卡背) -->
+                  <div class="card-face absolute inset-0 w-full h-full rounded-2xl backface-hidden gold-border p-1 flex flex-col items-center justify-between overflow-hidden shadow-2xl bg-[#0d0a21]">
+                    <div class="w-full h-full rounded-xl overflow-hidden relative border border-amber-500/40">
+                      <img src="assets/tarot/back.jpg" alt="卡牌背面" class="w-full h-full object-cover select-none" />
+                      <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none"></div>
+                      <div class="absolute top-2 left-0 right-0 text-center">
+                        <span class="text-[9px] font-cinzel text-amber-300 tracking-widest bg-black/50 px-2 py-0.5 rounded-full border border-amber-500/30">ISHTAR TAROT</span>
                       </div>
-
-                      <!-- 底部轻触提示 -->
-                      <div class="text-center pb-1">
-                        <p class="text-[10px] text-amber-200/90 font-medium flex items-center justify-center gap-1">
-                          <i class="fa-solid fa-hand-pointer text-amber-400 text-[9px] animate-bounce"></i> 轻触翻转觉察
-                        </p>
-                        <span class="text-[8px] text-slate-500 font-cinzel tracking-wider">TOUCH TO REVEAL</span>
+                      <div class="absolute bottom-2 left-0 right-0 text-center">
+                        <span class="text-[9px] text-amber-200 font-medium bg-black/60 px-2.5 py-1 rounded-full border border-amber-500/30 shadow flex items-center justify-center gap-1 mx-auto w-fit">
+                          <i class="fa-solid fa-hand-pointer text-amber-400 text-[8px] animate-bounce"></i> 轻触翻转觉察
+                        </span>
                       </div>
                     </div>
                   </div>
 
-                  <!-- 卡牌正面 (翻开后状态：星空渐变 + 罗马数字 + 发光图腾 + 关键词) -->
-                  <div class="card-face card-face-front absolute inset-0 w-full h-full rounded-2xl backface-hidden rotate-y-180 bg-gradient-to-b from-[#16192e] via-[#0d1021] to-[#060714] gold-border p-2.5 flex flex-col justify-between overflow-hidden text-center">
-                    <div class="w-full h-full border border-amber-500/30 rounded-xl p-2 flex flex-col items-center justify-between relative bg-black/20">
-                      <!-- 顶部卡牌序号与正位状态 -->
-                      <div class="w-full flex justify-between items-center text-[9px] font-cinzel text-amber-400/90 px-1 pt-0.5">
-                        <span class="tracking-widest">{{ activeCard.roman }}</span>
-                        <span class="px-1.5 py-0.2 rounded bg-amber-400/20 text-amber-300 text-[8px] font-sans">
-                          {{ activeCard.orientation }}
-                        </span>
+                  <!-- 卡牌正面 (使用真实 assets/tarot/cards/*.jpg 高保真卡面) -->
+                  <div class="card-face card-face-front absolute inset-0 w-full h-full rounded-2xl backface-hidden rotate-y-180 gold-border p-1 flex flex-col justify-between overflow-hidden shadow-2xl bg-[#090814]">
+                    <div class="w-full h-full rounded-xl overflow-hidden relative border border-amber-500/40 flex flex-col justify-between">
+                      <!-- 卡牌艺术画作全幅铺设 -->
+                      <img :src="activeCard.image" :alt="activeCard.nameCn" class="absolute inset-0 w-full h-full object-cover" />
+                      
+                      <!-- 顶部半透明遮罩与卡牌头衔 -->
+                      <div class="relative z-10 p-2 bg-gradient-to-b from-black/90 via-black/60 to-transparent flex items-center justify-between text-[9px] font-cinzel text-amber-300">
+                        <span class="font-bold tracking-wider px-1.5 py-0.5 rounded bg-black/50 border border-amber-500/30">{{ activeCard.roman || '#' + activeCard.index }}</span>
+                        <span class="font-bold text-xs text-white font-serif-sc drop-shadow">{{ activeCard.nameCn }}</span>
+                        <span class="px-1.5 py-0.2 rounded bg-amber-400/30 text-amber-200 text-[8px] border border-amber-400/40">{{ activeCard.orientation || '正位' }}</span>
                       </div>
 
-                      <!-- 卡牌名称 -->
-                      <div class="my-0.5">
-                        <h4 class="text-sm font-bold font-serif-sc text-amber-100 tracking-wide">{{ activeCard.nameCn }}</h4>
-                        <span class="text-[8px] text-slate-400 font-cinzel">{{ activeCard.nameEn }}</span>
-                      </div>
-
-                      <!-- 牌面中心发光图腾插画区 -->
-                      <div class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-amber-500/20 via-indigo-500/10 to-transparent border border-amber-400/40 flex items-center justify-center relative shadow-inner my-1">
-                        <i :class="[activeCard.icon, 'text-4xl text-amber-300 drop-shadow-[0_0_10px_rgba(251,191,36,0.6)]']"></i>
-                        <span class="absolute -bottom-2 px-2 py-0.5 rounded-full bg-slate-950 border border-amber-500/40 text-[8px] text-amber-300 font-cinzel whitespace-nowrap">
-                          {{ activeCard.element }}
-                        </span>
-                      </div>
-
-                      <!-- 关键词与启示金句 -->
-                      <div class="w-full space-y-1 pt-1.5">
+                      <!-- 底部半透明遮罩与启示标签 -->
+                      <div class="relative z-10 p-2 bg-gradient-to-t from-black/95 via-black/80 to-transparent text-center space-y-1">
                         <div class="flex flex-wrap justify-center gap-1">
-                          <span v-for="tag in activeCard.tags" :key="tag" class="text-[8px] px-1.5 py-0.5 rounded bg-indigo-950/80 text-amber-200 border border-indigo-500/30">
+                          <span v-for="tag in activeCard.tags" :key="tag" class="text-[8px] px-1.5 py-0.2 rounded-full bg-amber-500/20 text-amber-200 border border-amber-500/30 font-serif-sc">
                             {{ tag }}
                           </span>
                         </div>
-                        <p class="text-[9px] text-slate-300 line-clamp-2 px-1 font-serif-sc italic">
-                          {{ activeCard.quote }}
+                        <p class="text-[9px] text-slate-200 line-clamp-1 italic font-serif-sc drop-shadow">
+                          “{{ activeCard.quote }}”
                         </p>
                       </div>
                     </div>
@@ -405,8 +379,8 @@
               <!-- 顶部卡牌概览徽章 -->
               <div class="flex items-center justify-between bg-white/5 border border-white/10 rounded-2xl p-3 backdrop-blur-md">
                 <div class="flex items-center space-x-3">
-                  <div class="w-12 h-16 rounded-lg bg-gradient-to-b from-[#13112c] to-[#080713] gold-border flex items-center justify-center flex-shrink-0">
-                    <i :class="[activeCard.icon, 'text-xl text-amber-300 drop-shadow']"></i>
+                  <div class="w-12 h-16 rounded-lg overflow-hidden border border-amber-500/40 shadow flex-shrink-0 relative bg-black/50">
+                    <img :src="activeCard.image" :alt="activeCard.nameCn" class="w-full h-full object-cover" />
                   </div>
                   <div>
                     <div class="flex items-center gap-1.5">
@@ -522,9 +496,13 @@
                     <div class="text-[8px] text-amber-300/80 font-cinzel">{{ activeCard.nameEn }} · {{ activeCard.orientation }}</div>
                   </div>
 
-                  <!-- 牌面图腾中心插画 -->
-                  <div class="w-24 h-24 mx-auto rounded-2xl bg-gradient-to-tr from-amber-500/20 via-indigo-500/10 to-transparent border border-amber-400/40 flex items-center justify-center my-1 shadow-inner">
-                    <i :class="[activeCard.icon, 'text-4xl text-amber-300 drop-shadow-[0_0_10px_rgba(251,191,36,0.6)]']"></i>
+                  <!-- 牌面高清原版艺术插画区 (使用 assets/tarot/large/*.jpg 真实大图) -->
+                  <div class="w-32 h-44 mx-auto rounded-xl overflow-hidden border border-amber-400/50 shadow-2xl relative my-1 bg-black/60 group">
+                    <img :src="activeCard.imageLarge" :alt="activeCard.nameCn" class="w-full h-full object-cover" />
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none"></div>
+                    <span class="absolute bottom-1 right-1 px-1.5 py-0.2 rounded bg-black/70 text-amber-300 text-[8px] font-cinzel border border-amber-400/30">
+                      {{ activeCard.roman || '#' + activeCard.index }}
+                    </span>
                   </div>
 
                   <!-- 4字定调词与金句 -->
@@ -605,8 +583,8 @@
                   class="bg-slate-950/60 hover:bg-slate-900/80 border border-slate-800 hover:border-amber-500/40 rounded-xl p-3 transition cursor-pointer flex items-center justify-between"
                 >
                   <div class="flex items-center space-x-3">
-                    <div class="w-10 h-14 rounded-lg bg-gradient-to-b from-[#16142e] to-[#070612] gold-border flex items-center justify-center flex-shrink-0">
-                      <i :class="[item.card.icon, 'text-base text-amber-300']"></i>
+                    <div class="w-10 h-14 rounded-lg overflow-hidden border border-amber-500/40 flex-shrink-0 relative bg-black/50 shadow">
+                      <img :src="item.card.image" :alt="item.card.nameCn" class="w-full h-full object-cover" />
                     </div>
                     <div>
                       <div class="flex items-center gap-1.5">
@@ -825,26 +803,24 @@
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
             <button 
               v-for="c in demoCards" 
-              :key="c.id" 
+              :key="c.index" 
               @click="switchCard(c)"
               :class="[
-                activeCard.id === c.id 
-                  ? 'bg-amber-500/20 border-amber-400/80 text-amber-200 font-bold shadow-sm ring-1 ring-amber-400' 
+                activeCard.index === c.index 
+                  ? 'bg-amber-500/20 border-amber-400 text-amber-200 font-bold shadow-sm ring-1 ring-amber-400' 
                   : 'bg-slate-950/50 border-slate-800 text-slate-400 hover:text-slate-200',
-                'p-2.5 rounded-xl border text-left text-xs transition flex flex-col justify-between'
+                'p-2 rounded-xl border text-left text-xs transition flex items-center gap-2 group'
               ]"
             >
-              <div class="flex justify-between items-center text-[10px] font-cinzel text-amber-400/80">
-                <span>{{ c.roman }}</span>
-                <i :class="c.icon"></i>
+              <img :src="c.image" :alt="c.nameCn" class="w-8 h-12 object-cover rounded border border-amber-500/30 group-hover:scale-105 transition flex-shrink-0" />
+              <div class="min-w-0 flex-1">
+                <div class="flex justify-between items-center text-[9px] font-cinzel text-amber-400/90">
+                  <span class="font-bold">{{ c.roman || '#' + c.index }}</span>
+                  <span class="text-[8px] text-slate-500">{{ c.categoryName || '大牌' }}</span>
+                </div>
+                <div class="text-xs font-bold text-white truncate mt-0.5">{{ c.nameCn }}</div>
+                <div class="text-[8px] text-indigo-300 truncate">{{ c.tags ? c.tags[0] : '' }}</div>
               </div>
-              <div class="my-1">
-                <div class="text-xs font-bold text-white">{{ c.nameCn }}</div>
-                <div class="text-[9px] text-slate-400 font-cinzel">{{ c.nameEn }}</div>
-              </div>
-              <span class="text-[8px] text-indigo-300 bg-indigo-950/60 px-1 py-0.2 rounded text-center">
-                {{ c.tags[0] }}
-              </span>
             </button>
           </div>
         </div>
@@ -893,75 +869,22 @@
         const showEnergyModal = ref(false);
         const toastMessage = ref('');
 
-        // 卡牌数据池 (荣格原型)
-        const demoCards = ref([
-          {
-            id: 17,
-            roman: 'XVII',
-            nameCn: '星星',
-            nameEn: 'The Star',
-            icon: 'fa-solid fa-wand-magic-sparkles',
-            element: 'HOPE & HEALING',
-            orientation: '正位',
-            tags: ['希望重塑', '潜能觉醒', '自我疗愈'],
-            quote: '“夜色越是幽暗，星光愈是清冽。保持内在确信。”',
-            category: '希望重塑 · 灵感觉醒',
-            insight: '星星牌表明你当前的困惑并非来自现实的绝境，而是你内在精神秩序的更新期。过往沉重的包袱正被渐渐放下，你需要的不是急躁地向外证明，而是像静谧夜空中的恒星一样，保持稳定的自我光芒。',
-            challenge: '容易过度为他人提供情绪抚慰，而忽视了自身内在能量蓄水池的补给。',
-            guidance: '今日适合记录 3 件令你嘴角上扬的细碎小确幸，允许自己在做重大决定前有 24 小时留白。',
-            affirmation: '“你无需成为任何人的解药，你本身就是一片自由盛开的旷野。”'
-          },
-          {
-            id: 0,
-            roman: '0',
-            nameCn: '愚者',
-            nameEn: 'The Fool',
-            icon: 'fa-solid fa-mountain-sun',
-            element: 'INFINITE POTENTIAL',
-            orientation: '正位',
-            tags: ['破局启程', '纯粹好奇', '归零重启'],
-            quote: '“迈出第一步的勇气，本身就是最深奥的智慧。”',
-            category: '归零无畏 · 崭新起点',
-            insight: '愚者象征着一切可能性的原点。你感知到的焦虑，实则是潜意识对跳出舒适区的兴奋反应。过多的风险权衡正变成沉重的行囊，让你在起跑线前迟疑不决。',
-            challenge: '害怕他人的审视与评判，让犹豫阻碍了最宝贵的直觉萌芽。',
-            guidance: '允许自己今天做一件毫无功利心、纯粹由好奇心驱动的事情，迈出微小但具体的一步。',
-            affirmation: '“未知的风景里，藏着千万个还未被定义的自己。”'
-          },
-          {
-            id: 1,
-            roman: 'I',
-            nameCn: '魔术师',
-            nameEn: 'The Magician',
-            icon: 'fa-solid fa-infinity',
-            element: 'MANIFESTATION',
-            orientation: '正位',
-            tags: ['资源整合', '创造力量', '知行合一'],
-            quote: '“如其在上，如其在下。你已备齐所需的每一块拼图。”',
-            category: '万事俱备 · 借势创造',
-            insight: '所有解决当下难题的工具已经摆在你的桌面上。魔术师提示你，你所欠缺的不是能力与储备，而是将现有零散资源整合并付诸行动的决断力。',
-            challenge: '想法过于繁杂容易导致精力涣散，需警惕三分钟热度。',
-            guidance: '梳理手头资源，为当下最重要的一个核心目标列出 3 步可落地的微小动作。',
-            affirmation: '“我拥有将意念塑造成现实的充沛力量。”'
-          },
-          {
-            id: 2,
-            roman: 'II',
-            nameCn: '女祭司',
-            nameEn: 'The High Priestess',
-            icon: 'fa-solid fa-moon',
-            element: 'INTUITION & DEPTH',
-            orientation: '正位',
-            tags: ['直觉内观', '静定自守', '智慧觉察'],
-            quote: '“在喧嚣静止之处，万物的真相自会浮出水面。”',
-            category: '向内探求 · 答案自现',
-            insight: '外界的声音过于嘈杂，遮蔽了你敏锐的本能洞察。女祭司提示你：此刻需要的不是向外抓取建议，而是退回内心的静谧之所。',
-            challenge: '将敏锐的感知力转化成了隐秘的孤独感，习惯把情绪深藏。',
-            guidance: '今日安排至少 30 分钟完全远离手机电子屏幕的独处时光，泡一杯热茶，倾听内在声音。',
-            affirmation: '“我的内在拥有汪洋般的平静与深邃智慧。”'
-          }
-        ]);
+        // 78 张全量卡牌数据池 (荣格原型 & Ishtar Insights 真实卡牌资源)
+        const allDeckCards = ref(
+          (window.TAROT_DECK && Array.isArray(window.TAROT_DECK.cards)) 
+            ? window.TAROT_DECK.cards 
+            : []
+        );
 
-        const activeCard = ref(demoCards.value[0]);
+        // 代表性预设测试卡牌
+        const demoCards = computed(() => {
+          const list = allDeckCards.value;
+          const targetIndices = [17, 0, 1, 2, 19, 21, 22, 36]; // 星星、愚者、魔术师、女祭司、太阳、世界、权杖王牌、圣杯王牌
+          const found = targetIndices.map(idx => list.find(c => c.index === idx)).filter(Boolean);
+          return found.length >= 4 ? found : list.slice(0, 8);
+        });
+
+        const activeCard = ref(allDeckCards.value.find(c => c.index === 17) || allDeckCards.value[0] || {});
         const userQuestion = ref('面临职业转折，不知道是该坚守还是探索新方向...');
         const presetTags = ['自我探索', '亲密关系', '职场瓶颈', '今日灵感'];
 
@@ -984,19 +907,19 @@
         const historyList = ref([
           {
             id: 101,
-            card: demoCards.value[1],
+            card: allDeckCards.value.find(c => c.index === 0) || allDeckCards.value[0],
             date: '昨天 09:15',
             question: '想启动副业尝试，但缺乏勇气'
           },
           {
             id: 102,
-            card: demoCards.value[3],
+            card: allDeckCards.value.find(c => c.index === 2) || allDeckCards.value[1],
             date: '前天 22:30',
             question: '人际沟通内耗严重，该如何调节'
           },
           {
             id: 103,
-            card: demoCards.value[2],
+            card: allDeckCards.value.find(c => c.index === 1) || allDeckCards.value[2],
             date: '3天前 08:40',
             question: '团队新项目方案规划'
           }
@@ -1054,7 +977,7 @@
           }
         };
 
-        // 抽牌动作 (PRD 2.2)
+        // 抽牌动作 (PRD 2.2 · 从 78 张全量卡牌中随机洗牌抽取)
         const triggerShuffleAndDraw = () => {
           // 能量拦截
           if (energyPoints.value <= 0) {
@@ -1070,10 +993,15 @@
 
           setTimeout(() => {
             isShufflingAnimation.value = false;
+            // 真实从 78 张全牌库中随机抽取
+            if (allDeckCards.value && allDeckCards.value.length > 0) {
+              const randomIndex = Math.floor(Math.random() * allDeckCards.value.length);
+              activeCard.value = allDeckCards.value[randomIndex];
+            }
             isCardFlipped.value = true;
             energyPoints.value = 0; // 扣减能量
             triggerVibrate();
-            showToast('卡牌已翻开 · 灵感点扣减 1');
+            showToast(`已抽取【${activeCard.value.nameCn}】· 灵感点扣减 1`);
           }, 600);
         };
 
@@ -1094,11 +1022,11 @@
         const startStreamTyping = () => {
           isStreamingText.value = true;
           displayedInsight.value = {
-            category: isInReview.value ? '【晨起清心 · 心理自省】' : `【${activeCard.value.category}】`,
+            category: isInReview.value ? '【晨起清心 · 心理自省】' : `【${activeCard.value.categoryName || '大阿卡纳'} · ${activeCard.value.element || 'INTUITION'}】`,
             insight: '',
             challenge: activeCard.value.challenge,
             guidance: activeCard.value.guidance,
-            affirmation: activeCard.value.affirmation
+            affirmation: activeCard.value.affirmation || activeCard.value.quote
           };
 
           const fullText = isInReview.value 
@@ -1180,6 +1108,7 @@
           isVibrating,
           showEnergyModal,
           toastMessage,
+          allDeckCards,
           demoCards,
           activeCard,
           userQuestion,

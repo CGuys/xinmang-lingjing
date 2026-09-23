@@ -1,0 +1,77 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// 1. 小程序用户表
+model User {
+  id              String         @id @default(uuid())
+  openid          String         @unique
+  bonus_energy    Int            @default(0)
+  last_free_date  String?        // 格式: "YYYY-MM-DD"
+  is_blacklisted  Boolean        @default(false)
+  created_at      DateTime       @default(now())
+  updated_at      DateTime       @updatedAt
+
+  readings            TarotReading[]
+  invitationsReceived Invitation[]   @relation("Invitee")
+  invitationsSent     Invitation[]   @relation("Inviter")
+}
+
+// 2. 裂变邀请记录表 (三元唯一索引防重复刷点)
+model Invitation {
+  id          String   @id @default(uuid())
+  inviter_id  String
+  invitee_id  String
+  date_str    String   // 格式: "YYYY-MM-DD"
+  created_at  DateTime @default(now())
+
+  inviter     User     @relation("Inviter", fields: [inviter_id], references: [id])
+  invitee     User     @relation("Invitee", fields: [invitee_id], references: [id])
+
+  @@unique([inviter_id, invitee_id, date_str])
+}
+
+// 3. 塔罗抽牌与解读记录表
+model TarotReading {
+  id             String   @id @default(uuid())
+  user_id        String
+  card_id        Int
+  card_name      String
+  orientation    String   @default("upright") // upright (正位) | reversed (逆位)
+  user_question  String?
+  reading_result String?
+  status         String   @default("pending") // pending | streaming | completed | failed
+  created_at     DateTime @default(now())
+
+  user           User     @relation(fields: [user_id], references: [id])
+}
+
+// 4. 业务策略与运行配置表 (键值存储)
+model SystemSetting {
+  key         String   @id
+  value       String
+  description String?
+  updated_at  DateTime @updatedAt
+}
+
+// 5. 违禁敏感词字典
+model SensitiveWord {
+  id         Int      @id @default(autoincrement())
+  word       String   @unique
+  category   String   @default("superstition") // superstition | politics | abuse
+  created_at DateTime @default(now())
+}
+
+// 6. 运营后台管理员表
+model AdminUser {
+  id         String   @id @default(uuid())
+  username   String   @unique
+  password   String
+  role       String   @default("admin")
+  created_at DateTime @default(now())
+}

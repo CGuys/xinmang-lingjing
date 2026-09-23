@@ -10,6 +10,8 @@
   <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
   <!-- FontAwesome 图标 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <!-- 本地塔罗牌 78 张全量卡牌资产库定义 -->
+  <script src="assets/tarot/cards-data.js"></script>
   <!-- Google Fonts: Cinzel & Noto Serif SC -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -447,25 +449,23 @@
               <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 <button 
                   v-for="card in cardOptions" 
-                  :key="card.id" 
+                  :key="card.index" 
                   @click="selectCard(card)"
                   :class="[
-                    selectedCard.id === card.id 
-                      ? 'border-amber-400 bg-amber-50/90 text-amber-950 font-bold shadow-sm ring-1 ring-amber-400' 
+                    selectedCard.index === card.index 
+                      ? 'border-amber-400 bg-amber-50/90 text-amber-950 font-bold shadow-sm ring-2 ring-amber-400/80' 
                       : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100',
-                    'border rounded-lg p-2 text-left text-xs transition flex flex-col justify-between'
+                    'border rounded-lg p-2 text-left text-xs transition flex items-center gap-2 group'
                   ]"
                 >
-                  <div class="flex items-center justify-between">
-                    <span class="font-cinzel text-[10px] text-amber-700 font-bold">{{ card.roman || '#' + card.id }}</span>
-                    <i :class="[card.icon, 'text-xs text-amber-500']"></i>
-                  </div>
-                  <div class="my-1">
-                    <div class="font-bold text-xs truncate">{{ card.nameCn }}</div>
-                    <div class="text-[9px] text-slate-400 font-mono truncate">{{ card.nameEn }}</div>
-                  </div>
-                  <div class="text-[9px] text-indigo-600 bg-indigo-50/80 px-1 py-0.5 rounded text-center font-medium">
-                    {{ card.tags[0] }}
+                  <img :src="card.image" :alt="card.nameCn" class="w-8 h-12 object-cover rounded border border-amber-500/40 shadow-xs flex-shrink-0 group-hover:scale-105 transition" />
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-center justify-between">
+                      <span class="font-cinzel text-[9px] text-amber-700 font-bold">{{ card.roman || '#' + card.index }}</span>
+                      <span class="text-[8px] px-1 rounded bg-indigo-50 text-indigo-600 font-medium">{{ card.categoryName || '阿卡纳' }}</span>
+                    </div>
+                    <div class="font-bold text-xs truncate mt-0.5 text-slate-900">{{ card.nameCn }}</div>
+                    <div class="text-[9px] text-slate-400 truncate">{{ card.tags ? card.tags[0] : '' }}</div>
                   </div>
                 </button>
               </div>
@@ -601,73 +601,44 @@
                       'w-48 h-72 rounded-2xl transform-style-3d transition-transform duration-700 cursor-pointer relative shadow-2xl shadow-indigo-950/80 select-none'
                     ]"
                   >
-                    <!-- 卡牌背面 (未翻开状态：古典双层烫金花边 + 曼陀罗星盘 + 四角纹路) -->
-                    <div class="card-face absolute inset-0 w-full h-full rounded-2xl backface-hidden bg-gradient-to-b from-[#13112c] via-[#0d0a21] to-[#060412] gold-border p-2.5 flex flex-col items-center justify-between overflow-hidden">
-                      <div class="w-full h-full border border-amber-500/30 rounded-xl p-2 flex flex-col items-center justify-between relative bg-black/30">
-                        <!-- 四角古典花饰 -->
-                        <div class="absolute top-1 left-1.5 text-amber-400/60 text-[10px]">❖</div>
-                        <div class="absolute top-1 right-1.5 text-amber-400/60 text-[10px]">❖</div>
-                        <div class="absolute bottom-1 left-1.5 text-amber-400/60 text-[10px]">❖</div>
-                        <div class="absolute bottom-1 right-1.5 text-amber-400/60 text-[10px]">❖</div>
-
-                        <!-- 顶部微标 -->
-                        <div class="text-[9px] font-cinzel text-amber-400/80 tracking-widest pt-1">ARCANA LABS</div>
-
-                        <!-- 背面中心曼陀罗星盘与旋转日光 -->
-                        <div class="w-24 h-24 rounded-full border border-dashed border-amber-500/40 flex items-center justify-center relative my-auto">
-                          <div class="w-20 h-20 rounded-full border border-amber-400/30 flex items-center justify-center animate-spin-slow">
-                            <i class="fa-regular fa-sun text-2xl text-amber-400/70"></i>
-                          </div>
-                          <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-                            <i class="fa-solid fa-gem text-amber-300/50 text-sm"></i>
-                          </div>
+                    <!-- 卡牌背面 (使用真实 assets/tarot/back.jpg 艺术卡背) -->
+                    <div class="card-face absolute inset-0 w-full h-full rounded-2xl backface-hidden gold-border p-1 flex flex-col items-center justify-between overflow-hidden shadow-2xl bg-[#0d0a21]">
+                      <div class="w-full h-full rounded-xl overflow-hidden relative border border-amber-500/40">
+                        <img src="assets/tarot/back.jpg" alt="卡牌背面" class="w-full h-full object-cover select-none" />
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none"></div>
+                        <div class="absolute top-2 left-0 right-0 text-center">
+                          <span class="text-[9px] font-cinzel text-amber-300/90 tracking-widest bg-black/50 px-2 py-0.5 rounded-full border border-amber-500/30">ISHTAR TAROT</span>
                         </div>
-
-                        <!-- 底部提示文字 -->
-                        <div class="text-center pb-1">
-                          <p class="text-[10px] text-amber-200/90 font-medium flex items-center justify-center gap-1">
-                            <i class="fa-solid fa-hand-pointer text-amber-400 text-[9px] animate-bounce"></i> 轻触翻转觉察
-                          </p>
-                          <span class="text-[8px] text-slate-500 font-cinzel tracking-wider">TOUCH TO REVEAL</span>
+                        <div class="absolute bottom-2 left-0 right-0 text-center">
+                          <span class="text-[9px] text-amber-200/90 font-medium bg-black/60 px-2.5 py-1 rounded-full border border-amber-500/30 shadow flex items-center justify-center gap-1 mx-auto w-fit">
+                            <i class="fa-solid fa-hand-pointer text-amber-400 text-[8px] animate-bounce"></i> 轻触翻转觉察
+                          </span>
                         </div>
                       </div>
                     </div>
 
-                    <!-- 卡牌正面 (翻开后状态：星空渐变 + 罗马数字 + 发光图腾 + 关键词) -->
-                    <div class="card-face card-face-front absolute inset-0 w-full h-full rounded-2xl backface-hidden rotate-y-180 bg-gradient-to-b from-[#16192e] via-[#0d1021] to-[#060714] gold-border p-2.5 flex flex-col justify-between overflow-hidden text-center">
-                      <div class="w-full h-full border border-amber-500/30 rounded-xl p-2 flex flex-col items-center justify-between relative bg-black/20">
-                        <!-- 顶部卡牌序号与正位状态 -->
-                        <div class="w-full flex justify-between items-center text-[9px] font-cinzel text-amber-400/90 px-1 pt-0.5">
-                          <span class="tracking-widest">{{ selectedCard.roman || '#' + selectedCard.id }}</span>
-                          <span class="px-1.5 py-0.2 rounded bg-amber-400/20 text-amber-300 text-[8px] font-sans">
-                            {{ selectedCard.orientation || '正位' }}
-                          </span>
+                    <!-- 卡牌正面 (使用真实 assets/tarot/cards/*.jpg 高保真卡面) -->
+                    <div class="card-face card-face-front absolute inset-0 w-full h-full rounded-2xl backface-hidden rotate-y-180 gold-border p-1 flex flex-col justify-between overflow-hidden shadow-2xl bg-[#090814]">
+                      <div class="w-full h-full rounded-xl overflow-hidden relative border border-amber-500/40 flex flex-col justify-between">
+                        <!-- 卡牌艺术画作全幅铺设 -->
+                        <img :src="selectedCard.image" :alt="selectedCard.nameCn" class="absolute inset-0 w-full h-full object-cover" />
+                        
+                        <!-- 顶部半透明遮罩与卡牌头衔 -->
+                        <div class="relative z-10 p-2 bg-gradient-to-b from-black/90 via-black/60 to-transparent flex items-center justify-between text-[9px] font-cinzel text-amber-300">
+                          <span class="font-bold tracking-wider px-1.5 py-0.5 rounded bg-black/50 border border-amber-500/30">{{ selectedCard.roman || '#' + selectedCard.index }}</span>
+                          <span class="font-bold text-xs text-white font-serif-sc drop-shadow">{{ selectedCard.nameCn }}</span>
+                          <span class="px-1.5 py-0.2 rounded bg-amber-400/30 text-amber-200 text-[8px] border border-amber-400/40">{{ selectedCard.orientation || '正位' }}</span>
                         </div>
 
-                        <!-- 卡牌名称 -->
-                        <div class="my-0.5">
-                          <h4 class="text-sm font-bold font-serif-sc text-amber-100 tracking-wide">{{ selectedCard.nameCn }}</h4>
-                          <span class="text-[8px] text-slate-400 font-cinzel">{{ selectedCard.nameEn }}</span>
-                        </div>
-
-                        <!-- 牌面中心发光图腾插画区 (参考 AI-星灵漫步 图标质感) -->
-                        <div class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-amber-500/20 via-indigo-500/10 to-transparent border border-amber-400/40 flex items-center justify-center relative shadow-inner my-1">
-                          <i :class="[selectedCard.icon, 'text-4xl text-amber-300 drop-shadow-[0_0_10px_rgba(251,191,36,0.6)]']"></i>
-                          <span class="absolute -bottom-2 px-2 py-0.5 rounded-full bg-slate-950 border border-amber-500/40 text-[8px] text-amber-300 font-cinzel whitespace-nowrap">
-                            {{ selectedCard.element || 'INTUITION' }}
-                          </span>
-                        </div>
-
-                        <!-- 关键词与能量标签 -->
-                        <div class="w-full space-y-1 pt-1.5">
+                        <!-- 底部半透明遮罩与启示标签 -->
+                        <div class="relative z-10 p-2 bg-gradient-to-t from-black/95 via-black/80 to-transparent text-center space-y-1">
                           <div class="flex flex-wrap justify-center gap-1">
-                            <span v-for="tag in selectedCard.tags" :key="tag" class="text-[8px] px-1.5 py-0.5 rounded bg-indigo-950/80 text-amber-200 border border-indigo-500/30">
+                            <span v-for="tag in selectedCard.tags" :key="tag" class="text-[8px] px-1.5 py-0.2 rounded-full bg-amber-500/20 text-amber-200 border border-amber-500/30 font-serif-sc">
                               {{ tag }}
                             </span>
                           </div>
-                          <!-- 启发金句 -->
-                          <p class="text-[9px] text-slate-300 line-clamp-2 px-1 font-serif-sc italic">
-                            {{ selectedCard.quote }}
+                          <p class="text-[9px] text-slate-200 line-clamp-1 italic font-serif-sc drop-shadow">
+                            “{{ selectedCard.quote }}”
                           </p>
                         </div>
                       </div>
@@ -764,9 +735,13 @@
                         <div class="text-[8px] text-amber-300/80 font-cinzel">{{ selectedCard.nameEn }} · {{ selectedCard.tags[0] }}</div>
                       </div>
 
-                      <!-- 海报图腾插画区 -->
-                      <div class="w-24 h-24 mx-auto rounded-xl bg-gradient-to-tr from-amber-500/20 via-indigo-500/10 to-transparent border border-amber-400/40 flex items-center justify-center my-1">
-                        <i :class="[selectedCard.icon, 'text-4xl text-amber-300 drop-shadow-[0_0_8px_rgba(251,191,36,0.6)]']"></i>
+                      <!-- 海报高清卡面大图展示区 (使用 assets/tarot/large/*.jpg 真实大图) -->
+                      <div class="w-28 h-40 mx-auto rounded-lg overflow-hidden border border-amber-400/50 shadow-lg relative my-1 bg-black/50">
+                        <img :src="selectedCard.imageLarge" :alt="selectedCard.nameCn" class="w-full h-full object-cover" />
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none"></div>
+                        <span class="absolute bottom-1 right-1 px-1.5 py-0.2 rounded bg-black/70 text-amber-300 text-[7px] font-cinzel border border-amber-400/30">
+                          {{ selectedCard.roman || '#' + selectedCard.index }}
+                        </span>
                       </div>
 
                       <div class="mt-2 text-[8px] text-slate-300 leading-snug line-clamp-3 text-center px-1 font-serif-sc italic">
@@ -852,39 +827,49 @@
               </button>
             </div>
 
-            <!-- 卡牌网格：直观展示每张卡的高保真卡面样式 (参考 AI-星灵漫步) -->
+            <!-- 卡牌网格：78 张卡牌全量高清卡面展示 -->
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 mt-4">
               <div 
                 v-for="card in filteredCards" 
-                :key="card.id" 
-                class="group relative rounded-2xl bg-gradient-to-b from-[#151327] via-[#0d0b1a] to-[#06050e] gold-border-subtle hover:border-amber-400/80 transition-all duration-300 p-3.5 flex flex-col justify-between shadow-lg hover:shadow-2xl hover:-translate-y-1 overflow-hidden select-none"
+                :key="card.index" 
+                class="group relative rounded-2xl bg-gradient-to-b from-[#151327] via-[#0d0b1a] to-[#06050e] gold-border-subtle hover:border-amber-400/80 transition-all duration-300 p-3 flex flex-col justify-between shadow-lg hover:shadow-2xl hover:-translate-y-1 overflow-hidden select-none"
               >
-                <!-- 卡牌右上角分类标签 -->
-                <div class="flex justify-between items-center text-[10px] font-cinzel text-amber-400/90 border-b border-white/10 pb-1.5">
-                  <span class="font-bold tracking-wider">{{ card.roman || '#' + card.id }}</span>
-                  <span class="text-[9px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20">
-                    {{ card.element || 'INTUITION' }}
-                  </span>
-                </div>
-
-                <!-- 中心高保真图腾与名称 -->
-                <div class="my-3 text-center">
-                  <div class="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-tr from-amber-500/20 via-indigo-500/10 to-transparent border border-amber-400/30 flex items-center justify-center my-2 group-hover:scale-110 transition duration-300 shadow-inner">
-                    <i :class="[card.icon, 'text-3xl text-amber-300 drop-shadow-[0_0_10px_rgba(251,191,36,0.6)]']"></i>
+                <!-- 卡牌上方艺术画作预览区 -->
+                <div class="relative w-full h-52 rounded-xl overflow-hidden border border-amber-500/30 group-hover:border-amber-400/70 transition shadow-inner bg-black/40">
+                  <img :src="card.image" :alt="card.nameCn" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" loading="lazy" />
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none"></div>
+                  
+                  <!-- 顶部角标：罗马数字与分类 -->
+                  <div class="absolute top-2 left-2 right-2 flex justify-between items-center text-[10px] font-cinzel">
+                    <span class="font-bold tracking-wider px-2 py-0.5 rounded bg-black/60 text-amber-300 border border-amber-500/30 backdrop-blur-xs">
+                      {{ card.roman || '#' + card.index }}
+                    </span>
+                    <span class="text-[9px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 backdrop-blur-xs font-serif-sc">
+                      {{ card.categoryName || '塔罗' }}
+                    </span>
                   </div>
-                  <h4 class="text-sm font-bold font-serif-sc text-amber-100 tracking-wide mt-1">{{ card.nameCn }}</h4>
-                  <div class="text-[10px] text-slate-400 font-cinzel">{{ card.nameEn }}</div>
+
+                  <!-- 卡面底部浮动牌名 -->
+                  <div class="absolute bottom-2 left-2 right-2 flex items-end justify-between">
+                    <div>
+                      <h4 class="text-sm font-bold font-serif-sc text-amber-100 tracking-wide drop-shadow">{{ card.nameCn }}</h4>
+                      <div class="text-[9px] text-slate-300 font-cinzel drop-shadow">{{ card.nameEn }}</div>
+                    </div>
+                    <span class="text-[8px] px-1.5 py-0.5 rounded bg-indigo-950/80 text-amber-300 border border-amber-400/30 font-mono">
+                      {{ card.element }}
+                    </span>
+                  </div>
                 </div>
 
                 <!-- 心理学关键词与金句摘录 -->
-                <div class="space-y-2 border-t border-white/5 pt-2">
+                <div class="space-y-2 border-t border-white/5 pt-2.5 mt-2">
                   <div class="flex flex-wrap gap-1 justify-center">
                     <span v-for="tag in card.tags" :key="tag" class="text-[9px] px-1.5 py-0.5 rounded-full bg-white/10 text-indigo-200 border border-white/5">
                       {{ tag }}
                     </span>
                   </div>
                   <p class="text-[10px] text-slate-400 line-clamp-2 italic text-center font-serif-sc px-1">
-                    {{ card.quote }}
+                    “{{ card.quote }}”
                   </p>
                 </div>
 
@@ -926,11 +911,11 @@
             <!-- 左侧：高保真 3D 翻牌舞台 (直接在弹窗中体验 3D 翻牌与洗牌) -->
             <div class="w-full md:w-5/12 flex flex-col items-center justify-center bg-slate-950/60 rounded-2xl p-6 border border-slate-800 relative">
               <div class="text-[11px] font-cinzel text-amber-400/80 mb-2 flex items-center gap-1">
-                <i class="fa-solid fa-cube"></i> 3D CARD ARENA
+                <i class="fa-solid fa-cube"></i> 3D CARD ARENA · {{ previewModalCard.categoryName }}
               </div>
 
               <!-- 3D 视界舞台 -->
-              <div class="card-perspective-stage w-52 h-[320px] relative my-2 cursor-pointer select-none" @click="isModalCardFlipped = !isModalCardFlipped">
+              <div class="card-perspective-stage w-52 h-[340px] relative my-2 cursor-pointer select-none" @click="isModalCardFlipped = !isModalCardFlipped">
                 <div 
                   :class="[
                     isModalCardFlipped ? 'rotate-y-180' : '',
@@ -938,47 +923,43 @@
                     'w-full h-full relative rounded-2xl transform-style-3d transition-transform duration-700 shadow-2xl'
                   ]"
                 >
-                  <!-- 卡牌背面 -->
-                  <div class="card-face absolute inset-0 w-full h-full rounded-2xl backface-hidden bg-gradient-to-b from-[#13112c] via-[#0d0a21] to-[#060412] gold-border p-3 flex flex-col items-center justify-between overflow-hidden">
-                    <div class="w-full h-full border border-amber-500/30 rounded-xl p-2.5 flex flex-col items-center justify-between relative bg-black/30">
-                      <div class="text-[9px] font-cinzel text-amber-400/80 tracking-widest pt-1">ARCANA LABS</div>
-                      <div class="w-24 h-24 rounded-full border border-dashed border-amber-500/40 flex items-center justify-center relative my-auto">
-                        <div class="w-20 h-20 rounded-full border border-amber-400/30 flex items-center justify-center animate-spin-slow">
-                          <i class="fa-regular fa-sun text-2xl text-amber-400/70"></i>
-                        </div>
+                  <!-- 卡牌背面 (使用 assets/tarot/large/back.jpg 真实卡背) -->
+                  <div class="card-face absolute inset-0 w-full h-full rounded-2xl backface-hidden gold-border p-1 flex flex-col items-center justify-between overflow-hidden shadow-2xl bg-[#0e0c24]">
+                    <div class="w-full h-full rounded-xl overflow-hidden relative border border-amber-500/40">
+                      <img src="assets/tarot/large/back.jpg" alt="卡牌背面" class="w-full h-full object-cover select-none" />
+                      <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none"></div>
+                      <div class="absolute top-3 left-0 right-0 text-center">
+                        <span class="text-[10px] font-cinzel text-amber-300 tracking-widest bg-black/60 px-3 py-0.5 rounded-full border border-amber-500/30">ISHTAR INSIGHTS</span>
                       </div>
-                      <div class="text-center pb-1">
-                        <p class="text-[10px] text-amber-200/90 font-medium">点击翻转查看正面</p>
-                        <span class="text-[8px] text-slate-500 font-cinzel">TOUCH TO REVEAL</span>
+                      <div class="absolute bottom-3 left-0 right-0 text-center">
+                        <span class="text-[10px] text-amber-200 font-medium bg-black/70 px-3 py-1 rounded-full border border-amber-500/30 shadow flex items-center justify-center gap-1 mx-auto w-fit">
+                          <i class="fa-solid fa-hand-pointer text-amber-400 text-[9px] animate-bounce"></i> 点击翻转查看正面
+                        </span>
                       </div>
                     </div>
                   </div>
 
-                  <!-- 卡牌正面 -->
-                  <div class="card-face card-face-front absolute inset-0 w-full h-full rounded-2xl backface-hidden rotate-y-180 bg-gradient-to-b from-[#16192e] via-[#0d1021] to-[#060714] gold-border p-3 flex flex-col justify-between overflow-hidden text-center">
-                    <div class="w-full h-full border border-amber-500/30 rounded-xl p-2.5 flex flex-col items-center justify-between relative bg-black/20">
-                      <div class="w-full flex justify-between items-center text-[9px] font-cinzel text-amber-400/90 px-1 pt-0.5">
-                        <span>{{ previewModalCard.roman || '#' + previewModalCard.id }}</span>
-                        <span class="px-1.5 py-0.2 rounded bg-amber-400/20 text-amber-300 text-[8px] font-sans">{{ previewModalCard.orientation || '正位' }}</span>
+                  <!-- 卡牌正面 (使用 previewModalCard.imageLarge 真实高清卡面) -->
+                  <div class="card-face card-face-front absolute inset-0 w-full h-full rounded-2xl backface-hidden rotate-y-180 gold-border p-1 flex flex-col justify-between overflow-hidden shadow-2xl bg-[#090814]">
+                    <div class="w-full h-full rounded-xl overflow-hidden relative border border-amber-500/40 flex flex-col justify-between">
+                      <img :src="previewModalCard.imageLarge" :alt="previewModalCard.nameCn" class="absolute inset-0 w-full h-full object-cover" />
+                      
+                      <!-- 顶部半透明标识 -->
+                      <div class="relative z-10 p-2.5 bg-gradient-to-b from-black/90 via-black/60 to-transparent flex items-center justify-between text-[10px] font-cinzel text-amber-300">
+                        <span class="font-bold tracking-wider px-2 py-0.5 rounded bg-black/60 border border-amber-500/30">{{ previewModalCard.roman || '#' + previewModalCard.index }}</span>
+                        <span class="font-bold text-sm text-white font-serif-sc drop-shadow">{{ previewModalCard.nameCn }}</span>
+                        <span class="px-2 py-0.5 rounded bg-amber-400/30 text-amber-200 text-[9px] border border-amber-400/40">{{ previewModalCard.orientation || '正位' }}</span>
                       </div>
-                      <div class="my-0.5">
-                        <h4 class="text-sm font-bold font-serif-sc text-amber-100 tracking-wide">{{ previewModalCard.nameCn }}</h4>
-                        <span class="text-[8px] text-slate-400 font-cinzel">{{ previewModalCard.nameEn }}</span>
-                      </div>
-                      <div class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-amber-500/20 via-indigo-500/10 to-transparent border border-amber-400/40 flex items-center justify-center relative shadow-inner my-1">
-                        <i :class="[previewModalCard.icon, 'text-4xl text-amber-300 drop-shadow-[0_0_10px_rgba(251,191,36,0.6)]']"></i>
-                        <span class="absolute -bottom-2 px-2 py-0.5 rounded-full bg-slate-950 border border-amber-500/40 text-[8px] text-amber-300 font-cinzel whitespace-nowrap">
-                          {{ previewModalCard.element || 'INTUITION' }}
-                        </span>
-                      </div>
-                      <div class="w-full space-y-1 pt-1">
+
+                      <!-- 底部半透明金句与标签 -->
+                      <div class="relative z-10 p-2.5 bg-gradient-to-t from-black/95 via-black/80 to-transparent text-center space-y-1.5">
                         <div class="flex flex-wrap justify-center gap-1">
-                          <span v-for="tag in previewModalCard.tags" :key="tag" class="text-[8px] px-1.5 py-0.5 rounded bg-indigo-950/80 text-amber-200 border border-indigo-500/30">
+                          <span v-for="tag in previewModalCard.tags" :key="tag" class="text-[9px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-200 border border-amber-500/30 font-serif-sc">
                             {{ tag }}
                           </span>
                         </div>
-                        <p class="text-[9px] text-slate-300 line-clamp-2 px-1 font-serif-sc italic">
-                          {{ previewModalCard.quote }}
+                        <p class="text-[10px] text-slate-200 line-clamp-2 italic font-serif-sc drop-shadow px-1">
+                          “{{ previewModalCard.quote }}”
                         </p>
                       </div>
                     </div>
@@ -1002,7 +983,7 @@
               <div>
                 <div class="flex items-center justify-between border-b border-slate-800 pb-2">
                   <div>
-                    <span class="text-xs font-cinzel text-amber-400 tracking-wider">PSYCHOLOGICAL ARCHETYPE</span>
+                    <span class="text-xs font-cinzel text-amber-400 tracking-wider">PSYCHOLOGICAL ARCHETYPE · {{ previewModalCard.categoryName }}</span>
                     <h3 class="text-lg font-bold text-white flex items-center gap-2">
                       <span>{{ previewModalCard.nameCn }} ({{ previewModalCard.nameEn }})</span>
                       <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-normal">
@@ -1010,16 +991,25 @@
                       </span>
                     </h3>
                   </div>
-                  <span class="text-xs text-slate-400 font-mono">ID: #{{ previewModalCard.id }}</span>
+                  <div class="text-right">
+                    <span class="text-xs text-amber-300 font-mono font-bold">{{ previewModalCard.roman || '#' + previewModalCard.index }}</span>
+                    <div class="text-[9px] text-slate-400 font-mono">Index: {{ previewModalCard.index }}</div>
+                  </div>
+                </div>
+
+                <!-- 资源文件映射提示 -->
+                <div class="mt-2 p-2 rounded-lg bg-black/40 border border-slate-800 flex items-center justify-between text-[10px] text-slate-400 font-mono">
+                  <span><i class="fa-regular fa-image text-amber-400 mr-1"></i>原图: <code class="text-amber-200">{{ previewModalCard.imageLarge }}</code></span>
+                  <span class="text-slate-500">750×1334 像素</span>
                 </div>
 
                 <!-- 维度结构展示 -->
-                <div class="space-y-3 mt-4 text-xs">
+                <div class="space-y-3 mt-3 text-xs">
                   <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800">
                     <span class="font-bold text-amber-300 flex items-center gap-1 mb-1">
                       <i class="fa-solid fa-compass text-xs"></i> 【核心能量定调】
                     </span>
-                    <p class="text-slate-300 leading-relaxed">{{ previewModalCard.category || '沉稳笃定 · 潜意识投射' }}</p>
+                    <p class="text-slate-300 leading-relaxed">{{ previewModalCard.categoryName }} · {{ previewModalCard.element }}</p>
                   </div>
 
                   <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800">
@@ -1128,161 +1118,35 @@
           return `${d.getFullYear()}.${d.getMonth() + 1}.${d.getDate()}`;
         });
 
-        // 78 张卡牌代表性资产池 (深度融合 AI-星灵漫步 美学与荣格投射标签)
-        const allCards = ref([
-          {
-            id: 17,
-            roman: "XVII",
-            nameCn: "星星",
-            nameEn: "The Star",
-            icon: "fa-solid fa-wand-magic-sparkles",
-            element: "HOPE & HEALING",
-            categoryType: "major",
-            orientation: "正位",
-            tags: ["希望治愈", "潜能觉醒", "精神蜕变"],
-            quote: "“夜色越是幽暗，星光愈是清冽。保持内在确信。”",
-            category: "心理投射 · 晨曦金",
-            insight: "当下的你正在经历一场无声的精神蜕变，过往困顿的迷雾正在消散。牌面赋予你修复自愈与信任直觉的强大磁场，你内心的犹豫源自对新阶段的敬畏。",
-            challenge: "容易过度为他人提供情绪抚慰，而忽视了自身内在能量蓄水池的枯竭。",
-            guidance: "停止反复反刍无法更改的既定事实。今日适合记录 3 件令你嘴角上扬的细碎小确幸。",
-            affirmation: "“你无需成为任何人的解药，你本身就是一片自由盛开的旷野。”",
-            streamText: `【核心能量定调】：希望重塑 · 灵感觉醒\n\n【潜意识投影现状】\n星星牌的出现，表明你当前的困惑并非来自现实的绝境，而是你内在精神秩序的更新期。过往沉重的包袱正被渐渐放下，你需要的不是急躁地向外证明，而是像静谧夜空中的恒星一样，保持稳定的自我光芒。\n\n【转念与正念行动】\n1. 盲区觉察：你是否把“他人期待的成功”与“内心的安宁”混淆了？\n2. 今日行动：允许自己在做重要决定前有 24 小时的留白思考，信任你第一瞬间的第六感。`
-          },
-          {
-            id: 0,
-            roman: "0",
-            nameCn: "愚者",
-            nameEn: "The Fool",
-            icon: "fa-solid fa-mountain-sun",
-            element: "INFINITE POTENTIAL",
-            categoryType: "major",
-            orientation: "正位",
-            tags: ["无畏启程", "纯粹好奇", "归零重启"],
-            quote: "“迈出第一步的勇气，本身就是最深奥的智慧。”",
-            category: "心灵启示 · 极光绿",
-            insight: "一个崭新的循环正在向你招手。你潜意识中渴望打破现有的枯燥秩序，哪怕前路尚未出现完整的地图。",
-            challenge: "害怕他人的审视与评判，让过多的权衡阻碍了最宝贵的灵感萌芽。",
-            guidance: "把沉重的行囊留在身后，今天允许自己做一件毫无功利心、纯粹由于好奇心驱使的事情。",
-            affirmation: "“未知的风景里，藏着千万个还未被定义的自己。”",
-            streamText: `【核心能量定调】：归零无畏 · 崭新起点\n\n【潜意识投影现状】\n愚者象征着一切可能性的原点。你感知到的焦虑，实则是潜意识对跳出舒适区的兴奋反应。过多的风险权衡正变成沉重的行囊，让你在起跑线前迟疑不决。\n\n【转念与正念行动】\n1. 盲区觉察：没有一次选择能保证 100% 正确，但探索本身就是不可替代的资产。\n2. 今日行动：像孩童一样保有对未知的纯粹好奇，迈出微小但具体的第一步。`
-          },
-          {
-            id: 1,
-            roman: "I",
-            nameCn: "魔术师",
-            nameEn: "The Magician",
-            icon: "fa-solid fa-infinity",
-            element: "MANIFESTATION",
-            categoryType: "major",
-            orientation: "正位",
-            tags: ["资源整合", "创造力量", "知行合一"],
-            quote: "“如其在上，如其在下。你已备齐所需的每一块拼图。”",
-            category: "能量聚焦 · 烈阳橙",
-            insight: "思维处于极其敏锐的高频振荡期，沟通与资源整合能力被激活。适合开启新项目或表达积压已久的方案。",
-            challenge: "想法过于繁杂容易导致精力涣散，需警惕三分钟热度。",
-            guidance: "梳理手头资源，为当下最重要的一个核心目标列出 3 步可落地的微小动作。",
-            affirmation: "“我拥有将意念塑造成现实的充沛力量。”",
-            streamText: `【核心能量定调】：万事俱备 · 借势创造\n\n【潜意识投影现状】\n所有解决当下难题的工具已经摆在你的桌面上。魔术师提示你，你所欠缺的不是能力与储备，而是将现有零散资源整合并付诸行动的决断力。\n\n【转念与正念行动】\n1. 盲区觉察：停止怀疑自己的积累，不完美的原型也远胜于脑海中完美的概念。\n2. 今日行动：将一个萦绕已久的想法，具象化为今天就能完成的一个小闭环。`
-          },
-          {
-            id: 2,
-            roman: "II",
-            nameCn: "女祭司",
-            nameEn: "The High Priestess",
-            icon: "fa-solid fa-moon",
-            element: "INTUITION & DEPTH",
-            categoryType: "major",
-            orientation: "正位",
-            tags: ["直觉内观", "静定自守", "智慧觉察"],
-            quote: "“在喧嚣静止之处，万物的真相自会浮出水面。”",
-            category: "潜意识洞见 · 幽夜蓝",
-            insight: "外部世界的嘈杂让你产生精神内耗，此时答案并不在外界的辩论中，而在你独处时的呼吸与平静里。",
-            challenge: "将敏锐的感知力转化成了隐秘的孤立感，习惯把情绪深藏而不流转。",
-            guidance: "今日安排至少 30 分钟完全远离手机电子屏幕的独处时光，泡一杯热茶，倾听内在声音。",
-            affirmation: "“我的内在拥有汪洋般的平静与深邃智慧。”",
-            streamText: `【核心能量定调】：向内探求 · 答案自现\n\n【潜意识投影现状】\n外界的声音过于嘈杂，遮蔽了你敏锐的本能洞察。女祭司提示你：此刻需要的不是向外抓取建议，而是退回内心的静谧之所。\n\n【转念与正念行动】\n1. 盲区觉察：当思绪陷入纠结时，往往是因为你在用理性推演本属于直觉感知的事情。\n2. 今日行动：给自己的思绪留白，真正的决定早已深植于你的直觉之中。`
-          },
-          {
-            id: 14,
-            roman: "XIV",
-            nameCn: "星币骑士",
-            nameEn: "Knight of Pentacles",
-            icon: "fa-solid fa-coins",
-            element: "PRACTICAL & ROOTED",
-            categoryType: "pentacles",
-            orientation: "正位",
-            tags: ["务实沉稳", "蓄势待发", "耐心根基"],
-            quote: "“沉静者胜于急躁，深根方能结出长青硕果。”",
-            category: "大地根基 · 琥珀褐",
-            insight: "星币骑士表明你当前的潜意识并非畏惧改变，而是在渴望确定性与坚实的落脚点。你内心的犹豫其实是本能的审慎防御。",
-            challenge: "把“完全准备好”当成行动的前提，导致机会在反复推敲中滑过。",
-            guidance: "列出现阶段已沉淀的三项核心优势，带着客观底气去评估新机遇。",
-            affirmation: "“脚步虽慢，土壤坚实，我正平稳扎根于丰盛之中。”",
-            streamText: `【核心能量定调】：沉稳耕耘 · 蓄势待发\n\n【潜意识投影现状】\n星币骑士的出现，表明你当前的潜意识并非抗拒前行，而是在渴望“确定性与坚实的落脚点”。对现状的犹豫，其实源自你内在对草率决策的本能防御——你希望每一步都有清晰的成果回报。\n\n【转念与正念行动】\n1. 盲区觉察：你是否把“准备好”的标准定得过于苛刻，从而把行动延宕成了内耗？\n2. 今日行动：列出你现岗位沉淀下来的核心不可替代资产，脚步虽慢，但土壤坚实。`
-          },
-          {
-            id: 19,
-            roman: "XIX",
-            nameCn: "太阳",
-            nameEn: "The Sun",
-            icon: "fa-regular fa-sun",
-            element: "VITALITY & JOY",
-            categoryType: "major",
-            orientation: "正位",
-            tags: ["充沛活力", "明澈开朗", "自我肯定"],
-            quote: "“阳光普照之处，阴影自然遁形。”",
-            category: "高维丰盛 · 辉煌金",
-            insight: "内在生命力迎来高光时刻。你的真诚与热情具有强烈的感染力，利于团队协作与人际关系破冰。",
-            challenge: "可能因过度乐观而忽视流程细节中潜藏的摩擦力。",
-            guidance: "毫无保留地接纳自己的闪光点，并真诚赞美身边一位伙伴。",
-            affirmation: "“我是自己生命中最温暖且明亮的光源。”",
-            streamText: `【核心能量定调】：明澈开朗 · 活力绽放\n\n【潜意识投影现状】\n太阳牌投射出你内心蓄积已久的积极动能。无论是人际关系还是个人追求，坦荡与真诚是你当下最有力的解题密匙。\n\n【转念与正念行动】\n1. 盲区觉察：无需隐藏自己的喜悦或为了迎合他人而调低光芒。\n2. 今日行动：走到户外沐浴 15 分钟自然光，深呼吸感受充沛的生命力量。`
-          },
-          {
-            id: 4,
-            roman: "IV",
-            nameCn: "皇帝",
-            nameEn: "The Emperor",
-            icon: "fa-solid fa-crown",
-            element: "ORDER & STRUCTURE",
-            categoryType: "major",
-            orientation: "正位",
-            tags: ["秩序建立", "掌控力量", "清晰边界"],
-            quote: "“真正的权威源自自律，而非对外界的强力控制。”",
-            category: "意志架构 · 曜石黑",
-            insight: "渴望在混乱纷繁的事务中确立秩序与规则。是重塑生活节奏、建立明确个人边界的关键时机。",
-            challenge: "容易因追求绝对掌控而陷入刚愎自用或紧绷焦虑。",
-            guidance: "在坚守底线原则的同时，给予过程适度的弹性与包容度。",
-            affirmation: "“我在自律中获得自由，在秩序中从容前行。”",
-            streamText: `【核心能量定调】：秩序建立 · 自主掌控\n\n【潜意识投影现状】\n皇帝牌反映出你对“掌控感”的强烈渴求。面对生活中的不确定性，与其焦虑失控，不如先建立微观的秩序感。\n\n【转念与正念行动】\n1. 盲区觉察：区分“你能改变的”与“你无法干预的”，将精力聚焦于自身边界内。\n2. 今日行动：制定清晰的日程优先级，坚决向一项消耗你精力但不重要的要求说不。`
-          },
-          {
-            id: 21,
-            roman: "II",
-            nameCn: "圣杯二",
-            nameEn: "Two of Cups",
-            icon: "fa-solid fa-heart",
-            element: "CONNECTION & HARMONY",
-            categoryType: "cups",
-            orientation: "正位",
-            tags: ["心灵共鸣", "亲密伙伴", "平等交换"],
-            quote: "“当两颗心在同一频率跳动，孤独便化为力量。”",
-            category: "情感共振 · 绯红粉",
-            insight: "人际与情感能量的良性互动期。双方相互理解、情感与资源平等流动的契机已经到来。",
-            challenge: "过度担忧破坏和谐，导致在表达真实诉求时吞吞吐吐。",
-            guidance: "真诚表达你的感激与需要，平等的连接源于双方的真实袒露。",
-            affirmation: "“我值得拥有被全然看见与深切理解的平等关系。”",
-            streamText: `【核心能量定调】：心灵共振 · 彼此看见\n\n【潜意识投影现状】\n圣杯二的出现象征着情感能量的对流。无论是在亲密关系、职场合作还是挚友交往中，你正在寻求一份深刻的互相托举与共识。\n\n【转念与正念行动】\n1. 盲区觉察：真正的和谐并非毫无摩擦，而是在分歧中依然保有倾听的诚意。\n2. 今日行动：给那位一直默默支持你的伙伴发一段真诚的感谢信息。`
+        // 78 张卡牌全量资产池 (深度融合 assets/tarot 真实资源与荣格投射标签)
+        const getInitialCards = () => {
+          if (window.TAROT_DECK && Array.isArray(window.TAROT_DECK.cards)) {
+            return window.TAROT_DECK.cards.map(c => ({
+              ...c,
+              id: c.index,
+              categoryType: c.category,
+              categoryName: c.categoryName || (c.category === 'major' ? '大阿卡纳' : c.category),
+              streamText: `【核心能量定调】：${c.nameCn} · ${c.element}\n\n【潜意识投影现状】\n${c.insight}\n\n【转念与正念行动】\n1. 盲区觉察：${c.challenge}\n2. 今日行动：${c.guidance}`
+            }));
           }
-        ]);
+          return [];
+        };
 
-        // 卡牌分类与筛选
-        const cardCategories = [
-          { id: 'all', name: '全部卡牌', count: 8 },
-          { id: 'major', name: '大阿尔卡那 (精神原型)', count: 6 },
-          { id: 'pentacles', name: '星币族 (物质扎根)', count: 1 },
-          { id: 'cups', name: '圣杯族 (情感共鸣)', count: 1 }
-        ];
+        const allCards = ref(getInitialCards());
+
+        // 动态卡牌分类与统计 (全部/大阿卡纳/权杖/圣杯/宝剑/星币)
+        const cardCategories = computed(() => {
+          const list = allCards.value;
+          return [
+            { id: 'all', name: '全部卡牌', count: list.length },
+            { id: 'major', name: '大阿卡纳 (精神原型)', count: list.filter(c => c.categoryType === 'major').length },
+            { id: 'wands', name: '权杖系列 (行动与意志)', count: list.filter(c => c.categoryType === 'wands').length },
+            { id: 'cups', name: '圣杯系列 (情感与直觉)', count: list.filter(c => c.categoryType === 'cups').length },
+            { id: 'swords', name: '宝剑系列 (理性与洞察)', count: list.filter(c => c.categoryType === 'swords').length },
+            { id: 'pentacles', name: '星币系列 (物质与丰盛)', count: list.filter(c => c.categoryType === 'pentacles').length }
+          ];
+        });
+
         const selectedCategory = ref('all');
         const cardSearchQuery = ref('');
 
@@ -1291,20 +1155,26 @@
             const matchCat = selectedCategory.value === 'all' || card.categoryType === selectedCategory.value;
             const query = cardSearchQuery.value.trim().toLowerCase();
             const matchQuery = !query || 
-              card.nameCn.toLowerCase().includes(query) || 
-              card.nameEn.toLowerCase().includes(query) || 
-              card.tags.some(t => t.toLowerCase().includes(query));
+              (card.nameCn && card.nameCn.toLowerCase().includes(query)) || 
+              (card.nameEn && card.nameEn.toLowerCase().includes(query)) || 
+              (card.roman && card.roman.toLowerCase().includes(query)) ||
+              (card.tags && card.tags.some(t => t.toLowerCase().includes(query)));
             return matchCat && matchQuery;
           });
         });
 
-        // 沙盒测试选项
-        const cardOptions = computed(() => allCards.value.slice(0, 4));
-        const selectedCard = ref(allCards.value[0]);
+        // 沙盒测试选项 (选取代表性大阿卡纳：星星、愚者、魔术师、女祭司)
+        const cardOptions = computed(() => {
+          const targetIndices = [17, 0, 1, 2];
+          const found = targetIndices.map(idx => allCards.value.find(c => c.index === idx)).filter(Boolean);
+          return found.length >= 4 ? found : allCards.value.slice(0, 4);
+        });
+
+        const selectedCard = ref(allCards.value.find(c => c.index === 17) || allCards.value[0] || {});
 
         // 3D 弹窗预览状态
         const showCardPreviewModal = ref(false);
-        const previewModalCard = ref(allCards.value[0]);
+        const previewModalCard = ref(selectedCard.value);
         const isModalCardFlipped = ref(false);
         const isModalShuffling = ref(false);
 
@@ -1330,7 +1200,7 @@
           currentTab.value = 'ai-orchestration';
           isFlipped.value = false;
           phoneStreamText.value = '';
-          showSaveToastMsg(`已将【${card.nameCn}】载入 AI 编排沙盒！`);
+          showSaveToastMsg(`已将【${card.nameCn} (${card.roman || '#' + card.index})】载入 AI 编排沙盒！`);
         };
 
         const selectCard = (card) => {

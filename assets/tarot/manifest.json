@@ -1,0 +1,792 @@
+{
+  "deck": "ishtar-insights",
+  "deckName": "Ishtar Insights",
+  "cardCount": 78,
+  "backImage": "back.jpg",
+  "backImageLarge": "large/back.jpg",
+  "source": "Migrated from tarot-deck-gallery/assets/ishtar-deck/",
+  "sourceDeckArt": "tarot-deck-gallery/deck-art/ishtar-insights/manifest.csv",
+  "notes": "卡牌正面遵循 Ishtar Insights 78 张标准顺序（22 大阿卡纳 + 14 张×4 花色小阿卡纳）。cards/ 为缩略图（首页 3D 抽牌翻转用），large/ 为高保真版（解析页与朋友圈海报用）。keywords/upright/reversed 字段未填充，请心芒灵境按 PRD 2.3 自行补全正/逆位关键词与心理投射解读文案。",
+  "cards": [
+    {
+      "index": 0,
+      "name": "The Fool",
+      "nameCn": null,
+      "slug": "the-fool",
+      "category": "major",
+      "roman": "0",
+      "card": "cards/00.jpg",
+      "large": "large/00.jpg"
+    },
+    {
+      "index": 1,
+      "name": "The Magician",
+      "nameCn": null,
+      "slug": "the-magician",
+      "category": "major",
+      "roman": "I",
+      "card": "cards/01.jpg",
+      "large": "large/01.jpg"
+    },
+    {
+      "index": 2,
+      "name": "The High Priestess",
+      "nameCn": null,
+      "slug": "the-high-priestess",
+      "category": "major",
+      "roman": "II",
+      "card": "cards/02.jpg",
+      "large": "large/02.jpg"
+    },
+    {
+      "index": 3,
+      "name": "The Empress",
+      "nameCn": null,
+      "slug": "the-empress",
+      "category": "major",
+      "roman": "III",
+      "card": "cards/03.jpg",
+      "large": "large/03.jpg"
+    },
+    {
+      "index": 4,
+      "name": "The Emperor",
+      "nameCn": null,
+      "slug": "the-emperor",
+      "category": "major",
+      "roman": "IV",
+      "card": "cards/04.jpg",
+      "large": "large/04.jpg"
+    },
+    {
+      "index": 5,
+      "name": "The Hierophant",
+      "nameCn": null,
+      "slug": "the-hierophant",
+      "category": "major",
+      "roman": "V",
+      "card": "cards/05.jpg",
+      "large": "large/05.jpg"
+    },
+    {
+      "index": 6,
+      "name": "The Lovers",
+      "nameCn": null,
+      "slug": "the-lovers",
+      "category": "major",
+      "roman": "VI",
+      "card": "cards/06.jpg",
+      "large": "large/06.jpg"
+    },
+    {
+      "index": 7,
+      "name": "The Chariot",
+      "nameCn": null,
+      "slug": "the-chariot",
+      "category": "major",
+      "roman": "VII",
+      "card": "cards/07.jpg",
+      "large": "large/07.jpg"
+    },
+    {
+      "index": 8,
+      "name": "Strength",
+      "nameCn": null,
+      "slug": "strength",
+      "category": "major",
+      "roman": "VIII",
+      "card": "cards/08.jpg",
+      "large": "large/08.jpg"
+    },
+    {
+      "index": 9,
+      "name": "The Hermit",
+      "nameCn": null,
+      "slug": "the-hermit",
+      "category": "major",
+      "roman": "IX",
+      "card": "cards/09.jpg",
+      "large": "large/09.jpg"
+    },
+    {
+      "index": 10,
+      "name": "Wheel of Fortune",
+      "nameCn": null,
+      "slug": "wheel-of-fortune",
+      "category": "major",
+      "roman": "X",
+      "card": "cards/10.jpg",
+      "large": "large/10.jpg"
+    },
+    {
+      "index": 11,
+      "name": "Justice",
+      "nameCn": null,
+      "slug": "justice",
+      "category": "major",
+      "roman": "XI",
+      "card": "cards/11.jpg",
+      "large": "large/11.jpg"
+    },
+    {
+      "index": 12,
+      "name": "The Hanged Man",
+      "nameCn": null,
+      "slug": "the-hanged-man",
+      "category": "major",
+      "roman": "XII",
+      "card": "cards/12.jpg",
+      "large": "large/12.jpg"
+    },
+    {
+      "index": 13,
+      "name": "Death",
+      "nameCn": null,
+      "slug": "death",
+      "category": "major",
+      "roman": "XIII",
+      "card": "cards/13.jpg",
+      "large": "large/13.jpg"
+    },
+    {
+      "index": 14,
+      "name": "Temperance",
+      "nameCn": null,
+      "slug": "temperance",
+      "category": "major",
+      "roman": "XIV",
+      "card": "cards/14.jpg",
+      "large": "large/14.jpg"
+    },
+    {
+      "index": 15,
+      "name": "The Devil",
+      "nameCn": null,
+      "slug": "the-devil",
+      "category": "major",
+      "roman": "XV",
+      "card": "cards/15.jpg",
+      "large": "large/15.jpg"
+    },
+    {
+      "index": 16,
+      "name": "The Tower",
+      "nameCn": null,
+      "slug": "the-tower",
+      "category": "major",
+      "roman": "XVI",
+      "card": "cards/16.jpg",
+      "large": "large/16.jpg"
+    },
+    {
+      "index": 17,
+      "name": "The Star",
+      "nameCn": null,
+      "slug": "the-star",
+      "category": "major",
+      "roman": "XVII",
+      "card": "cards/17.jpg",
+      "large": "large/17.jpg"
+    },
+    {
+      "index": 18,
+      "name": "The Moon",
+      "nameCn": null,
+      "slug": "the-moon",
+      "category": "major",
+      "roman": "XVIII",
+      "card": "cards/18.jpg",
+      "large": "large/18.jpg"
+    },
+    {
+      "index": 19,
+      "name": "The Sun",
+      "nameCn": null,
+      "slug": "the-sun",
+      "category": "major",
+      "roman": "XIX",
+      "card": "cards/19.jpg",
+      "large": "large/19.jpg"
+    },
+    {
+      "index": 20,
+      "name": "Judgement",
+      "nameCn": null,
+      "slug": "judgement",
+      "category": "major",
+      "roman": "XX",
+      "card": "cards/20.jpg",
+      "large": "large/20.jpg"
+    },
+    {
+      "index": 21,
+      "name": "The World",
+      "nameCn": null,
+      "slug": "the-world",
+      "category": "major",
+      "roman": "XXI",
+      "card": "cards/21.jpg",
+      "large": "large/21.jpg"
+    },
+    {
+      "index": 22,
+      "name": "Ace of Wands",
+      "nameCn": "王牌·权杖",
+      "slug": "ace-of-wands",
+      "category": "wands",
+      "roman": null,
+      "card": "cards/22.jpg",
+      "large": "large/22.jpg"
+    },
+    {
+      "index": 23,
+      "name": "Two of Wands",
+      "nameCn": "二·权杖",
+      "slug": "two-of-wands",
+      "category": "wands",
+      "roman": null,
+      "card": "cards/23.jpg",
+      "large": "large/23.jpg"
+    },
+    {
+      "index": 24,
+      "name": "Three of Wands",
+      "nameCn": "三·权杖",
+      "slug": "three-of-wands",
+      "category": "wands",
+      "roman": null,
+      "card": "cards/24.jpg",
+      "large": "large/24.jpg"
+    },
+    {
+      "index": 25,
+      "name": "Four of Wands",
+      "nameCn": "四·权杖",
+      "slug": "four-of-wands",
+      "category": "wands",
+      "roman": null,
+      "card": "cards/25.jpg",
+      "large": "large/25.jpg"
+    },
+    {
+      "index": 26,
+      "name": "Five of Wands",
+      "nameCn": "五·权杖",
+      "slug": "five-of-wands",
+      "category": "wands",
+      "roman": null,
+      "card": "cards/26.jpg",
+      "large": "large/26.jpg"
+    },
+    {
+      "index": 27,
+      "name": "Six of Wands",
+      "nameCn": "六·权杖",
+      "slug": "six-of-wands",
+      "category": "wands",
+      "roman": null,
+      "card": "cards/27.jpg",
+      "large": "large/27.jpg"
+    },
+    {
+      "index": 28,
+      "name": "Seven of Wands",
+      "nameCn": "七·权杖",
+      "slug": "seven-of-wands",
+      "category": "wands",
+      "roman": null,
+      "card": "cards/28.jpg",
+      "large": "large/28.jpg"
+    },
+    {
+      "index": 29,
+      "name": "Eight of Wands",
+      "nameCn": "八·权杖",
+      "slug": "eight-of-wands",
+      "category": "wands",
+      "roman": null,
+      "card": "cards/29.jpg",
+      "large": "large/29.jpg"
+    },
+    {
+      "index": 30,
+      "name": "Nine of Wands",
+      "nameCn": "九·权杖",
+      "slug": "nine-of-wands",
+      "category": "wands",
+      "roman": null,
+      "card": "cards/30.jpg",
+      "large": "large/30.jpg"
+    },
+    {
+      "index": 31,
+      "name": "Ten of Wands",
+      "nameCn": "十·权杖",
+      "slug": "ten-of-wands",
+      "category": "wands",
+      "roman": null,
+      "card": "cards/31.jpg",
+      "large": "large/31.jpg"
+    },
+    {
+      "index": 32,
+      "name": "Page of Wands",
+      "nameCn": "侍从·权杖",
+      "slug": "page-of-wands",
+      "category": "wands",
+      "roman": null,
+      "card": "cards/32.jpg",
+      "large": "large/32.jpg"
+    },
+    {
+      "index": 33,
+      "name": "Knight of Wands",
+      "nameCn": "骑士·权杖",
+      "slug": "knight-of-wands",
+      "category": "wands",
+      "roman": null,
+      "card": "cards/33.jpg",
+      "large": "large/33.jpg"
+    },
+    {
+      "index": 34,
+      "name": "Queen of Wands",
+      "nameCn": "王后·权杖",
+      "slug": "queen-of-wands",
+      "category": "wands",
+      "roman": null,
+      "card": "cards/34.jpg",
+      "large": "large/34.jpg"
+    },
+    {
+      "index": 35,
+      "name": "King of Wands",
+      "nameCn": "国王·权杖",
+      "slug": "king-of-wands",
+      "category": "wands",
+      "roman": null,
+      "card": "cards/35.jpg",
+      "large": "large/35.jpg"
+    },
+    {
+      "index": 36,
+      "name": "Ace of Cups",
+      "nameCn": "王牌·圣杯",
+      "slug": "ace-of-cups",
+      "category": "cups",
+      "roman": null,
+      "card": "cards/36.jpg",
+      "large": "large/36.jpg"
+    },
+    {
+      "index": 37,
+      "name": "Two of Cups",
+      "nameCn": "二·圣杯",
+      "slug": "two-of-cups",
+      "category": "cups",
+      "roman": null,
+      "card": "cards/37.jpg",
+      "large": "large/37.jpg"
+    },
+    {
+      "index": 38,
+      "name": "Three of Cups",
+      "nameCn": "三·圣杯",
+      "slug": "three-of-cups",
+      "category": "cups",
+      "roman": null,
+      "card": "cards/38.jpg",
+      "large": "large/38.jpg"
+    },
+    {
+      "index": 39,
+      "name": "Four of Cups",
+      "nameCn": "四·圣杯",
+      "slug": "four-of-cups",
+      "category": "cups",
+      "roman": null,
+      "card": "cards/39.jpg",
+      "large": "large/39.jpg"
+    },
+    {
+      "index": 40,
+      "name": "Five of Cups",
+      "nameCn": "五·圣杯",
+      "slug": "five-of-cups",
+      "category": "cups",
+      "roman": null,
+      "card": "cards/40.jpg",
+      "large": "large/40.jpg"
+    },
+    {
+      "index": 41,
+      "name": "Six of Cups",
+      "nameCn": "六·圣杯",
+      "slug": "six-of-cups",
+      "category": "cups",
+      "roman": null,
+      "card": "cards/41.jpg",
+      "large": "large/41.jpg"
+    },
+    {
+      "index": 42,
+      "name": "Seven of Cups",
+      "nameCn": "七·圣杯",
+      "slug": "seven-of-cups",
+      "category": "cups",
+      "roman": null,
+      "card": "cards/42.jpg",
+      "large": "large/42.jpg"
+    },
+    {
+      "index": 43,
+      "name": "Eight of Cups",
+      "nameCn": "八·圣杯",
+      "slug": "eight-of-cups",
+      "category": "cups",
+      "roman": null,
+      "card": "cards/43.jpg",
+      "large": "large/43.jpg"
+    },
+    {
+      "index": 44,
+      "name": "Nine of Cups",
+      "nameCn": "九·圣杯",
+      "slug": "nine-of-cups",
+      "category": "cups",
+      "roman": null,
+      "card": "cards/44.jpg",
+      "large": "large/44.jpg"
+    },
+    {
+      "index": 45,
+      "name": "Ten of Cups",
+      "nameCn": "十·圣杯",
+      "slug": "ten-of-cups",
+      "category": "cups",
+      "roman": null,
+      "card": "cards/45.jpg",
+      "large": "large/45.jpg"
+    },
+    {
+      "index": 46,
+      "name": "Page of Cups",
+      "nameCn": "侍从·圣杯",
+      "slug": "page-of-cups",
+      "category": "cups",
+      "roman": null,
+      "card": "cards/46.jpg",
+      "large": "large/46.jpg"
+    },
+    {
+      "index": 47,
+      "name": "Knight of Cups",
+      "nameCn": "骑士·圣杯",
+      "slug": "knight-of-cups",
+      "category": "cups",
+      "roman": null,
+      "card": "cards/47.jpg",
+      "large": "large/47.jpg"
+    },
+    {
+      "index": 48,
+      "name": "Queen of Cups",
+      "nameCn": "王后·圣杯",
+      "slug": "queen-of-cups",
+      "category": "cups",
+      "roman": null,
+      "card": "cards/48.jpg",
+      "large": "large/48.jpg"
+    },
+    {
+      "index": 49,
+      "name": "King of Cups",
+      "nameCn": "国王·圣杯",
+      "slug": "king-of-cups",
+      "category": "cups",
+      "roman": null,
+      "card": "cards/49.jpg",
+      "large": "large/49.jpg"
+    },
+    {
+      "index": 50,
+      "name": "Ace of Swords",
+      "nameCn": "王牌·宝剑",
+      "slug": "ace-of-swords",
+      "category": "swords",
+      "roman": null,
+      "card": "cards/50.jpg",
+      "large": "large/50.jpg"
+    },
+    {
+      "index": 51,
+      "name": "Two of Swords",
+      "nameCn": "二·宝剑",
+      "slug": "two-of-swords",
+      "category": "swords",
+      "roman": null,
+      "card": "cards/51.jpg",
+      "large": "large/51.jpg"
+    },
+    {
+      "index": 52,
+      "name": "Three of Swords",
+      "nameCn": "三·宝剑",
+      "slug": "three-of-swords",
+      "category": "swords",
+      "roman": null,
+      "card": "cards/52.jpg",
+      "large": "large/52.jpg"
+    },
+    {
+      "index": 53,
+      "name": "Four of Swords",
+      "nameCn": "四·宝剑",
+      "slug": "four-of-swords",
+      "category": "swords",
+      "roman": null,
+      "card": "cards/53.jpg",
+      "large": "large/53.jpg"
+    },
+    {
+      "index": 54,
+      "name": "Five of Swords",
+      "nameCn": "五·宝剑",
+      "slug": "five-of-swords",
+      "category": "swords",
+      "roman": null,
+      "card": "cards/54.jpg",
+      "large": "large/54.jpg"
+    },
+    {
+      "index": 55,
+      "name": "Six of Swords",
+      "nameCn": "六·宝剑",
+      "slug": "six-of-swords",
+      "category": "swords",
+      "roman": null,
+      "card": "cards/55.jpg",
+      "large": "large/55.jpg"
+    },
+    {
+      "index": 56,
+      "name": "Seven of Swords",
+      "nameCn": "七·宝剑",
+      "slug": "seven-of-swords",
+      "category": "swords",
+      "roman": null,
+      "card": "cards/56.jpg",
+      "large": "large/56.jpg"
+    },
+    {
+      "index": 57,
+      "name": "Eight of Swords",
+      "nameCn": "八·宝剑",
+      "slug": "eight-of-swords",
+      "category": "swords",
+      "roman": null,
+      "card": "cards/57.jpg",
+      "large": "large/57.jpg"
+    },
+    {
+      "index": 58,
+      "name": "Nine of Swords",
+      "nameCn": "九·宝剑",
+      "slug": "nine-of-swords",
+      "category": "swords",
+      "roman": null,
+      "card": "cards/58.jpg",
+      "large": "large/58.jpg"
+    },
+    {
+      "index": 59,
+      "name": "Ten of Swords",
+      "nameCn": "十·宝剑",
+      "slug": "ten-of-swords",
+      "category": "swords",
+      "roman": null,
+      "card": "cards/59.jpg",
+      "large": "large/59.jpg"
+    },
+    {
+      "index": 60,
+      "name": "Page of Swords",
+      "nameCn": "侍从·宝剑",
+      "slug": "page-of-swords",
+      "category": "swords",
+      "roman": null,
+      "card": "cards/60.jpg",
+      "large": "large/60.jpg"
+    },
+    {
+      "index": 61,
+      "name": "Knight of Swords",
+      "nameCn": "骑士·宝剑",
+      "slug": "knight-of-swords",
+      "category": "swords",
+      "roman": null,
+      "card": "cards/61.jpg",
+      "large": "large/61.jpg"
+    },
+    {
+      "index": 62,
+      "name": "Queen of Swords",
+      "nameCn": "王后·宝剑",
+      "slug": "queen-of-swords",
+      "category": "swords",
+      "roman": null,
+      "card": "cards/62.jpg",
+      "large": "large/62.jpg"
+    },
+    {
+      "index": 63,
+      "name": "King of Swords",
+      "nameCn": "国王·宝剑",
+      "slug": "king-of-swords",
+      "category": "swords",
+      "roman": null,
+      "card": "cards/63.jpg",
+      "large": "large/63.jpg"
+    },
+    {
+      "index": 64,
+      "name": "Ace of Pentacles",
+      "nameCn": "王牌·星币",
+      "slug": "ace-of-pentacles",
+      "category": "pentacles",
+      "roman": null,
+      "card": "cards/64.jpg",
+      "large": "large/64.jpg"
+    },
+    {
+      "index": 65,
+      "name": "Two of Pentacles",
+      "nameCn": "二·星币",
+      "slug": "two-of-pentacles",
+      "category": "pentacles",
+      "roman": null,
+      "card": "cards/65.jpg",
+      "large": "large/65.jpg"
+    },
+    {
+      "index": 66,
+      "name": "Three of Pentacles",
+      "nameCn": "三·星币",
+      "slug": "three-of-pentacles",
+      "category": "pentacles",
+      "roman": null,
+      "card": "cards/66.jpg",
+      "large": "large/66.jpg"
+    },
+    {
+      "index": 67,
+      "name": "Four of Pentacles",
+      "nameCn": "四·星币",
+      "slug": "four-of-pentacles",
+      "category": "pentacles",
+      "roman": null,
+      "card": "cards/67.jpg",
+      "large": "large/67.jpg"
+    },
+    {
+      "index": 68,
+      "name": "Five of Pentacles",
+      "nameCn": "五·星币",
+      "slug": "five-of-pentacles",
+      "category": "pentacles",
+      "roman": null,
+      "card": "cards/68.jpg",
+      "large": "large/68.jpg"
+    },
+    {
+      "index": 69,
+      "name": "Six of Pentacles",
+      "nameCn": "六·星币",
+      "slug": "six-of-pentacles",
+      "category": "pentacles",
+      "roman": null,
+      "card": "cards/69.jpg",
+      "large": "large/69.jpg"
+    },
+    {
+      "index": 70,
+      "name": "Seven of Pentacles",
+      "nameCn": "七·星币",
+      "slug": "seven-of-pentacles",
+      "category": "pentacles",
+      "roman": null,
+      "card": "cards/70.jpg",
+      "large": "large/70.jpg"
+    },
+    {
+      "index": 71,
+      "name": "Eight of Pentacles",
+      "nameCn": "八·星币",
+      "slug": "eight-of-pentacles",
+      "category": "pentacles",
+      "roman": null,
+      "card": "cards/71.jpg",
+      "large": "large/71.jpg"
+    },
+    {
+      "index": 72,
+      "name": "Nine of Pentacles",
+      "nameCn": "九·星币",
+      "slug": "nine-of-pentacles",
+      "category": "pentacles",
+      "roman": null,
+      "card": "cards/72.jpg",
+      "large": "large/72.jpg"
+    },
+    {
+      "index": 73,
+      "name": "Ten of Pentacles",
+      "nameCn": "十·星币",
+      "slug": "ten-of-pentacles",
+      "category": "pentacles",
+      "roman": null,
+      "card": "cards/73.jpg",
+      "large": "large/73.jpg"
+    },
+    {
+      "index": 74,
+      "name": "Page of Pentacles",
+      "nameCn": "侍从·星币",
+      "slug": "page-of-pentacles",
+      "category": "pentacles",
+      "roman": null,
+      "card": "cards/74.jpg",
+      "large": "large/74.jpg"
+    },
+    {
+      "index": 75,
+      "name": "Knight of Pentacles",
+      "nameCn": "骑士·星币",
+      "slug": "knight-of-pentacles",
+      "category": "pentacles",
+      "roman": null,
+      "card": "cards/75.jpg",
+      "large": "large/75.jpg"
+    },
+    {
+      "index": 76,
+      "name": "Queen of Pentacles",
+      "nameCn": "王后·星币",
+      "slug": "queen-of-pentacles",
+      "category": "pentacles",
+      "roman": null,
+      "card": "cards/76.jpg",
+      "large": "large/76.jpg"
+    },
+    {
+      "index": 77,
+      "name": "King of Pentacles",
+      "nameCn": "国王·星币",
+      "slug": "king-of-pentacles",
+      "category": "pentacles",
+      "roman": null,
+      "card": "cards/77.jpg",
+      "large": "large/77.jpg"
+    }
+  ]
+}
