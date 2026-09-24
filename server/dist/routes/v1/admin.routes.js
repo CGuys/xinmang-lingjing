@@ -11,9 +11,11 @@ router.get('/dashboard', auth_middleware_1.requireAdminAuth, admin_controller_1.
 // 业务策略配置
 router.get('/strategy', auth_middleware_1.requireAdminAuth, admin_controller_1.AdminController.getStrategy);
 router.put('/strategy', auth_middleware_1.requireAdminAuth, admin_controller_1.AdminController.updateStrategy);
-// AI 编排配置
+// AI 编排配置与连通性测试
 router.get('/ai-config', auth_middleware_1.requireAdminAuth, admin_controller_1.AdminController.getAiConfig);
 router.put('/ai-config', auth_middleware_1.requireAdminAuth, admin_controller_1.AdminController.updateAiConfig);
+router.post('/ai/test-connection', auth_middleware_1.requireAdminAuth, admin_controller_1.AdminController.testAiConnection);
+router.get('/ai/status', auth_middleware_1.requireAdminAuth, admin_controller_1.AdminController.getAiGatewayStatus);
 // 卡牌资源档案
 router.get('/cards', auth_middleware_1.requireAdminAuth, admin_controller_1.AdminController.getCards);
 // 敏感词管理

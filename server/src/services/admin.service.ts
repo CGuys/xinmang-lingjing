@@ -213,11 +213,25 @@ export class AdminService {
     question: string,
     res: Response
   ) {
-    // 创建一个临时测试阅读记录
-    const card = TarotService.getCardByIndex(cardIndex) || TarotService.getAllCards()[0];
+    // 确保存在沙盒测试专用用户（满足外键约束）
+    const sandboxUser = await prisma.user.upsert({
+      where: { openid: 'sandbox_admin_tester_openid' },
+      update: {},
+      create: {
+        openid: 'sandbox_admin_tester_openid',
+        bonus_energy: 999
+      }
+    });
+
+    const allCards = TarotService.getAllCards();
+    const card = TarotService.getCardByIndex(cardIndex) || allCards[0] || {
+      index: 0,
+      nameCn: '愚者'
+    };
+
     const tempReading = await prisma.tarotReading.create({
       data: {
-        user_id: 'sandbox_admin_tester',
+        user_id: sandboxUser.id,
         card_id: card.index,
         card_name: card.nameCn,
         orientation: orientation === 'reversed' ? 'reversed' : 'upright',

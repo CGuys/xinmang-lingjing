@@ -6,6 +6,8 @@ export declare class AdminController {
     static updateStrategy(req: Request, res: Response, next: NextFunction): Promise<void>;
     static getAiConfig(req: Request, res: Response, next: NextFunction): Promise<void>;
     static updateAiConfig(req: Request, res: Response, next: NextFunction): Promise<void>;
+    static testAiConnection(req: Request, res: Response, next: NextFunction): Promise<void>;
+    static getAiGatewayStatus(req: Request, res: Response, next: NextFunction): Promise<void>;
     static getCards(req: Request, res: Response, next: NextFunction): Promise<void>;
     static getSensitiveWords(req: Request, res: Response, next: NextFunction): Promise<void>;
     static addSensitiveWord(req: Request, res: Response, next: NextFunction): Promise<void>;

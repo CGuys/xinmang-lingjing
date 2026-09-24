@@ -23,6 +23,133 @@ class AiService {
         return result;
     }
     /**
+     * 测试大模型网关连通性
+     */
+    static async testConnection(params) {
+        const config = await config_service_1.ConfigService.getAiConfig();
+        const provider = params?.provider || config.provider || 'deepseek';
+        const providerNames = {
+            zhipu: '智谱 AI',
+            siliconflow: '硅基流动',
+            dashscope: '阿里云百炼',
+            qianfan: '百度千帆',
+            deepseek: 'DeepSeek',
+            openai: 'OpenAI / 自定义'
+        };
+        const providerName = providerNames[provider] || (provider ? provider.toUpperCase() : '默认网关');
+        const rawBase = (params?.baseUrl || config.baseUrl || 'https://api.deepseek.com').replace(/\/+$/, '');
+        const apiKey = params?.apiKey !== undefined ? params.apiKey.trim() : (config.apiKey || '').trim();
+        const model = (params?.model || config.model || 'deepseek-chat').trim();
+        if (!apiKey) {
+            return {
+                ok: false,
+                status: 'API_KEY_EMPTY',
+                provider,
+                providerName,
+                model,
+                message: '未配置 API Key，大模型网关当前处于【内置离线高精度心理学疗愈引擎】自闭环模式',
+                latencyMs: 0
+            };
+        }
+        const startTime = Date.now();
+        let balanceInfo = null;
+        // 针对 DeepSeek 官方，先做余额探针
+        if (rawBase.includes('deepseek.com')) {
+            try {
+                const balRes = await axios_1.default.get('https://api.deepseek.com/user/balance', {
+                    headers: { Authorization: `Bearer ${apiKey}` },
+                    timeout: 5000
+                });
+                balanceInfo = balRes.data;
+            }
+            catch (e) {
+                // ignore
+            }
+        }
+        // 格式化 completions 地址
+        const completionsUrl = rawBase.endsWith('/chat/completions')
+            ? rawBase
+            : `${rawBase}/chat/completions`;
+        try {
+            const res = await axios_1.default.post(completionsUrl, {
+                model,
+                messages: [{ role: 'user', content: '心芒灵境大模型网关连通性测试，请回复 OK。' }],
+                max_tokens: 10
+            }, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${apiKey}`
+                },
+                timeout: 12000
+            });
+            const latencyMs = Date.now() - startTime;
+            return {
+                ok: true,
+                status: 'CONNECTED',
+                provider,
+                providerName,
+                model,
+                latencyMs,
+                modelUsed: model,
+                message: `大模型 API 网关通信与推理完全正常！往返耗时 ${latencyMs}ms`,
+                balance: balanceInfo,
+                sampleOutput: res.data?.choices?.[0]?.message?.content || ''
+            };
+        }
+        catch (err) {
+            const latencyMs = Date.now() - startTime;
+            const resData = err.response?.data;
+            const errMsg = resData?.error?.message || err.message;
+            if (errMsg?.includes('Insufficient Balance') || balanceInfo?.is_available === false) {
+                return {
+                    ok: false,
+                    status: 'INSUFFICIENT_BALANCE',
+                    provider,
+                    providerName,
+                    model,
+                    latencyMs,
+                    message: '网关链路通信成功且密钥鉴权通过，但该 DeepSeek 账户余额不足 (0.00 元)，大模型已拒绝生成。充值后方可真实吐字，未充值前系统会自动降级为内置心理学引擎。',
+                    balance: balanceInfo,
+                    errorDetail: resData
+                };
+            }
+            if (err.response?.status === 401) {
+                return {
+                    ok: false,
+                    status: 'INVALID_API_KEY',
+                    provider,
+                    providerName,
+                    model,
+                    latencyMs,
+                    message: 'API Key 无效或未授权，请检查输入的密钥是否正确。',
+                    errorDetail: resData
+                };
+            }
+            if (err.response?.status === 404) {
+                return {
+                    ok: false,
+                    status: 'MODEL_NOT_FOUND',
+                    provider,
+                    providerName,
+                    model,
+                    latencyMs,
+                    message: `未找到模型【${model}】。DeepSeek 官方模型为 deepseek-chat 或 deepseek-reasoner，请检查模型名称。`,
+                    errorDetail: resData
+                };
+            }
+            return {
+                ok: false,
+                status: 'FAILED',
+                provider,
+                providerName,
+                model,
+                latencyMs,
+                message: `大模型网关连接异常: ${errMsg}`,
+                errorDetail: resData
+            };
+        }
+    }
+    /**
      * 处理 SSE 流式解读推流
      */
     static async streamReading(readingId, userId, res) {
@@ -79,9 +206,12 @@ class AiService {
 卡牌心理投射原型：${cardMeta?.insight || ''}。
 
 请严格根据 System Prompt 的指引和结构进行流式解读：`;
+                const completionsUrl = aiConfig.baseUrl.endsWith('/chat/completions')
+                    ? aiConfig.baseUrl
+                    : `${aiConfig.baseUrl.replace(/\/+$/, '')}/chat/completions`;
                 const response = await (0, axios_1.default)({
                     method: 'post',
-                    url: `${aiConfig.baseUrl.replace(/\/$/, '')}/chat/completions`,
+                    url: completionsUrl,
                     headers: {
                         'Content-Type': 'application/json',
                         Authorization: `Bearer ${aiConfig.apiKey}`

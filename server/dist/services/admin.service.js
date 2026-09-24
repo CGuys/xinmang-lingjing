@@ -185,11 +185,23 @@ class AdminService {
      * 在线调试沙盒 SSE 流式推流
      */
     static async sandboxStream(cardIndex, orientation, question, res) {
-        // 创建一个临时测试阅读记录
-        const card = tarot_service_1.TarotService.getCardByIndex(cardIndex) || tarot_service_1.TarotService.getAllCards()[0];
+        // 确保存在沙盒测试专用用户（满足外键约束）
+        const sandboxUser = await prisma_1.prisma.user.upsert({
+            where: { openid: 'sandbox_admin_tester_openid' },
+            update: {},
+            create: {
+                openid: 'sandbox_admin_tester_openid',
+                bonus_energy: 999
+            }
+        });
+        const allCards = tarot_service_1.TarotService.getAllCards();
+        const card = tarot_service_1.TarotService.getCardByIndex(cardIndex) || allCards[0] || {
+            index: 0,
+            nameCn: '愚者'
+        };
         const tempReading = await prisma_1.prisma.tarotReading.create({
             data: {
-                user_id: 'sandbox_admin_tester',
+                user_id: sandboxUser.id,
                 card_id: card.index,
                 card_name: card.nameCn,
                 orientation: orientation === 'reversed' ? 'reversed' : 'upright',

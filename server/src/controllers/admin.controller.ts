@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { AdminService } from '../services/admin.service';
 import { ConfigService } from '../services/config.service';
 import { TarotService } from '../services/tarot.service';
+import { AiService } from '../services/ai.service';
 
 export class AdminController {
   static async login(req: Request, res: Response, next: NextFunction) {
@@ -77,6 +78,31 @@ export class AdminController {
         code: 'SUCCESS',
         message: 'AI 编排配置已保存',
         data: updated
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async testAiConnection(req: Request, res: Response, next: NextFunction) {
+    try {
+      const result = await AiService.testConnection(req.body);
+      res.json({
+        code: 'SUCCESS',
+        message: result.message,
+        data: result
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async getAiGatewayStatus(req: Request, res: Response, next: NextFunction) {
+    try {
+      const result = await AiService.testConnection();
+      res.json({
+        code: 'SUCCESS',
+        data: result
       });
     } catch (err) {
       next(err);

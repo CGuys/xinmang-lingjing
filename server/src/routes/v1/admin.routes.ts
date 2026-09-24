@@ -14,9 +14,11 @@ router.get('/dashboard', requireAdminAuth, AdminController.getDashboard);
 router.get('/strategy', requireAdminAuth, AdminController.getStrategy);
 router.put('/strategy', requireAdminAuth, AdminController.updateStrategy);
 
-// AI 编排配置
+// AI 编排配置与连通性测试
 router.get('/ai-config', requireAdminAuth, AdminController.getAiConfig);
 router.put('/ai-config', requireAdminAuth, AdminController.updateAiConfig);
+router.post('/ai/test-connection', requireAdminAuth, AdminController.testAiConnection);
+router.get('/ai/status', requireAdminAuth, AdminController.getAiGatewayStatus);
 
 // 卡牌资源档案
 router.get('/cards', requireAdminAuth, AdminController.getCards);

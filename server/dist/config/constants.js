@@ -8,6 +8,7 @@ const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 exports.ENV = {
     PORT: process.env.PORT ? parseInt(process.env.PORT, 10) : 3000,
+    HOST: process.env.HOST || '0.0.0.0',
     NODE_ENV: process.env.NODE_ENV || 'development',
     DATABASE_URL: process.env.DATABASE_URL || 'file:./dev.db',
     JWT_SECRET: process.env.JWT_SECRET || 'xinmang_lingjing_super_jwt_secret_key_2026',

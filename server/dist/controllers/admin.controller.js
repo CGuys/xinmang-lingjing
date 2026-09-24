@@ -4,6 +4,7 @@ exports.AdminController = void 0;
 const admin_service_1 = require("../services/admin.service");
 const config_service_1 = require("../services/config.service");
 const tarot_service_1 = require("../services/tarot.service");
+const ai_service_1 = require("../services/ai.service");
 class AdminController {
     static async login(req, res, next) {
         try {
@@ -78,6 +79,31 @@ class AdminController {
                 code: 'SUCCESS',
                 message: 'AI 编排配置已保存',
                 data: updated
+            });
+        }
+        catch (err) {
+            next(err);
+        }
+    }
+    static async testAiConnection(req, res, next) {
+        try {
+            const result = await ai_service_1.AiService.testConnection(req.body);
+            res.json({
+                code: 'SUCCESS',
+                message: result.message,
+                data: result
+            });
+        }
+        catch (err) {
+            next(err);
+        }
+    }
+    static async getAiGatewayStatus(req, res, next) {
+        try {
+            const result = await ai_service_1.AiService.testConnection();
+            res.json({
+                code: 'SUCCESS',
+                data: result
             });
         }
         catch (err) {
