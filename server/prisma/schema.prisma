@@ -13,6 +13,7 @@ model User {
   openid          String         @unique
   bonus_energy    Int            @default(0)
   last_free_date  String?        // 格式: "YYYY-MM-DD"
+  free_used_today Int            @default(0)
   is_blacklisted  Boolean        @default(false)
   created_at      DateTime       @default(now())
   updated_at      DateTime       @updatedAt
@@ -75,3 +76,50 @@ model AdminUser {
   role       String   @default("admin")
   created_at DateTime @default(now())
 }
+
+// 7. 78 张卡牌全量心理资产与页面 OSS 资源映射表
+model TarotCard {
+  id                Int      @id // 0~77 卡牌唯一索引编号
+  name_cn           String   // 中文牌名（如：愚者）
+  name_en           String   // 英文牌名（如：The Fool）
+  slug              String   // 唯一标识（如：the-fool）
+  category          String   // major | wands | cups | swords | pentacles
+  category_name     String   // 大阿卡纳 | 权杖 | 圣杯 | 宝剑 | 星币
+  roman             String?  // 罗马数字标号 (0, I, II...)
+  element           String?  // 能量定调 / 核心意象
+  tags              String   // JSON 字符串数组，如 '["破局启程","纯粹好奇"]'
+  quote             String?  // 每日正念金句
+  insight           String?  // 荣格潜意识投射原型深度解析
+  challenge         String?  // 认知盲区与自我防卫挑战
+  guidance          String?  // 今日正念行动微建议
+  affirmation       String?  // 自我赋能肯定语
+
+  // 多页面 OSS 存储路径与访问直链
+  home_image_key    String?  // 首页 3D 抽牌缩略图 OSS Key (pages/home/cards/card_00_the_fool.jpg)
+  home_image_url    String?  // 首页缩略图 OSS 访问链接
+  reading_image_key String?  // 结果与海报页高清大图 OSS Key (pages/reading/cards/card_00_the_fool.jpg)
+  reading_image_url String?  // 结果页大图 OSS 访问链接
+  back_image_key    String?  // 卡背 OSS Key (pages/home/card_back.jpg)
+  back_image_url    String?  // 卡背 OSS 访问链接
+
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+}
+
+// 8. 全站多页面静态与动效资源资产明细表
+model PageAsset {
+  id          String   @id @default(uuid())
+  page        String   // home | reading | poster | history | admin
+  page_name   String   // 页面中文名（如：灵境主台首页）
+  asset_name  String   // 资源语义名称
+  asset_type  String   // card_front | card_back | illustration | icon
+  local_path  String   // 本地相对路径
+  oss_key     String   @unique // OSS 存储路径
+  oss_url     String   // OSS 访问地址
+  file_size   Int?     // 文件大小字节数
+  mime_type   String?  // image/jpeg, image/png 等
+  description String?  // 资源用途描述
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+}
+

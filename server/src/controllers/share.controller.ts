@@ -21,4 +21,17 @@ export class ShareController {
       next(err);
     }
   }
+
+  static async getShareQrcode(req: Request, res: Response, next: NextFunction) {
+    try {
+      const inviterId = (req.query.inviter_id as string) || (req.user?.id as string) || '';
+      const { buffer, contentType } = await ShareService.getQrcodeBuffer(inviterId);
+      res.setHeader('Content-Type', contentType);
+      res.setHeader('Cache-Control', 'public, max-age=86400');
+      res.send(buffer);
+    } catch (err) {
+      next(err);
+    }
+  }
 }
+

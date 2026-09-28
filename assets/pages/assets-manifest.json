@@ -1,0 +1,1582 @@
+{
+  "version": "2.0.0",
+  "description": "心芒灵境卡牌多页面 OSS 资源目录清单与映射规范",
+  "pages": {
+    "home": {
+      "pageRoute": "/pages/index/index",
+      "pageName": "灵境主台 (首页 3D 抽牌动效)",
+      "assetDir": "pages/home",
+      "backImage": "pages/home/card_back.jpg",
+      "cardsDir": "pages/home/cards"
+    },
+    "reading": {
+      "pageRoute": "/pages/reading/result",
+      "pageName": "能量解析与朋友圈海报页 (高清原画大图)",
+      "assetDir": "pages/reading",
+      "backImage": "pages/reading/card_back.jpg",
+      "cardsDir": "pages/reading/cards"
+    }
+  },
+  "items": [
+    {
+      "index": 0,
+      "nameCn": "愚者",
+      "nameEn": "The Fool",
+      "slug": "the-fool",
+      "category": "major",
+      "filename": "card_00_the-fool.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_00_the-fool.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_00_the-fool.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 1,
+      "nameCn": "魔术师",
+      "nameEn": "The Magician",
+      "slug": "the-magician",
+      "category": "major",
+      "filename": "card_01_the-magician.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_01_the-magician.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_01_the-magician.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 2,
+      "nameCn": "女祭司",
+      "nameEn": "The High Priestess",
+      "slug": "the-high-priestess",
+      "category": "major",
+      "filename": "card_02_the-high-priestess.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_02_the-high-priestess.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_02_the-high-priestess.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 3,
+      "nameCn": "女皇",
+      "nameEn": "The Empress",
+      "slug": "the-empress",
+      "category": "major",
+      "filename": "card_03_the-empress.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_03_the-empress.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_03_the-empress.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 4,
+      "nameCn": "皇帝",
+      "nameEn": "The Emperor",
+      "slug": "the-emperor",
+      "category": "major",
+      "filename": "card_04_the-emperor.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_04_the-emperor.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_04_the-emperor.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 5,
+      "nameCn": "教皇",
+      "nameEn": "The Hierophant",
+      "slug": "the-hierophant",
+      "category": "major",
+      "filename": "card_05_the-hierophant.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_05_the-hierophant.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_05_the-hierophant.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 6,
+      "nameCn": "恋人",
+      "nameEn": "The Lovers",
+      "slug": "the-lovers",
+      "category": "major",
+      "filename": "card_06_the-lovers.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_06_the-lovers.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_06_the-lovers.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 7,
+      "nameCn": "战车",
+      "nameEn": "The Chariot",
+      "slug": "the-chariot",
+      "category": "major",
+      "filename": "card_07_the-chariot.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_07_the-chariot.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_07_the-chariot.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 8,
+      "nameCn": "力量",
+      "nameEn": "Strength",
+      "slug": "strength",
+      "category": "major",
+      "filename": "card_08_strength.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_08_strength.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_08_strength.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 9,
+      "nameCn": "隐士",
+      "nameEn": "The Hermit",
+      "slug": "the-hermit",
+      "category": "major",
+      "filename": "card_09_the-hermit.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_09_the-hermit.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_09_the-hermit.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 10,
+      "nameCn": "命运之轮",
+      "nameEn": "Wheel of Fortune",
+      "slug": "wheel-of-fortune",
+      "category": "major",
+      "filename": "card_10_wheel-of-fortune.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_10_wheel-of-fortune.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_10_wheel-of-fortune.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 11,
+      "nameCn": "正义",
+      "nameEn": "Justice",
+      "slug": "justice",
+      "category": "major",
+      "filename": "card_11_justice.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_11_justice.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_11_justice.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 12,
+      "nameCn": "倒吊人",
+      "nameEn": "The Hanged Man",
+      "slug": "the-hanged-man",
+      "category": "major",
+      "filename": "card_12_the-hanged-man.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_12_the-hanged-man.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_12_the-hanged-man.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 13,
+      "nameCn": "死神",
+      "nameEn": "Death",
+      "slug": "death",
+      "category": "major",
+      "filename": "card_13_death.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_13_death.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_13_death.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 14,
+      "nameCn": "节制",
+      "nameEn": "Temperance",
+      "slug": "temperance",
+      "category": "major",
+      "filename": "card_14_temperance.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_14_temperance.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_14_temperance.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 15,
+      "nameCn": "恶魔",
+      "nameEn": "The Devil",
+      "slug": "the-devil",
+      "category": "major",
+      "filename": "card_15_the-devil.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_15_the-devil.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_15_the-devil.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 16,
+      "nameCn": "高塔",
+      "nameEn": "The Tower",
+      "slug": "the-tower",
+      "category": "major",
+      "filename": "card_16_the-tower.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_16_the-tower.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_16_the-tower.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 17,
+      "nameCn": "星星",
+      "nameEn": "The Star",
+      "slug": "the-star",
+      "category": "major",
+      "filename": "card_17_the-star.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_17_the-star.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_17_the-star.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 18,
+      "nameCn": "月亮",
+      "nameEn": "The Moon",
+      "slug": "the-moon",
+      "category": "major",
+      "filename": "card_18_the-moon.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_18_the-moon.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_18_the-moon.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 19,
+      "nameCn": "太阳",
+      "nameEn": "The Sun",
+      "slug": "the-sun",
+      "category": "major",
+      "filename": "card_19_the-sun.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_19_the-sun.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_19_the-sun.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 20,
+      "nameCn": "审判",
+      "nameEn": "Judgement",
+      "slug": "judgement",
+      "category": "major",
+      "filename": "card_20_judgement.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_20_judgement.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_20_judgement.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 21,
+      "nameCn": "世界",
+      "nameEn": "The World",
+      "slug": "the-world",
+      "category": "major",
+      "filename": "card_21_the-world.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_21_the-world.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_21_the-world.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 22,
+      "nameCn": "王牌·权杖",
+      "nameEn": "Ace of Wands",
+      "slug": "ace-of-wands",
+      "category": "wands",
+      "filename": "card_22_ace-of-wands.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_22_ace-of-wands.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_22_ace-of-wands.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 23,
+      "nameCn": "二·权杖",
+      "nameEn": "Two of Wands",
+      "slug": "two-of-wands",
+      "category": "wands",
+      "filename": "card_23_two-of-wands.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_23_two-of-wands.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_23_two-of-wands.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 24,
+      "nameCn": "三·权杖",
+      "nameEn": "Three of Wands",
+      "slug": "three-of-wands",
+      "category": "wands",
+      "filename": "card_24_three-of-wands.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_24_three-of-wands.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_24_three-of-wands.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 25,
+      "nameCn": "四·权杖",
+      "nameEn": "Four of Wands",
+      "slug": "four-of-wands",
+      "category": "wands",
+      "filename": "card_25_four-of-wands.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_25_four-of-wands.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_25_four-of-wands.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 26,
+      "nameCn": "五·权杖",
+      "nameEn": "Five of Wands",
+      "slug": "five-of-wands",
+      "category": "wands",
+      "filename": "card_26_five-of-wands.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_26_five-of-wands.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_26_five-of-wands.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 27,
+      "nameCn": "六·权杖",
+      "nameEn": "Six of Wands",
+      "slug": "six-of-wands",
+      "category": "wands",
+      "filename": "card_27_six-of-wands.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_27_six-of-wands.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_27_six-of-wands.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 28,
+      "nameCn": "七·权杖",
+      "nameEn": "Seven of Wands",
+      "slug": "seven-of-wands",
+      "category": "wands",
+      "filename": "card_28_seven-of-wands.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_28_seven-of-wands.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_28_seven-of-wands.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 29,
+      "nameCn": "八·权杖",
+      "nameEn": "Eight of Wands",
+      "slug": "eight-of-wands",
+      "category": "wands",
+      "filename": "card_29_eight-of-wands.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_29_eight-of-wands.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_29_eight-of-wands.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 30,
+      "nameCn": "九·权杖",
+      "nameEn": "Nine of Wands",
+      "slug": "nine-of-wands",
+      "category": "wands",
+      "filename": "card_30_nine-of-wands.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_30_nine-of-wands.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_30_nine-of-wands.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 31,
+      "nameCn": "十·权杖",
+      "nameEn": "Ten of Wands",
+      "slug": "ten-of-wands",
+      "category": "wands",
+      "filename": "card_31_ten-of-wands.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_31_ten-of-wands.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_31_ten-of-wands.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 32,
+      "nameCn": "侍从·权杖",
+      "nameEn": "Page of Wands",
+      "slug": "page-of-wands",
+      "category": "wands",
+      "filename": "card_32_page-of-wands.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_32_page-of-wands.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_32_page-of-wands.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 33,
+      "nameCn": "骑士·权杖",
+      "nameEn": "Knight of Wands",
+      "slug": "knight-of-wands",
+      "category": "wands",
+      "filename": "card_33_knight-of-wands.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_33_knight-of-wands.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_33_knight-of-wands.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 34,
+      "nameCn": "王后·权杖",
+      "nameEn": "Queen of Wands",
+      "slug": "queen-of-wands",
+      "category": "wands",
+      "filename": "card_34_queen-of-wands.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_34_queen-of-wands.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_34_queen-of-wands.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 35,
+      "nameCn": "国王·权杖",
+      "nameEn": "King of Wands",
+      "slug": "king-of-wands",
+      "category": "wands",
+      "filename": "card_35_king-of-wands.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_35_king-of-wands.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_35_king-of-wands.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 36,
+      "nameCn": "王牌·圣杯",
+      "nameEn": "Ace of Cups",
+      "slug": "ace-of-cups",
+      "category": "cups",
+      "filename": "card_36_ace-of-cups.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_36_ace-of-cups.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_36_ace-of-cups.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 37,
+      "nameCn": "二·圣杯",
+      "nameEn": "Two of Cups",
+      "slug": "two-of-cups",
+      "category": "cups",
+      "filename": "card_37_two-of-cups.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_37_two-of-cups.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_37_two-of-cups.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 38,
+      "nameCn": "三·圣杯",
+      "nameEn": "Three of Cups",
+      "slug": "three-of-cups",
+      "category": "cups",
+      "filename": "card_38_three-of-cups.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_38_three-of-cups.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_38_three-of-cups.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 39,
+      "nameCn": "四·圣杯",
+      "nameEn": "Four of Cups",
+      "slug": "four-of-cups",
+      "category": "cups",
+      "filename": "card_39_four-of-cups.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_39_four-of-cups.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_39_four-of-cups.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 40,
+      "nameCn": "五·圣杯",
+      "nameEn": "Five of Cups",
+      "slug": "five-of-cups",
+      "category": "cups",
+      "filename": "card_40_five-of-cups.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_40_five-of-cups.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_40_five-of-cups.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 41,
+      "nameCn": "六·圣杯",
+      "nameEn": "Six of Cups",
+      "slug": "six-of-cups",
+      "category": "cups",
+      "filename": "card_41_six-of-cups.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_41_six-of-cups.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_41_six-of-cups.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 42,
+      "nameCn": "七·圣杯",
+      "nameEn": "Seven of Cups",
+      "slug": "seven-of-cups",
+      "category": "cups",
+      "filename": "card_42_seven-of-cups.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_42_seven-of-cups.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_42_seven-of-cups.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 43,
+      "nameCn": "八·圣杯",
+      "nameEn": "Eight of Cups",
+      "slug": "eight-of-cups",
+      "category": "cups",
+      "filename": "card_43_eight-of-cups.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_43_eight-of-cups.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_43_eight-of-cups.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 44,
+      "nameCn": "九·圣杯",
+      "nameEn": "Nine of Cups",
+      "slug": "nine-of-cups",
+      "category": "cups",
+      "filename": "card_44_nine-of-cups.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_44_nine-of-cups.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_44_nine-of-cups.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 45,
+      "nameCn": "十·圣杯",
+      "nameEn": "Ten of Cups",
+      "slug": "ten-of-cups",
+      "category": "cups",
+      "filename": "card_45_ten-of-cups.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_45_ten-of-cups.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_45_ten-of-cups.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 46,
+      "nameCn": "侍从·圣杯",
+      "nameEn": "Page of Cups",
+      "slug": "page-of-cups",
+      "category": "cups",
+      "filename": "card_46_page-of-cups.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_46_page-of-cups.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_46_page-of-cups.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 47,
+      "nameCn": "骑士·圣杯",
+      "nameEn": "Knight of Cups",
+      "slug": "knight-of-cups",
+      "category": "cups",
+      "filename": "card_47_knight-of-cups.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_47_knight-of-cups.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_47_knight-of-cups.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 48,
+      "nameCn": "王后·圣杯",
+      "nameEn": "Queen of Cups",
+      "slug": "queen-of-cups",
+      "category": "cups",
+      "filename": "card_48_queen-of-cups.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_48_queen-of-cups.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_48_queen-of-cups.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 49,
+      "nameCn": "国王·圣杯",
+      "nameEn": "King of Cups",
+      "slug": "king-of-cups",
+      "category": "cups",
+      "filename": "card_49_king-of-cups.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_49_king-of-cups.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_49_king-of-cups.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 50,
+      "nameCn": "王牌·宝剑",
+      "nameEn": "Ace of Swords",
+      "slug": "ace-of-swords",
+      "category": "swords",
+      "filename": "card_50_ace-of-swords.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_50_ace-of-swords.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_50_ace-of-swords.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 51,
+      "nameCn": "二·宝剑",
+      "nameEn": "Two of Swords",
+      "slug": "two-of-swords",
+      "category": "swords",
+      "filename": "card_51_two-of-swords.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_51_two-of-swords.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_51_two-of-swords.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 52,
+      "nameCn": "三·宝剑",
+      "nameEn": "Three of Swords",
+      "slug": "three-of-swords",
+      "category": "swords",
+      "filename": "card_52_three-of-swords.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_52_three-of-swords.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_52_three-of-swords.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 53,
+      "nameCn": "四·宝剑",
+      "nameEn": "Four of Swords",
+      "slug": "four-of-swords",
+      "category": "swords",
+      "filename": "card_53_four-of-swords.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_53_four-of-swords.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_53_four-of-swords.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 54,
+      "nameCn": "五·宝剑",
+      "nameEn": "Five of Swords",
+      "slug": "five-of-swords",
+      "category": "swords",
+      "filename": "card_54_five-of-swords.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_54_five-of-swords.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_54_five-of-swords.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 55,
+      "nameCn": "六·宝剑",
+      "nameEn": "Six of Swords",
+      "slug": "six-of-swords",
+      "category": "swords",
+      "filename": "card_55_six-of-swords.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_55_six-of-swords.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_55_six-of-swords.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 56,
+      "nameCn": "七·宝剑",
+      "nameEn": "Seven of Swords",
+      "slug": "seven-of-swords",
+      "category": "swords",
+      "filename": "card_56_seven-of-swords.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_56_seven-of-swords.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_56_seven-of-swords.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 57,
+      "nameCn": "八·宝剑",
+      "nameEn": "Eight of Swords",
+      "slug": "eight-of-swords",
+      "category": "swords",
+      "filename": "card_57_eight-of-swords.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_57_eight-of-swords.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_57_eight-of-swords.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 58,
+      "nameCn": "九·宝剑",
+      "nameEn": "Nine of Swords",
+      "slug": "nine-of-swords",
+      "category": "swords",
+      "filename": "card_58_nine-of-swords.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_58_nine-of-swords.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_58_nine-of-swords.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 59,
+      "nameCn": "十·宝剑",
+      "nameEn": "Ten of Swords",
+      "slug": "ten-of-swords",
+      "category": "swords",
+      "filename": "card_59_ten-of-swords.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_59_ten-of-swords.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_59_ten-of-swords.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 60,
+      "nameCn": "侍从·宝剑",
+      "nameEn": "Page of Swords",
+      "slug": "page-of-swords",
+      "category": "swords",
+      "filename": "card_60_page-of-swords.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_60_page-of-swords.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_60_page-of-swords.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 61,
+      "nameCn": "骑士·宝剑",
+      "nameEn": "Knight of Swords",
+      "slug": "knight-of-swords",
+      "category": "swords",
+      "filename": "card_61_knight-of-swords.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_61_knight-of-swords.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_61_knight-of-swords.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 62,
+      "nameCn": "王后·宝剑",
+      "nameEn": "Queen of Swords",
+      "slug": "queen-of-swords",
+      "category": "swords",
+      "filename": "card_62_queen-of-swords.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_62_queen-of-swords.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_62_queen-of-swords.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 63,
+      "nameCn": "国王·宝剑",
+      "nameEn": "King of Swords",
+      "slug": "king-of-swords",
+      "category": "swords",
+      "filename": "card_63_king-of-swords.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_63_king-of-swords.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_63_king-of-swords.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 64,
+      "nameCn": "王牌·星币",
+      "nameEn": "Ace of Pentacles",
+      "slug": "ace-of-pentacles",
+      "category": "pentacles",
+      "filename": "card_64_ace-of-pentacles.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_64_ace-of-pentacles.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_64_ace-of-pentacles.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 65,
+      "nameCn": "二·星币",
+      "nameEn": "Two of Pentacles",
+      "slug": "two-of-pentacles",
+      "category": "pentacles",
+      "filename": "card_65_two-of-pentacles.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_65_two-of-pentacles.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_65_two-of-pentacles.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 66,
+      "nameCn": "三·星币",
+      "nameEn": "Three of Pentacles",
+      "slug": "three-of-pentacles",
+      "category": "pentacles",
+      "filename": "card_66_three-of-pentacles.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_66_three-of-pentacles.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_66_three-of-pentacles.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 67,
+      "nameCn": "四·星币",
+      "nameEn": "Four of Pentacles",
+      "slug": "four-of-pentacles",
+      "category": "pentacles",
+      "filename": "card_67_four-of-pentacles.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_67_four-of-pentacles.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_67_four-of-pentacles.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 68,
+      "nameCn": "五·星币",
+      "nameEn": "Five of Pentacles",
+      "slug": "five-of-pentacles",
+      "category": "pentacles",
+      "filename": "card_68_five-of-pentacles.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_68_five-of-pentacles.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_68_five-of-pentacles.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 69,
+      "nameCn": "六·星币",
+      "nameEn": "Six of Pentacles",
+      "slug": "six-of-pentacles",
+      "category": "pentacles",
+      "filename": "card_69_six-of-pentacles.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_69_six-of-pentacles.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_69_six-of-pentacles.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 70,
+      "nameCn": "七·星币",
+      "nameEn": "Seven of Pentacles",
+      "slug": "seven-of-pentacles",
+      "category": "pentacles",
+      "filename": "card_70_seven-of-pentacles.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_70_seven-of-pentacles.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_70_seven-of-pentacles.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 71,
+      "nameCn": "八·星币",
+      "nameEn": "Eight of Pentacles",
+      "slug": "eight-of-pentacles",
+      "category": "pentacles",
+      "filename": "card_71_eight-of-pentacles.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_71_eight-of-pentacles.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_71_eight-of-pentacles.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 72,
+      "nameCn": "九·星币",
+      "nameEn": "Nine of Pentacles",
+      "slug": "nine-of-pentacles",
+      "category": "pentacles",
+      "filename": "card_72_nine-of-pentacles.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_72_nine-of-pentacles.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_72_nine-of-pentacles.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 73,
+      "nameCn": "十·星币",
+      "nameEn": "Ten of Pentacles",
+      "slug": "ten-of-pentacles",
+      "category": "pentacles",
+      "filename": "card_73_ten-of-pentacles.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_73_ten-of-pentacles.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_73_ten-of-pentacles.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 74,
+      "nameCn": "侍从·星币",
+      "nameEn": "Page of Pentacles",
+      "slug": "page-of-pentacles",
+      "category": "pentacles",
+      "filename": "card_74_page-of-pentacles.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_74_page-of-pentacles.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_74_page-of-pentacles.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 75,
+      "nameCn": "骑士·星币",
+      "nameEn": "Knight of Pentacles",
+      "slug": "knight-of-pentacles",
+      "category": "pentacles",
+      "filename": "card_75_knight-of-pentacles.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_75_knight-of-pentacles.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_75_knight-of-pentacles.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 76,
+      "nameCn": "王后·星币",
+      "nameEn": "Queen of Pentacles",
+      "slug": "queen-of-pentacles",
+      "category": "pentacles",
+      "filename": "card_76_queen-of-pentacles.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_76_queen-of-pentacles.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_76_queen-of-pentacles.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    },
+    {
+      "index": 77,
+      "nameCn": "国王·星币",
+      "nameEn": "King of Pentacles",
+      "slug": "king-of-pentacles",
+      "category": "pentacles",
+      "filename": "card_77_king-of-pentacles.jpg",
+      "pages": {
+        "home": {
+          "page": "home",
+          "relPath": "pages/home/cards/card_77_king-of-pentacles.jpg",
+          "description": "首页 3D 洗牌/翻牌动效卡面"
+        },
+        "reading": {
+          "page": "reading",
+          "relPath": "pages/reading/cards/card_77_king-of-pentacles.jpg",
+          "description": "解析页与海报页高保真插画"
+        }
+      }
+    }
+  ]
+}

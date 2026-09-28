@@ -1,0 +1,36 @@
+{
+    "name" : "心芒灵境",
+    "appid" : "",
+    "description" : "基于心理学潜意识投射与 AI 赋能的日常心灵卡牌工具",
+    "versionName" : "1.0.0",
+    "versionCode" : "100",
+    "transformPx" : false,
+    "app-plus" : {
+        "usingComponents" : true,
+        "nvueStyleCompiler" : "uni-app",
+        "compilerVersion" : 3,
+        "splashscreen" : {
+            "alwaysShowBeforeRender" : true,
+            "waiting" : true,
+            "autoclose" : true,
+            "delay" : 0
+        }
+    },
+    "quickapp" : {},
+    "mp-weixin" : {
+        "appid" : "wx2f536faae3bc7956",
+        "setting" : {
+            "urlCheck" : false,
+            "es6" : true,
+            "postcss" : true,
+            "minified" : true
+        },
+        "usingComponents" : true,
+        "permission" : {
+            "scope.writePhotosAlbum" : {
+                "desc" : "保存能量海报到您的系统相册"
+            }
+        }
+    },
+    "vueVersion" : "3"
+}

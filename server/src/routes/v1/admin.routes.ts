@@ -33,7 +33,8 @@ router.get('/users', requireAdminAuth, AdminController.getUsers);
 router.post('/users/:userId/energy', requireAdminAuth, AdminController.adjustUserEnergy);
 router.post('/users/:userId/blacklist', requireAdminAuth, AdminController.toggleBlacklist);
 
-// 在线调试沙盒流式解牌（支持管理端免授权/管理员调用）
+// 在线调试沙盒流式解牌（支持管理端免授权/管理员调用，同时支持 GET 与长内容 POST）
 router.get('/sandbox/stream', AdminController.sandboxStream);
+router.post('/sandbox/stream', AdminController.sandboxStream);
 
 export default router;

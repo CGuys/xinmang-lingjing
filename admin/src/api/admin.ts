@@ -36,9 +36,14 @@ export function apiGetAiGatewayStatus() {
   return request.get<{ code: string; data: any }>('/admin/ai/status');
 }
 
-// 卡牌资源档案
+// 卡牌资源档案与 OSS 映射
 export function apiGetCards(params?: { category?: string; search?: string }) {
-  return request.get<{ code: string; data: { total: number; cards: any[] } }>('/admin/cards', { params });
+  return request.get<{ code: string; data: { total: number; ossBucket?: string; ossRegion?: string; cards: any[] } }>('/admin/cards', { params });
+}
+
+// AI 智能卡牌识别与 OSS 资源精准匹配检索
+export function apiMatchCardResource(query: string) {
+  return request.get<{ code: string; message: string; data: any }>('/tarot/card-resource', { params: { query } });
 }
 
 // 敏感词

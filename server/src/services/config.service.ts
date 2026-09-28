@@ -74,10 +74,16 @@ export class ConfigService {
     let config = { ...DEFAULT_AI_CONFIG };
     if (setting) {
       try {
-        config = { ...config, ...JSON.parse(setting.value) };
+        const parsed = JSON.parse(setting.value);
+        config = { ...config, ...parsed };
       } catch (e) {
         // ignore
       }
+    }
+
+    // 严密兜底：若 systemPrompt 为空字符串或未设定，回退到默认荣格心理学权威 Prompt
+    if (!config.systemPrompt || !config.systemPrompt.trim()) {
+      config.systemPrompt = DEFAULT_AI_CONFIG.systemPrompt;
     }
 
     await cache.set(AI_CONFIG_CACHE_KEY, JSON.stringify(config), 300);

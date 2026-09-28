@@ -108,7 +108,7 @@
         </h3>
         <span class="text-xs text-slate-400">最新流式调用实时回传</span>
       </div>
-      <div class="divide-y divide-slate-100">
+      <div class="divide-y divide-slate-100" v-if="activityLogs.length > 0">
         <div v-for="(log, idx) in activityLogs" :key="idx" class="p-4 flex items-center justify-between hover:bg-slate-50 transition text-xs">
           <div class="flex items-center space-x-3">
             <div class="w-8 h-8 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center font-semibold">
@@ -126,10 +126,12 @@
             <span :class="[log.isFree ? 'text-slate-500 bg-slate-100' : 'text-amber-700 bg-amber-50', 'px-2 py-0.5 rounded text-[11px] font-medium']">
               {{ log.isFree ? '每日免费' : '裂变补能' }}
             </span>
-            <span class="text-slate-400 font-mono">{{ log.latency }}ms</span>
             <span class="text-slate-400">{{ log.time }}</span>
           </div>
         </div>
+      </div>
+      <div v-else class="p-8 text-center text-slate-400 text-xs">
+        暂无实时抽牌流水日志
       </div>
     </div>
   </div>
@@ -161,23 +163,24 @@ const bonusDrawCount = computed(() => {
   return Math.floor(stats.value.todayDrawCount * 0.15);
 });
 
-const activityLogs = ref([
-  { userId: 'u_9821a', cardName: '星星', orientation: '正位', theme: '潜意识觉察 · 希望', isFree: true, latency: 480, time: '1 分钟前' },
-  { userId: 'u_3310k', cardName: '圣杯二', orientation: '正位', theme: '亲密关系与情感投射', isFree: false, latency: 512, time: '3 分钟前' },
-  { userId: 'u_1082m', cardName: '星币骑士', orientation: '正位', theme: '职场节奏与笃定前行', isFree: true, latency: 430, time: '6 分钟前' },
-  { userId: 'u_4402x', cardName: '女祭司', orientation: '逆位', theme: '直觉压抑与情绪内耗', isFree: true, latency: 490, time: '9 分钟前' },
-  { userId: 'u_7719d', cardName: '愚者', orientation: '正位', theme: '归零探索与破局勇气', isFree: false, latency: 460, time: '12 分钟前' },
-]);
+const activityLogs = ref<any[]>([]);
 
-const initChart = () => {
+const initChart = (trendData?: { dates: string[]; dau: number[]; draws: number[] }) => {
   if (!chartRef.value) return;
-  chartInstance = echarts.init(chartRef.value);
+  if (!chartInstance) {
+    chartInstance = echarts.init(chartRef.value);
+  }
 
-  const dates = Array.from({ length: 15 }, (_, i) => {
-    const d = new Date();
-    d.setDate(d.getDate() - (14 - i));
-    return `${d.getMonth() + 1}/${d.getDate()}`;
-  });
+  const dates = trendData?.dates && trendData.dates.length > 0
+    ? trendData.dates
+    : Array.from({ length: 15 }, (_, i) => {
+        const d = new Date();
+        d.setDate(d.getDate() - (14 - i));
+        return `${d.getMonth() + 1}/${d.getDate()}`;
+      });
+
+  const dauData = trendData?.dau || Array(dates.length).fill(0);
+  const drawsData = trendData?.draws || Array(dates.length).fill(0);
 
   const option: echarts.EChartsOption = {
     tooltip: { trigger: 'axis' },
@@ -200,7 +203,7 @@ const initChart = () => {
         name: '每日活跃 (DAU)',
         type: 'line',
         smooth: true,
-        data: [120, 180, 240, 290, 350, 420, 560, 680, 790, 890, 1100, 1350, 1680, 2100, 2842],
+        data: dauData,
         itemStyle: { color: '#6366f1' },
         areaStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
@@ -213,7 +216,7 @@ const initChart = () => {
         name: '抽牌总次数',
         type: 'line',
         smooth: true,
-        data: [180, 260, 350, 410, 520, 680, 890, 1050, 1280, 1490, 1820, 2210, 2750, 3400, 4120],
+        data: drawsData,
         itemStyle: { color: '#f59e0b' },
         areaStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
@@ -240,6 +243,12 @@ const fetchDashboard = async () => {
         ...stats.value,
         ...res.data
       };
+      if (Array.isArray(res.data.activityLogs)) {
+        activityLogs.value = res.data.activityLogs;
+      }
+      if (res.data.trend) {
+        initChart(res.data.trend);
+      }
     }
   } catch (e) {
     // fallback
@@ -247,10 +256,11 @@ const fetchDashboard = async () => {
 };
 
 onMounted(() => {
-  fetchDashboard();
   initChart();
+  fetchDashboard();
   window.addEventListener('resize', handleResize);
 });
+
 
 onUnmounted(() => {
   window.removeEventListener('resize', handleResize);

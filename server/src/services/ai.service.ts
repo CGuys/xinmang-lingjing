@@ -3,7 +3,10 @@ import axios from 'axios';
 import { prisma } from '../models/prisma';
 import { ConfigService } from './config.service';
 import { TarotService } from './tarot.service';
+import { UserService } from './user.service';
 import { AppError } from '../middlewares/error.middleware';
+
+import { DEFAULT_AI_CONFIG } from '../config/constants';
 
 export class AiService {
   /**
@@ -179,7 +182,18 @@ export class AiService {
   static async streamReading(
     readingId: string,
     userId: string | null,
-    res: Response
+    res: Response,
+    options?: {
+      isSandbox?: boolean;
+      overrideConfig?: {
+        provider?: string;
+        model?: string;
+        baseUrl?: string;
+        apiKey?: string;
+        systemPrompt?: string;
+        temperature?: number;
+      };
+    }
   ) {
     const reading = await prisma.tarotReading.findUnique({
       where: { id: readingId }
@@ -194,11 +208,12 @@ export class AiService {
       throw new AppError('无权访问该解牌记录', 403, 'FORBIDDEN');
     }
 
-    // 设置 SSE 标准响应头
+    // 设置 SSE 标准响应头 (严格保障 iOS 微信小程序与 Web 端的流式传输)
     res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
-    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Cache-Control', 'no-cache, no-transform');
     res.setHeader('Connection', 'keep-alive');
     res.setHeader('X-Accel-Buffering', 'no');
+    res.setHeader('Transfer-Encoding', 'chunked');
     res.flushHeaders?.();
 
     const sendSseEvent = (data: any) => {
@@ -207,78 +222,118 @@ export class AiService {
 
     sendSseEvent({ type: 'start', reading_id: readingId });
 
-    // 检查微信审核模式
-    const strategy = await ConfigService.getStrategyConfig();
-    const isInReview = Boolean(strategy.is_in_review);
+    // 提取抽牌时暂存的能量扣减类型（若后续大模型推理失败则精准返还）
+    let energyType = 'free';
+    if (reading.reading_result) {
+      try {
+        const parsedMeta = JSON.parse(reading.reading_result);
+        if (parsedMeta.energyType) energyType = parsedMeta.energyType;
+      } catch (e) {
+        // 非 JSON 元数据
+      }
+    }
 
     const cardMeta = TarotService.getCardByIndex(reading.card_id);
     const orientationLabel = reading.orientation === 'reversed' ? '逆位' : '正位';
 
-    let fullText = '';
-
-    // 审核模式或预置降级文案
-    if (isInReview) {
-      fullText = `【今日心灵定调】：平整心境 · 观照当下\n\n今日为你映照的是【${reading.card_name} · ${orientationLabel}】。\n微风不燥，万物有序。无论当下的生活节奏多么繁忙，请在心底留有一方安宁的小角落。你已经走过了很长的路，每一步的积累与坚持都蕴含着生命的力量。\n\n【思维盲区与转念】：\n不必强求每件事情都在此刻给出确定无疑的答案，允许自己有未完成的时刻，也是一种从容的智慧。\n\n【正念行动微建议】：\n给自己倒一杯温水，深呼吸三次，由衷地对自己说一句“今天辛苦了”。`;
-      await this.typewriterStream(fullText, sendSseEvent, res);
-      await this.finalizeReading(readingId, fullText);
-      sendSseEvent({ type: 'done', full_text: fullText });
-      res.end();
-      return;
-    }
-
-    // 如果已经完成了解读，直接回放
-    if (reading.status === 'completed' && reading.reading_result) {
+    // 如果已经成功完成了解读且非沙盒调试，直接回放真实解读
+    if (!options?.isSandbox && reading.status === 'completed' && reading.reading_result && !reading.reading_result.startsWith('{')) {
       await this.typewriterStream(reading.reading_result, sendSseEvent, res);
       sendSseEvent({ type: 'done', full_text: reading.reading_result });
       res.end();
       return;
     }
 
-    // 正常模式：获取 AI 配置
-    const aiConfig = await ConfigService.getAiConfig();
+    // 获取 AI 编排配置
+    let aiConfig = await ConfigService.getAiConfig();
+    if (options?.overrideConfig) {
+      const overrides: Record<string, any> = {};
+      for (const [k, v] of Object.entries(options.overrideConfig)) {
+        if (v !== undefined && v !== null && String(v).trim() !== '') {
+          overrides[k] = v;
+        }
+      }
+      aiConfig = { ...aiConfig, ...overrides };
+    }
 
-    // 尝试调用真实大模型服务
+    const activeSystemPrompt = (aiConfig.systemPrompt && aiConfig.systemPrompt.trim()) 
+      ? aiConfig.systemPrompt.trim() 
+      : DEFAULT_AI_CONFIG.systemPrompt;
+
+    let fullText = '';
+
+    // 真实大模型调用链路 (优先 GLM / DeepSeek / 通用兼容端点)
     if (aiConfig.apiKey && aiConfig.apiKey.trim().length > 0) {
       try {
         const userPrompt = `来访者抽到了【${reading.card_name}（${orientationLabel}）】。
-来访者当下的困惑或心绪：${reading.user_question || '（来访者未输入具体困惑，请结合生活日常状态进行深度心理观照）'}。
-卡牌核心象征：${cardMeta?.tags.join(' / ') || ''}。
+来访者当下的困惑或心绪：${reading.user_question || '（来访者未输入具体困惑，请结合当下生活与内心状态进行深度心理观照）'}。
+卡牌核心象征：${cardMeta?.tags?.join(' / ') || ''}。
 卡牌心理投射原型：${cardMeta?.insight || ''}。
 
-请严格根据 System Prompt 的指引和结构进行流式解读：`;
+请严格根据 System Prompt 的五段结构进行流式解读：`;
 
-        const completionsUrl = aiConfig.baseUrl.endsWith('/chat/completions')
-          ? aiConfig.baseUrl
-          : `${aiConfig.baseUrl.replace(/\/+$/, '')}/chat/completions`;
+        const rawBase = (aiConfig.baseUrl || 'https://open.bigmodel.cn/api/paas/v4').replace(/\/+$/, '');
+        const completionsUrl = rawBase.endsWith('/chat/completions')
+          ? rawBase
+          : `${rawBase}/chat/completions`;
 
-        const response = await axios({
-          method: 'post',
-          url: completionsUrl,
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${aiConfig.apiKey}`
-          },
-          data: {
-            model: aiConfig.model || 'deepseek-chat',
-            messages: [
-              { role: 'system', content: aiConfig.systemPrompt },
-              { role: 'user', content: userPrompt }
-            ],
-            temperature: aiConfig.temperature || 0.7,
-            top_p: aiConfig.topP || 0.9,
-            max_tokens: aiConfig.maxTokens || 1000,
-            stream: true
-          },
-          responseType: 'stream',
-          timeout: 60000
-        });
+        // 智能模型切换与容错：首选配置的模型 (如 glm-4.7-flash)，如果遇到 1305 官方并发/流量过载，自动降级备选模型 (glm-4-flash)
+        const primaryModel = aiConfig.model || 'glm-4.7-flash';
+        const candidateModels = [primaryModel];
+        if (primaryModel.includes('glm-4.7') || primaryModel.includes('4.7')) {
+          candidateModels.push('glm-4-flash');
+        } else if (primaryModel === 'glm-4-flash') {
+          candidateModels.push('glm-4-flashx');
+        }
 
+        let response: any = null;
+        let lastReqError: any = null;
+
+        for (const candidate of candidateModels) {
+          try {
+            response = await axios({
+              method: 'post',
+              url: completionsUrl,
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${aiConfig.apiKey.trim()}`
+              },
+              data: {
+                model: candidate,
+                messages: [
+                  { role: 'system', content: activeSystemPrompt },
+                  { role: 'user', content: userPrompt }
+                ],
+                temperature: aiConfig.temperature || 0.7,
+                top_p: aiConfig.topP || 0.9,
+                max_tokens: aiConfig.maxTokens || 1000,
+                stream: true
+              },
+              responseType: 'stream',
+              timeout: 60000
+            });
+            break;
+          } catch (e: any) {
+            lastReqError = e;
+            console.warn(`[AiService] 模型【${candidate}】调用受限或繁忙，尝试降级备选模型...`);
+          }
+        }
+
+        if (!response) {
+          throw lastReqError || new Error('大模型连接建立失败');
+        }
+
+        // 维护行缓冲区，防止 TCP 分包切断 JSON 行
+        let streamBuffer = '';
         response.data.on('data', (chunk: Buffer) => {
-          const lines = chunk.toString().split('\n');
+          streamBuffer += chunk.toString('utf8');
+          const lines = streamBuffer.split('\n');
+          streamBuffer = lines.pop() || '';
+
           for (const line of lines) {
             const trimmed = line.trim();
             if (!trimmed || !trimmed.startsWith('data:')) continue;
-            if (trimmed === 'data: [DONE]') {
+            if (trimmed === 'data: [DONE]' || trimmed === 'data:[DONE]') {
               continue;
             }
 
@@ -291,7 +346,7 @@ export class AiService {
                 sendSseEvent({ type: 'chunk', text: content });
               }
             } catch (e) {
-              // 忽略解析片段异常
+              // 忽略不完整片段
             }
           }
         });
@@ -301,31 +356,60 @@ export class AiService {
           response.data.on('error', reject);
         });
 
+        if (!fullText || fullText.trim().length === 0) {
+          throw new Error('大模型未产生有效输出内容');
+        }
+
+        // 解读成功：固化记录为 completed
         await this.finalizeReading(readingId, fullText);
         sendSseEvent({ type: 'done', full_text: fullText });
         res.end();
         return;
       } catch (err: any) {
-        console.warn('⚠️ 真实大模型 API 通信异常，自动无缝降级为心理学知识库生成流:', err.message);
-        // 出错降级至优质心理学模版打字机流
+        console.error('❌ [AiService] 真实大模型 API 通信或推理失败:', err.message);
+
+        // 如果用户是非沙盒真实小程序用户，坚决不吐 Mock 伪数据，而是立即退还用户能量并通知前端
+        if (!options?.isSandbox) {
+          await UserService.refundEnergy(reading.user_id, energyType);
+          await prisma.tarotReading.update({
+            where: { id: readingId },
+            data: { status: 'failed' }
+          });
+
+          sendSseEvent({
+            type: 'error',
+            message: '大模型解读链路波动，本次未成功生成，已为您自动返还今日灵感点。',
+            refunded: true
+          });
+          res.end();
+          return;
+        } else {
+          // 沙盒调试模式下给出显式错误提示
+          const errMsg = err.response?.data?.error?.message || err.message;
+          sendSseEvent({
+            type: 'chunk',
+            text: `\n\n> ⚠️【大模型调用异常】: ${errMsg}\n\n`
+          });
+        }
+      }
+    } else {
+      // 未配置 API Key 时
+      if (!options?.isSandbox) {
+        await UserService.refundEnergy(reading.user_id, energyType);
+        await prisma.tarotReading.update({
+          where: { id: readingId },
+          data: { status: 'failed' }
+        });
+        sendSseEvent({
+          type: 'error',
+          message: '未配置大模型 API Key，已自动返还灵感点。请在管理后台配置大模型凭据。',
+          refunded: true
+        });
+        res.end();
+        return;
       }
     }
 
-    // 默认高质心理学投射模版打字机流（开发与免外部 Key 运行环境）
-    const tagsStr = (cardMeta?.tags || ['觉察', '接纳']).join(' · ');
-    fullText = `【今日心灵定调】：${tagsStr}\n\n` +
-      `【意象投射与潜意识映射】：\n` +
-      `今日抽得【${reading.card_name} · ${orientationLabel}】。${cardMeta?.insight || '卡牌映照出你内心深处正在积聚的力量。'}当下的困惑“${reading.user_question || '内在的探索与求变'}”，正是潜意识在提醒你：外部环境的纷扰只是倒影，真正的破局钥匙始终握在你自己手中。\n\n` +
-      `【思维盲区与视角转念】：\n` +
-      `你可能习惯了用过去的经验来丈量未来的可能性，从而感到暂时的踟蹰。${cardMeta?.challenge || '试着从评价自己转变为观察自己，允许情绪像水流一样自然穿过。'}\n\n` +
-      `【正念行动微建议】：\n` +
-      `1. ${cardMeta?.guidance || '在日记本上写下一件今天最让你感到踏实的小事。'}\n` +
-      `2. 心灵真言：“${cardMeta?.affirmation || '我信任生命的韵律，在每一个微小的行动中找回安宁。'}”`;
-
-    await this.typewriterStream(fullText, sendSseEvent, res);
-    await this.finalizeReading(readingId, fullText);
-    sendSseEvent({ type: 'done', full_text: fullText });
-    res.end();
   }
 
   /**

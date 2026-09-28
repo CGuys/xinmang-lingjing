@@ -1,10 +1,80 @@
+import QRCode from 'qrcode';
+import axios from 'axios';
 import { prisma } from '../models/prisma';
 import { cache } from '../utils/cache';
 import { AppError } from '../middlewares/error.middleware';
 import { getCSTTodayString, getSecondsUntilMidnight } from '../utils/date';
 import { ConfigService } from './config.service';
+import { ENV } from '../config/constants';
 
 export class ShareService {
+  /**
+   * 获取或生成小程序码 / 二维码 Buffer
+   * @param inviterId 邀请人 ID
+   */
+  static async getQrcodeBuffer(inviterId?: string): Promise<{ buffer: Buffer; contentType: string }> {
+    // 1. 若配置了微信官方开发凭证，尝试向微信开放平台换取菊花码
+    if (ENV.WECHAT_APP_ID && ENV.WECHAT_APP_SECRET) {
+      try {
+        const tokenRes = await axios.get('https://api.weixin.qq.com/cgi-bin/token', {
+          params: {
+            grant_type: 'client_credential',
+            appid: ENV.WECHAT_APP_ID,
+            secret: ENV.WECHAT_APP_SECRET
+          },
+          timeout: 5000
+        });
+
+        if (tokenRes.data && tokenRes.data.access_token) {
+          const accessToken = tokenRes.data.access_token;
+          const codeRes = await axios.post(
+            `https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token=${accessToken}`,
+            {
+              scene: inviterId ? `uid=${inviterId}` : 'default',
+              page: 'pages/index/index',
+              check_path: false,
+              width: 430
+            },
+            {
+              responseType: 'arraybuffer',
+              timeout: 6000
+            }
+          );
+
+          const contentType = String(codeRes.headers['content-type'] || '');
+          if (contentType.includes('image')) {
+            return {
+              buffer: Buffer.from(codeRes.data),
+              contentType: contentType || 'image/jpeg'
+            };
+          }
+        }
+      } catch (e: any) {
+        console.warn('[WeChat QR Code] 微信官方接口调用失败，自动降级为内置高清二维码', e?.message);
+      }
+    }
+
+    // 2. 降级模式：使用 qrcode 模块生成高清二维码
+    const payload = inviterId
+      ? `https://mp.weixin.qq.com/wxopen/wareadcode?inviter_id=${inviterId}&page=pages/index/index`
+      : 'https://mp.weixin.qq.com/wxopen/wareadcode?page=pages/index/index';
+
+    const buffer = await QRCode.toBuffer(payload, {
+      width: 400,
+      margin: 1,
+      color: {
+        dark: '#0f0d22',
+        light: '#ffffff'
+      },
+      errorCorrectionLevel: 'H'
+    });
+
+    return {
+      buffer,
+      contentType: 'image/png'
+    };
+  }
+
   /**
    * 受邀用户进入小程序并上报裂变互惠关系
    * @param inviteeId 当前受邀新/老用户 ID

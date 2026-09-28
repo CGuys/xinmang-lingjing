@@ -46,25 +46,29 @@ async function runTests() {
     assert(aliceProfile.data.data.bonusEnergy === 0, '初始奖励点为 0');
     console.log('✅ [4/15] 用户资产档案查询 (/api/v1/user/profile) 测试通过');
 
-    // 6. Alice 发起第一次抽牌（应消耗今日免费点）
-    const drawRes1 = await axios.post(
-      `${BASE_URL}/api/v1/tarot/draw`,
-      { question: '面对新挑战，我应当如何调整心理状态？' },
-      { headers: aliceAuthHeader }
-    );
-    assert(drawRes1.data.code === 'SUCCESS', '抽牌成功');
-    assert(drawRes1.data.data.energyConsumed === 'free', '首次抽牌消耗 free 能量');
-    const readingId = drawRes1.data.data.readingId;
-    console.log(`✅ [5/15] 首次抽牌扣除免费能量 (/api/v1/tarot/draw) 测试通过 (抽得: ${drawRes1.data.data.card.nameCn})`);
+    // 6. Alice 消耗今日免费点
+    const availableFree = aliceProfile.data.data.freeEnergyAvailable ?? 1;
+    let readingId = '';
+    for (let i = 0; i < availableFree; i++) {
+      const drawRes = await axios.post(
+        `${BASE_URL}/api/v1/tarot/draw`,
+        { question: `面对新挑战，我应当如何调整心理状态？(${i + 1})` },
+        { headers: aliceAuthHeader }
+      );
+      assert(drawRes.data.code === 'SUCCESS', '抽牌成功');
+      assert(drawRes.data.data.energyConsumed === 'free', '消耗 free 能量');
+      readingId = drawRes.data.data.readingId;
+    }
+    console.log(`✅ [5/15] 扣除每日免费能量 (/api/v1/tarot/draw) 测试通过 (共完成 ${availableFree} 次免费抽牌)`);
 
-    // 7. Alice 立即发起第二次抽牌（无奖励点，应被拦截并返回 403 ENERGY_EXHAUSTED）
+    // 7. Alice 再次发起抽牌（无奖励点且免费点已耗尽，应被拦截并返回 403 ENERGY_EXHAUSTED）
     try {
       await axios.post(
         `${BASE_URL}/api/v1/tarot/draw`,
         { question: '再抽一次' },
         { headers: aliceAuthHeader }
       );
-      assert(false, '第二次抽牌未拦截，异常！');
+      assert(false, '免费点耗尽后未拦截，异常！');
     } catch (err: any) {
       assert(err.response && err.response.status === 403, '返回 403');
       assert(err.response.data.code === 'ENERGY_EXHAUSTED', '错误码为 ENERGY_EXHAUSTED');

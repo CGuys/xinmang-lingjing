@@ -4,6 +4,7 @@ import { signUserToken } from '../utils/jwt';
 import { AppError } from '../middlewares/error.middleware';
 import { ENV } from '../config/constants';
 import { getCSTTodayString } from '../utils/date';
+import { ConfigService } from './config.service';
 
 export class AuthService {
   /**
@@ -70,8 +71,14 @@ export class AuthService {
 
     // 4. 计算当前用户能量概况
     const today = getCSTTodayString();
-    const hasFreeToday = user.last_free_date !== today;
-    const totalAvailable = (hasFreeToday ? 1 : 0) + user.bonus_energy;
+    const strategy = await ConfigService.getStrategyConfig();
+    const dailyFreeLimit = Number(strategy.daily_free_limit) ?? 1;
+
+    const isToday = user.last_free_date === today;
+    const freeEnergyUsedToday = isToday ? Math.min(user.free_used_today || 0, dailyFreeLimit) : 0;
+    const freeEnergyAvailable = Math.max(0, dailyFreeLimit - freeEnergyUsedToday);
+    const hasFreeToday = freeEnergyAvailable > 0;
+    const totalAvailable = freeEnergyAvailable + user.bonus_energy;
 
     // 5. 颁发用户 JWT
     const token = signUserToken({
@@ -84,6 +91,9 @@ export class AuthService {
       user: {
         id: user.id,
         openid: user.openid,
+        dailyFreeLimit,
+        freeEnergyUsedToday,
+        freeEnergyAvailable,
         hasFreeToday,
         bonusEnergy: user.bonus_energy,
         totalAvailable,

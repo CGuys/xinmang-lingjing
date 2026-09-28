@@ -377,58 +377,144 @@
           </button>
         </div>
 
-        <!-- 模拟器控制栏 -->
-        <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs mb-4 space-y-2.5 text-xs">
+        <!-- 拟真小程序真机流式模拟沙盒控制栏 -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs mb-4 space-y-3 text-xs">
+          <!-- 顶部网关状态 -->
           <div class="flex items-center justify-between text-[11px] text-slate-500 pb-2 border-b border-slate-100">
             <span class="flex items-center">
               <span class="w-2 h-2 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span>
               当前连通：<strong class="text-indigo-600 ml-1">{{ currentPreset.name }}</strong>
             </span>
-            <span class="font-mono text-slate-400 truncate max-w-[120px]">{{ aiConfig.model }}</span>
+            <div class="flex items-center space-x-1.5">
+              <span class="font-mono text-slate-400 truncate max-w-[100px]" :title="aiConfig.model">{{ aiConfig.model }}</span>
+              <span v-if="aiConfig.apiKey" class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-600 text-[10px] font-medium border border-emerald-200 flex items-center">
+                <i class="fa-solid fa-bolt text-[9px] mr-0.5"></i>真实AI
+              </span>
+              <span v-else class="px-1.5 py-0.5 rounded bg-amber-50 text-amber-600 text-[10px] font-medium border border-amber-200">
+                内置引擎
+              </span>
+            </div>
           </div>
 
-          <div class="flex items-center space-x-2">
-            <span class="text-slate-500 w-16">测试卡牌:</span>
-            <el-select v-model="selectedCardIndex" class="flex-1" size="small" @change="handleCardChange">
-              <el-option 
-                v-for="c in demoCards" 
-                :key="c.index" 
-                :label="`${c.nameCn} (${c.roman || '#' + c.index})`" 
-                :value="c.index" 
-              />
-            </el-select>
+          <!-- 1. 真实生活情境场景选择矩阵 -->
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="font-semibold text-slate-700 flex items-center">
+                <i class="fa-solid fa-street-view text-indigo-500 mr-1.5"></i>
+                模拟真实场景参加抽牌:
+              </span>
+              <!-- 抽牌模式切换 -->
+              <div class="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200/80 text-[10px]">
+                <button 
+                  type="button" 
+                  @click="drawMode = 'scenario'"
+                  :class="drawMode === 'scenario' ? 'bg-indigo-600 text-white font-medium shadow-xs' : 'text-slate-600 hover:text-slate-900'"
+                  class="px-2 py-0.5 rounded transition"
+                >
+                  场景意象抽取
+                </button>
+                <button 
+                  type="button" 
+                  @click="drawMode = 'blind'"
+                  :class="drawMode === 'blind' ? 'bg-indigo-600 text-white font-medium shadow-xs' : 'text-slate-600 hover:text-slate-900'"
+                  class="px-2 py-0.5 rounded transition"
+                >
+                  78张真实盲抽
+                </button>
+              </div>
+            </div>
+
+            <!-- 8 大真实场景快捷选择标签 -->
+            <div class="grid grid-cols-2 gap-1.5 pt-1">
+              <button
+                v-for="scene in REAL_SCENARIOS"
+                :key="scene.id"
+                type="button"
+                @click="selectScenario(scene)"
+                :class="[
+                  selectedScenarioId === scene.id
+                    ? 'border-indigo-600 bg-indigo-50/70 text-indigo-950 font-semibold ring-1 ring-indigo-500/20'
+                    : 'border-slate-200 bg-slate-50/60 hover:bg-white hover:border-slate-300 text-slate-700',
+                  'px-2 py-1.5 rounded-lg border text-left transition flex items-center space-x-1.5 truncate'
+                ]"
+                :title="scene.title + '：' + scene.question"
+              >
+                <i :class="[scene.icon, selectedScenarioId === scene.id ? 'text-indigo-600' : 'text-slate-400', 'text-xs flex-shrink-0']"></i>
+                <span class="truncate text-[11px]">{{ scene.title }}</span>
+              </button>
+            </div>
           </div>
 
-          <div class="flex items-center space-x-2">
-            <span class="text-slate-500 w-16">正逆位:</span>
-            <el-radio-group v-model="selectedOrientation" size="small">
-              <el-radio-button label="upright">正位</el-radio-button>
-              <el-radio-button label="reversed">逆位</el-radio-button>
-            </el-radio-group>
+          <!-- 2. 模拟场景来访者心境困惑 -->
+          <div class="space-y-1">
+            <div class="flex items-center justify-between text-[11px] text-slate-500">
+              <span class="font-medium">来访者心绪与具体困惑 (可自定义修改)：</span>
+              <span class="text-[10px] text-indigo-600 bg-indigo-50 px-1.5 py-0.2 rounded">情境联动</span>
+            </div>
+            <el-input 
+              v-model="simulatedQuestion" 
+              size="small" 
+              type="textarea"
+              :rows="2"
+              placeholder="输入你的真实困惑或选择上方情境，系统将根据心境从 78 张牌阵中抽取对应卡牌..." 
+            />
           </div>
 
-          <div class="flex items-center space-x-2">
-            <span class="text-slate-500 w-16">模拟困惑:</span>
-            <el-input v-model="simulatedQuestion" size="small" placeholder="输入困惑测试敏感词/流式" class="flex-1" />
-          </div>
-
+          <!-- 3. 抽牌操作与能量控制 -->
           <div class="flex items-center justify-between pt-1 border-t border-slate-100">
-            <button 
-              type="button"
-              @click="toggleEnergyDepleted"
-              :class="[isEnergyDepleted ? 'bg-rose-50 text-rose-600 border-rose-200' : 'bg-slate-50 text-slate-600 border-slate-200', 'px-2.5 py-1 rounded border text-[11px] font-medium transition']"
-            >
-              模拟能量耗尽: {{ isEnergyDepleted ? '开 (触发弹窗)' : '关' }}
-            </button>
+            <div class="flex items-center space-x-1.5">
+              <button 
+                type="button"
+                @click="toggleEnergyDepleted"
+                :class="[isEnergyDepleted ? 'bg-rose-50 text-rose-600 border-rose-200' : 'bg-slate-50 text-slate-600 border-slate-200', 'px-2 py-1 rounded border text-[10px] font-medium transition']"
+                title="模拟用户当日 1 次免费觉察能量耗尽"
+              >
+                能量耗尽测试: {{ isEnergyDepleted ? '已耗尽' : '充盈' }}
+              </button>
+              
+              <!-- 展开高级手动指定卡牌调试 -->
+              <button 
+                type="button" 
+                @click="showManualCardSelect = !showManualCardSelect" 
+                class="text-slate-400 hover:text-slate-600 text-[10px] flex items-center"
+              >
+                <span>{{ showManualCardSelect ? '收起指定牌' : '指定牌调试' }}</span>
+                <i :class="['fa-solid ml-0.5 text-[8px]', showManualCardSelect ? 'fa-chevron-up' : 'fa-chevron-down']"></i>
+              </button>
+            </div>
+
+            <!-- 核心行动按钮：根据场景模拟真实抽牌 -->
             <button 
               type="button"
               @click="triggerDrawStream" 
               :disabled="isStreaming"
-              class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1 rounded font-medium text-[11px] shadow-sm transition disabled:opacity-50"
+              class="bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white px-3.5 py-1.5 rounded-lg font-semibold text-xs shadow-sm transition flex items-center disabled:opacity-50"
             >
-              <i :class="['fa-solid mr-1', isStreaming ? 'fa-spinner fa-spin' : 'fa-play']"></i>
-              <span>{{ isStreaming ? '正在解牌...' : '立即模拟翻牌' }}</span>
+              <i :class="['fa-solid mr-1.5', isStreaming ? 'fa-spinner fa-spin' : 'fa-wand-magic-sparkles text-amber-300']"></i>
+              <span>{{ isStreaming ? '正在解牌中...' : (isFlipped ? '换个场景重新抽取' : '立即模拟真实抽牌') }}</span>
             </button>
+          </div>
+
+          <!-- 手动指定特定卡牌调试面板 (收起/展开) -->
+          <div v-if="showManualCardSelect" class="p-2.5 bg-slate-50 rounded-lg border border-slate-200/80 space-y-2 text-[11px]">
+            <div class="flex items-center space-x-2">
+              <span class="text-slate-500 w-16">手动指定:</span>
+              <el-select v-model="selectedCardIndex" class="flex-1" size="small" filterable @change="handleManualCardChange">
+                <el-option 
+                  v-for="c in allCards" 
+                  :key="c.index" 
+                  :label="`${c.nameCn} (${c.roman || '#' + c.index}) - ${c.categoryName}`" 
+                  :value="c.index" 
+                />
+              </el-select>
+            </div>
+            <div class="flex items-center space-x-2">
+              <span class="text-slate-500 w-16">正逆位:</span>
+              <el-radio-group v-model="selectedOrientation" size="small">
+                <el-radio-button label="upright">正位</el-radio-button>
+                <el-radio-button label="reversed">逆位</el-radio-button>
+              </el-radio-group>
+            </div>
           </div>
         </div>
 
@@ -453,11 +539,22 @@
             </div>
 
             <!-- 手机内卡牌主舞台 -->
-            <div class="flex-1 overflow-y-auto custom-scrollbar p-4 flex flex-col items-center justify-start space-y-4">
+            <div class="flex-1 overflow-y-auto custom-scrollbar p-3.5 flex flex-col items-center justify-start space-y-3.5">
+              <!-- 当前所选真实场景指示条 -->
+              <div class="w-full flex items-center justify-between px-1">
+                <span class="text-[10px] px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 flex items-center">
+                  <i :class="[currentScenarioIcon, 'mr-1.5 text-[9px] text-indigo-400']"></i>
+                  {{ currentScenarioCategory }} · {{ currentScenarioTitle }}
+                </span>
+                <span class="text-[10px] text-slate-400 font-mono">
+                  {{ isFlipped ? (currentCard.roman || '#' + currentCard.index) : (drawMode === 'blind' ? '78全牌盲抽' : '场景共鸣抽牌') }}
+                </span>
+              </div>
+
               <!-- 困惑展示条 -->
               <div class="w-full bg-slate-800/50 backdrop-blur border border-slate-700/40 rounded-xl px-3 py-2 text-center text-xs text-slate-300">
                 <span class="text-amber-400/80 mr-1">“</span>
-                <span>{{ simulatedQuestion || '当下心绪 · 觉察与沉淀' }}</span>
+                <span class="line-clamp-2 leading-relaxed">{{ simulatedQuestion || '当下心绪 · 觉察与沉淀' }}</span>
                 <span class="text-amber-400/80 ml-1">”</span>
               </div>
 
@@ -470,28 +567,47 @@
                     isShuffling ? 'is-shuffling' : ''
                   ]"
                 >
-                  <!-- 卡牌背面 -->
-                  <div class="absolute inset-0 backface-hidden rounded-xl overflow-hidden gold-border bg-slate-950 flex flex-col items-center justify-center p-2">
-                    <div class="w-full h-full border border-amber-400/30 rounded-lg flex flex-col items-center justify-center relative p-3">
-                      <div class="w-20 h-20 rounded-full border border-amber-400/30 flex items-center justify-center animate-spin-slow">
-                        <i class="fa-solid fa-dharmachakra text-amber-400/50 text-3xl"></i>
+                  <!-- 卡牌背面 (未翻牌时展示，使用阿里云 OSS 资源 pages/reading/card_back.jpg) -->
+                  <div class="absolute inset-0 backface-hidden rounded-xl overflow-hidden gold-border bg-slate-950 flex flex-col items-center justify-center relative">
+                    <img 
+                      :src="cardBackReadingImage" 
+                      alt="卡牌背面" 
+                      class="w-full h-full object-cover select-none" 
+                      loading="lazy"
+                    />
+                    <!-- 浮动指引光环与法阵印记 -->
+                    <div class="absolute inset-0 bg-slate-950/20 backdrop-blur-[0.5px] flex flex-col items-center justify-between p-3 pointer-events-none">
+                      <div class="w-full flex justify-end">
+                        <span class="text-[9px] px-1.5 py-0.5 rounded bg-black/60 text-amber-300/90 font-mono border border-amber-400/20">
+                          OSS Card Back
+                        </span>
                       </div>
-                      <div class="text-[10px] font-cinzel text-amber-300/80 tracking-widest mt-3">XINMANG</div>
-                      <div class="text-[9px] text-slate-400 mt-1">点击翻开觉察</div>
+                      <div class="w-14 h-14 rounded-full border border-amber-400/30 bg-black/30 backdrop-blur-xs flex items-center justify-center animate-spin-slow">
+                        <i class="fa-solid fa-dharmachakra text-amber-400/70 text-2xl"></i>
+                      </div>
+                      <div class="text-[9px] text-amber-200 bg-black/65 px-2.5 py-0.5 rounded-full border border-amber-400/30 shadow-md">
+                        {{ isShuffling ? '正在共时性洗牌...' : '轻触参与场景抽牌' }}
+                      </div>
                     </div>
                   </div>
 
-                  <!-- 卡牌正面 -->
+                  <!-- 卡牌正面 (抽牌完成后展示) -->
                   <div class="absolute inset-0 backface-hidden rotate-y-180 rounded-xl overflow-hidden gold-border bg-slate-950 flex flex-col">
                     <img 
-                      :src="currentCard.image" 
+                      :src="currentCard.imageLarge || currentCard.image" 
                       :alt="currentCard.nameCn" 
                       class="w-full h-48 object-cover"
                       :class="[selectedOrientation === 'reversed' ? 'rotate-180' : '']"
                     />
-                    <div class="flex-1 bg-slate-900/90 p-2 flex flex-col justify-center items-center text-center">
-                      <div class="text-xs font-bold text-amber-300 font-cinzel">
-                        {{ currentCard.nameCn }} · {{ selectedOrientation === 'reversed' ? '逆位' : '正位' }}
+                    <div class="flex-1 bg-slate-900/95 p-2 flex flex-col justify-center items-center text-center">
+                      <div class="text-xs font-bold text-amber-300 font-cinzel flex items-center space-x-1">
+                        <span>{{ currentCard.nameCn }}</span>
+                        <span 
+                          class="text-[9px] px-1.5 py-0.2 rounded font-sans font-medium"
+                          :class="selectedOrientation === 'reversed' ? 'bg-purple-900/90 text-purple-200 border border-purple-400/30' : 'bg-emerald-900/90 text-emerald-200 border border-emerald-400/30'"
+                        >
+                          {{ selectedOrientation === 'reversed' ? '逆位' : '正位' }}
+                        </span>
                       </div>
                       <div class="text-[10px] text-slate-400 mt-0.5 truncate max-w-[150px]">
                         {{ currentCard.tags ? currentCard.tags.join(' · ') : '' }}
@@ -504,14 +620,36 @@
               <!-- 解牌流式打字机区域 -->
               <div class="w-full bg-slate-950/70 border border-slate-800 rounded-xl p-3 text-xs leading-relaxed text-slate-200 min-h-[140px] relative">
                 <div class="text-[10px] text-amber-400/80 mb-1 flex items-center justify-between font-mono">
-                  <span>AI 潜意识心理投射解读</span>
+                  <span class="flex items-center">
+                    <i class="fa-solid fa-feather-pointed mr-1 text-[9px]"></i>
+                    {{ isFlipped ? `心理投射解读 · 【${currentCard.nameCn} · ${selectedOrientation === 'reversed' ? '逆位' : '正位'}】` : 'AI 潜意识投射解读' }}
+                  </span>
                   <span v-if="isStreaming" class="flex items-center text-indigo-400">
                     <span class="w-1.5 h-1.5 rounded-full bg-indigo-400 mr-1 animate-pulse"></span> 流式输出中
                   </span>
                 </div>
+
                 <div class="whitespace-pre-line text-[11px] text-slate-300">
-                  {{ phoneStreamText || (isFlipped ? '准备连接大模型 API 网关...' : '点击上方卡牌开始抽取与解读') }}
-                  <span v-if="isStreaming" class="inline-block w-1.5 h-3 bg-amber-400 animate-pulse ml-0.5"></span>
+                  <template v-if="!isFlipped">
+                    <div class="text-slate-400 text-center py-5 space-y-1.5">
+                      <i class="fa-solid fa-wand-magic-sparkles text-amber-400/70 text-lg animate-pulse block"></i>
+                      <p class="text-xs text-slate-300 font-medium">当前已载入【{{ currentScenarioTitle }}】情境</p>
+                      <p class="text-[10px] text-slate-500">点击上方牌背或“立即模拟真实抽牌”，系统将根据当下情境从 78 张牌中抽取对应映射卡牌</p>
+                    </div>
+                  </template>
+                  <template v-else>
+                    {{ phoneStreamText || '准备连接大模型 API 网关...' }}
+                    <span v-if="isStreaming" class="inline-block w-1.5 h-3 bg-amber-400 animate-pulse ml-0.5"></span>
+                  </template>
+                </div>
+
+                <!-- 抽牌完成后提供快捷换场景按钮 -->
+                <div v-if="isFlipped && !isStreaming" class="mt-3 pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px]">
+                  <span class="text-slate-500">根据当前情境解读完毕</span>
+                  <button @click="resetToDrawAgain" class="text-indigo-400 hover:text-indigo-300 font-medium flex items-center">
+                    <span>换个场景重新抽取</span>
+                    <i class="fa-solid fa-arrow-rotate-right ml-1 text-[9px]"></i>
+                  </button>
                 </div>
               </div>
             </div>
@@ -545,9 +683,24 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus';
 import { apiGetAiConfig, apiUpdateAiConfig, apiGetCards, apiTestAiConnection } from '../api/admin';
+
+// 全局权威默认 System Prompt 人设与输出规范
+const DEFAULT_SYSTEM_PROMPT = `你是一位温和、洞察力深刻且富有共情心的心理学投射分析师与心灵疗愈导师。
+你的核心工作是基于荣格心理学“共时性原则”与潜意识意象投射，帮助来访者观照内在自我。
+
+【核心合规戒律】：
+1. 严禁断言未来吉凶祸福，严禁使用“命运注定”、“必有大难”、“大吉大利”等迷信算命式预言。
+2. 将卡牌意象解读为当事人潜意识在现实生活中的投射，聚焦于心智模式、情绪内耗、思维盲区。
+3. 必须提供温和、具体、具有可行性的正念微习惯或行动建议。
+
+【输出结构要求】：
+1. 【今日心灵定调】：（提炼 2~4 个字的核心情绪/能量意向，如“破茧沉淀”、“澄澈内观”）
+2. 【意象投射与潜意识映射】：（结合来访者的困惑与抽出的卡牌，剖析卡牌象征对当下的心理映照）
+3. 【思维盲区与视角转念】：（指出当下认知中的执念或误区，提供全新的觉察视角）
+4. 【正念行动微建议】：（给出 1~2 条切实可行的微小行动或自我关怀练习）`;
 
 // 6 大核心主流 AI 厂商预设模型与官方默认地址
 const PROVIDER_PRESETS: Record<string, {
@@ -567,12 +720,13 @@ const PROVIDER_PRESETS: Record<string, {
     freeTag: true,
     icon: 'fa-solid fa-bolt',
     defaultBaseUrl: 'https://open.bigmodel.cn/api/paas/v4',
-    defaultModel: 'glm-4-flash',
+    defaultModel: 'glm-4.7-flash',
     isFree: true,
     portalUrl: 'https://open.bigmodel.cn/',
     models: [
-      { label: 'glm-4-flash (【永久免费】极速响应首选)', value: 'glm-4-flash', isFree: true, badge: '永久免费' },
-      { label: 'glm-4-flashx (极速轻量增强版)', value: 'glm-4-flashx', badge: '轻量极速' },
+      { label: 'glm-4.7-flash (【最新旗舰普惠】300亿参数·深度理解)', value: 'glm-4.7-flash', isFree: true, badge: '新旗舰免费' },
+      { label: 'glm-4-flash (【永久免费】高吞吐稳定首选)', value: 'glm-4-flash', isFree: true, badge: '永久免费' },
+      { label: 'glm-4-flashx (【永久免费】极速轻量增强版)', value: 'glm-4-flashx', isFree: true, badge: '极速轻量' },
       { label: 'glm-4-air (高性价比主力版)', value: 'glm-4-air' },
       { label: 'glm-4-plus (高智力全能旗舰版)', value: 'glm-4-plus', badge: '旗舰' }
     ]
@@ -784,18 +938,108 @@ const syncCurrentToProfile = () => {
   };
 };
 
-// 沙盒模拟器状态
-const demoCards = ref<any[]>([]);
-const selectedCardIndex = ref(17); // 星星
+// 8 大真实生活情境场景定义 (涵盖职场、情感、情绪、创业决策、正念等)
+interface ScenarioItem {
+  id: string;
+  category: string;
+  categoryName: string;
+  icon: string;
+  title: string;
+  question: string;
+  resonantCards: number[]; // 关联的荣格心理学共时性候选卡牌池 (大阿卡纳与小阿卡纳)
+}
+
+const REAL_SCENARIOS: ScenarioItem[] = [
+  {
+    id: 'career_jump',
+    category: 'career',
+    categoryName: '职场与晋升',
+    icon: 'fa-solid fa-briefcase',
+    title: '晋升受阻与跳槽抉择',
+    question: '准备离职跳槽但前景不明，当前团队内耗严重，该果断离开还是继续坚守？',
+    resonantCards: [22, 23, 29, 31, 7, 4, 1] // 权杖王牌、权杖二、权杖八、权杖十、战车、皇帝、魔术师
+  },
+  {
+    id: 'career_burnout',
+    category: 'career',
+    categoryName: '职场与晋升',
+    icon: 'fa-solid fa-battery-quarter',
+    title: '职业倦怠与价值感瓶颈',
+    question: '在目前岗位遇到了严重的职业倦怠，感觉自我价值感极低，如何找回动力与方向？',
+    resonantCards: [0, 10, 12, 17, 31, 70] // 愚者、命运之轮、倒吊人、星星、权杖十、星币七
+  },
+  {
+    id: 'love_marriage',
+    category: 'love',
+    categoryName: '情感与关系',
+    icon: 'fa-solid fa-heart',
+    title: '亲密关系瓶颈与沟通争吵',
+    question: '恋爱多年但一谈未来就争吵，彼此节奏不同步，是继续妥协还是体面放手？',
+    resonantCards: [6, 37, 43, 14, 51, 15] // 恋人、圣杯二、圣杯八、节制、宝剑二、恶魔
+  },
+  {
+    id: 'love_breakup',
+    category: 'love',
+    categoryName: '情感与关系',
+    icon: 'fa-solid fa-heart-crack',
+    title: '情感分离与深夜反刍内耗',
+    question: '刚经历感情分离，陷入严重的自我否定与深夜反刍内耗，如何平复并找回内心力量？',
+    resonantCards: [52, 40, 17, 3, 20, 8] // 宝剑三、圣杯五、星星、女皇、审判、力量
+  },
+  {
+    id: 'mind_anxiety',
+    category: 'mind',
+    categoryName: '身心与情绪',
+    icon: 'fa-solid fa-moon',
+    title: '不确定性焦虑与夜晚失眠',
+    question: '面对未来的不确定性总有灾难化思维，夜晚失眠多梦容易惊醒，如何安顿当下的紧绷身心？',
+    resonantCards: [18, 58, 17, 2, 8, 14] // 月亮、宝剑九、星星、女祭司、力量、节制
+  },
+  {
+    id: 'mind_boundary',
+    category: 'mind',
+    categoryName: '身心与情绪',
+    icon: 'fa-solid fa-shield-heart',
+    title: '讨好型倾向与心理边界',
+    question: '习惯性讨好他人不敢拒绝，常常感到精力被掏空，如何树立温和而坚定的心理边界？',
+    resonantCards: [57, 50, 4, 67, 8] // 宝剑八、宝剑王牌、皇帝、星币四、力量
+  },
+  {
+    id: 'wealth_startup',
+    category: 'wealth',
+    categoryName: '创业与决策',
+    icon: 'fa-solid fa-coins',
+    title: '副业轻创业时机与风险权衡',
+    question: '计划和朋友启动副业轻资产创业，资金尚不充分，这个时机是否合适，该如何权衡风险？',
+    resonantCards: [22, 64, 11, 7, 23, 1] // 权杖王牌、星币王牌、正义、战车、权杖二、魔术师
+  },
+  {
+    id: 'mindfulness_daily',
+    category: 'daily',
+    categoryName: '日常正念',
+    icon: 'fa-solid fa-seedling',
+    title: '每日自我觉察与正念指引',
+    question: '今天想给紧绷的心情放个假，请潜意识给我一个温和的正念提醒与微习惯行动。',
+    resonantCards: [0, 17, 9, 19, 3, 21] // 愚者、星星、隐士、太阳、女皇、世界
+  }
+];
+
+// 全量 78 张卡牌库 (从后端卡牌资产库完整载入)
+const allCards = ref<any[]>([]);
+const selectedScenarioId = ref<string>('career_jump');
+const drawMode = ref<'scenario' | 'blind'>('scenario');
+const showManualCardSelect = ref(false);
+
+const selectedCardIndex = ref(0);
 const currentCard = ref<any>({
-  index: 17,
-  nameCn: '星星',
-  roman: 'XVII',
-  image: '/assets/tarot/cards/17.jpg',
-  tags: ['希望', '灵感', '内在疗愈']
+  index: 0,
+  nameCn: '愚者',
+  roman: '0',
+  image: '/assets/tarot/cards/00.jpg',
+  tags: ['破局启程', '纯粹好奇']
 });
 const selectedOrientation = ref('upright');
-const simulatedQuestion = ref('最近面对新目标，内心充满期待但有些焦虑');
+const simulatedQuestion = ref('准备离职跳槽但前景不明，当前团队内耗严重，该果断离开还是继续坚守？');
 const isFlipped = ref(false);
 const isShuffling = ref(false);
 const isStreaming = ref(false);
@@ -803,93 +1047,74 @@ const phoneStreamText = ref('');
 const isEnergyDepleted = ref(false);
 const showEnergyAlert = ref(false);
 const isConfigCollapsed = ref(true);
+const cardBackReadingUrl = ref<string>('');
+const cardBackReadingImage = computed(() => {
+  return cardBackReadingUrl.value || currentCard.value?.backImage || '/assets/pages/reading/card_back.jpg';
+});
+
+const currentScenario = computed(() => {
+  return REAL_SCENARIOS.find((s) => s.id === selectedScenarioId.value) || REAL_SCENARIOS[0];
+});
+const currentScenarioTitle = computed(() => currentScenario.value.title);
+const currentScenarioCategory = computed(() => currentScenario.value.categoryName);
+const currentScenarioIcon = computed(() => currentScenario.value.icon);
 
 const toggleCollapse = () => {
   isConfigCollapsed.value = !isConfigCollapsed.value;
   localStorage.setItem('ai_config_collapsed', String(isConfigCollapsed.value));
 };
 
-const loadAiConfig = async () => {
-  try {
-    const res: any = await apiGetAiConfig();
-    if (res.code === 'SUCCESS' && res.data) {
-      const data = res.data;
-      if (data.providerProfiles && typeof data.providerProfiles === 'object') {
-        providerProfiles.value = data.providerProfiles;
-      }
-
-      // 如果有保存的 provider，恢复选择；默认 glm
-      const activeP = data.provider || 'glm';
-      aiConfig.value.provider = activeP;
-      aiConfig.value.systemPrompt = data.systemPrompt || '';
-      aiConfig.value.maxTokens = data.maxTokens || 1000;
-
-      // 如果当前厂商已有 profile，优先使用 profile
-      if (providerProfiles.value[activeP]) {
-        const saved = providerProfiles.value[activeP];
-        aiConfig.value.baseUrl = saved.baseUrl || data.baseUrl || (PROVIDER_PRESETS[activeP]?.defaultBaseUrl);
-        aiConfig.value.apiKey = saved.apiKey !== undefined ? saved.apiKey : (data.apiKey || '');
-        aiConfig.value.model = saved.model || data.model || (PROVIDER_PRESETS[activeP]?.defaultModel);
-        aiConfig.value.temperature = saved.temperature ?? data.temperature ?? 0.7;
-        aiConfig.value.topP = saved.topP ?? data.topP ?? 0.9;
-      } else {
-        const preset = PROVIDER_PRESETS[activeP] || PROVIDER_PRESETS['glm'];
-        aiConfig.value.baseUrl = data.baseUrl || preset.defaultBaseUrl;
-        aiConfig.value.apiKey = data.apiKey || '';
-        aiConfig.value.model = data.model || preset.defaultModel;
-        aiConfig.value.temperature = data.temperature ?? 0.7;
-        aiConfig.value.topP = data.topP ?? 0.9;
-        syncCurrentToProfile();
-      }
-
-      // 检查收起/展开状态：如配置项配置完成在下次进入的时候默认收起该板块
-      const savedCollapseState = localStorage.getItem('ai_config_collapsed');
-      if (savedCollapseState !== null) {
-        isConfigCollapsed.value = savedCollapseState === 'true';
-      } else {
-        // 配置已完成（存在有效 baseUrl 与 model），默认收起
-        const isConfigCompleted = Boolean(aiConfig.value.baseUrl && aiConfig.value.model);
-        isConfigCollapsed.value = isConfigCompleted;
-      }
-    }
-  } catch (e) {
-    // handled
-  }
+const selectScenario = (scene: ScenarioItem) => {
+  selectedScenarioId.value = scene.id;
+  simulatedQuestion.value = scene.question;
+  isFlipped.value = false;
+  phoneStreamText.value = '';
+  ElMessage.info(`已切换至【${scene.title}】情境，轻触牌背即可参加抽牌`);
 };
 
-const loadDemoCards = async () => {
-  try {
-    const res: any = await apiGetCards();
-    if (res.code === 'SUCCESS' && res.data) {
-      demoCards.value = res.data.cards.slice(0, 10);
-      const star = res.data.cards.find((c: any) => c.index === 17) || res.data.cards[0];
-      if (star) {
-        currentCard.value = star;
-        selectedCardIndex.value = star.index;
-      }
-    }
-  } catch (e) {
-    // fallback
-  }
-};
+// 核心业务抽牌算法：根据真实场景意象抽取对应的牌，或 78 张牌全库盲抽（绝非预先设定好的固定牌）
+const pickCardForScenario = (scene?: ScenarioItem, questionText?: string) => {
+  if (!allCards.value || allCards.value.length === 0) return;
 
-const handleCardChange = (idx: number) => {
-  const found = demoCards.value.find((c) => c.index === idx);
-  if (found) {
-    currentCard.value = found;
-    if (isFlipped.value) {
-      triggerDrawStream();
-    }
+  if (drawMode.value === 'blind') {
+    // 78张牌真实盲抽
+    const randomIdx = Math.floor(Math.random() * allCards.value.length);
+    currentCard.value = allCards.value[randomIdx];
+    selectedCardIndex.value = currentCard.value.index;
+    selectedOrientation.value = Math.random() < 0.25 ? 'reversed' : 'upright';
+    return;
   }
-};
 
-const toggleCardFlip = () => {
-  if (!isFlipped.value) {
-    triggerDrawStream();
-  } else {
-    isFlipped.value = false;
-    phoneStreamText.value = '';
+  // 场景抽取模式：
+  let candidates: any[] = [];
+  const targetScene = scene || currentScenario.value;
+  if (targetScene && targetScene.resonantCards && targetScene.resonantCards.length > 0) {
+    candidates = allCards.value.filter((c) => targetScene.resonantCards.includes(c.index));
   }
+
+  // 若用户自定困惑输入或未在预设池，按语义意象模糊检索
+  if (candidates.length === 0 && questionText) {
+    const q = questionText.toLowerCase();
+    candidates = allCards.value.filter((c) => {
+      return (
+        c.tags?.some((t: string) => q.includes(t)) ||
+        c.nameCn?.includes(q.slice(0, 2)) ||
+        c.insight?.includes(q.slice(0, 3))
+      );
+    });
+  }
+
+  if (candidates.length === 0) {
+    candidates = allCards.value;
+  }
+
+  // 从符合该情境的共鸣卡牌池中动态挑选一张（保证每次抽牌符合共时性随机）
+  const drawn = candidates[Math.floor(Math.random() * candidates.length)];
+  currentCard.value = drawn;
+  selectedCardIndex.value = drawn.index;
+
+  // 真实翻牌正逆位判定 (75% 正位，25% 逆位)
+  selectedOrientation.value = Math.random() < 0.25 ? 'reversed' : 'upright';
 };
 
 const triggerDrawStream = () => {
@@ -902,19 +1127,59 @@ const triggerDrawStream = () => {
   isShuffling.value = true;
   phoneStreamText.value = '';
 
+  // 在洗牌动画过程中，动态根据当前场景抽取对应的牌！
+  pickCardForScenario(currentScenario.value, simulatedQuestion.value);
+
+  // 650ms 拟真洗牌翻转完成后，揭开卡牌并自动开启 AI SSE 推流解读
   setTimeout(() => {
     isShuffling.value = false;
     isFlipped.value = true;
     startSseStream();
-  }, 600);
+  }, 650);
+};
+
+const toggleCardFlip = () => {
+  if (!isFlipped.value) {
+    triggerDrawStream();
+  } else {
+    isFlipped.value = false;
+    phoneStreamText.value = '';
+  }
+};
+
+const handleManualCardChange = (idx: number) => {
+  const found = allCards.value.find((c) => c.index === idx);
+  if (found) {
+    currentCard.value = found;
+    if (isFlipped.value) {
+      triggerDrawStream();
+    }
+  }
+};
+
+const resetToDrawAgain = () => {
+  isFlipped.value = false;
+  phoneStreamText.value = '';
 };
 
 const startSseStream = () => {
   isStreaming.value = true;
   phoneStreamText.value = '';
 
-  // 使用服务端的沙盒 SSE 流式接口
-  const url = `/api/v1/admin/sandbox/stream?card_index=${currentCard.value.index}&orientation=${selectedOrientation.value}&question=${encodeURIComponent(simulatedQuestion.value)}`;
+  // 使用服务端的沙盒 SSE 流式接口，透传当前选中的厂商、模型、密钥与 System Prompt，保证沙盒即时真实 AI 推流
+  const queryParams = new URLSearchParams({
+    card_index: String(currentCard.value.index),
+    orientation: selectedOrientation.value,
+    question: simulatedQuestion.value || '',
+    provider: aiConfig.value.provider,
+    model: aiConfig.value.model,
+    baseUrl: aiConfig.value.baseUrl,
+    apiKey: aiConfig.value.apiKey,
+    temperature: String(aiConfig.value.temperature),
+    systemPrompt: aiConfig.value.systemPrompt
+  });
+
+  const url = `/api/v1/admin/sandbox/stream?${queryParams.toString()}`;
   const eventSource = new EventSource(url);
 
   eventSource.onmessage = (event) => {
@@ -1058,24 +1323,107 @@ const saveAiConfig = async () => {
   }
 };
 
-const resetDefaultPrompt = () => {
-  aiConfig.value.systemPrompt = `你是一位温和、洞察力深刻且富有共情心的心理学投射分析师与心灵疗愈导师。
-你的核心工作是基于荣格心理学“共时性原则”与潜意识意象投射，帮助来访者观照内在自我。
+watch(
+  () => aiConfig.value.systemPrompt,
+  (newVal) => {
+    if (newVal && newVal.trim()) {
+      localStorage.setItem('ai_system_prompt_draft', newVal);
+    }
+  }
+);
 
-【核心合规戒律】：
-1. 严禁断言未来吉凶祸福，严禁使用“命运注定”、“必有大难”、“大吉大利”等迷信算命式预言。
-2. 将卡牌意象解读为当事人潜意识在现实生活中的投射，聚焦于心智模式、情绪内耗、思维盲区。
-3. 必须提供温和、具体、具有可行性的正念微习惯或行动建议。
+const resetDefaultPrompt = async () => {
+  aiConfig.value.systemPrompt = DEFAULT_SYSTEM_PROMPT;
+  localStorage.setItem('ai_system_prompt_draft', DEFAULT_SYSTEM_PROMPT);
+  syncCurrentToProfile();
+  try {
+    await apiUpdateAiConfig({
+      ...aiConfig.value,
+      systemPrompt: DEFAULT_SYSTEM_PROMPT,
+      providerProfiles: providerProfiles.value
+    });
+    ElMessage.success('已恢复系统标准 System Prompt 并成功持久化保存！');
+  } catch (err: any) {
+    ElMessage.info('已恢复默认 System Prompt');
+  }
+};
 
-【输出结构要求】：
-1. 【今日心灵定调】：（提炼 2~4 个字的核心情绪/能量意向，如“破茧沉淀”、“澄澈内观”）
-2. 【意象投射与潜意识映射】：（结合来访者的困惑与抽出的卡牌，剖析卡牌象征对当下的心理映照）
-3. 【思维盲区与视角转念】：（指出当下认知中的执念或误区，提供全新的觉察视角）
-4. 【正念行动微建议】：（给出 1~2 条切实可行的微小行动或自我关怀练习）`;
+const loadAiConfig = async () => {
+  try {
+    const res: any = await apiGetAiConfig();
+    if (res.code === 'SUCCESS' && res.data) {
+      const data = res.data;
+      if (data.providerProfiles && typeof data.providerProfiles === 'object') {
+        providerProfiles.value = data.providerProfiles;
+      }
+
+      // 如果有保存的 provider，恢复选择；默认 glm
+      const activeP = data.provider || 'glm';
+      aiConfig.value.provider = activeP;
+      // 优先从后端读取，若未配置或为空则自动回退到默认荣格心理学 Prompt
+      aiConfig.value.systemPrompt = (data.systemPrompt && data.systemPrompt.trim())
+        ? data.systemPrompt
+        : (localStorage.getItem('ai_system_prompt_draft') || DEFAULT_SYSTEM_PROMPT);
+      aiConfig.value.maxTokens = data.maxTokens || 1000;
+
+      // 如果当前厂商已有 profile，优先使用 profile
+      if (providerProfiles.value[activeP]) {
+        const saved = providerProfiles.value[activeP];
+        aiConfig.value.baseUrl = saved.baseUrl || data.baseUrl || (PROVIDER_PRESETS[activeP]?.defaultBaseUrl);
+        aiConfig.value.apiKey = saved.apiKey !== undefined ? saved.apiKey : (data.apiKey || '');
+        aiConfig.value.model = saved.model || data.model || (PROVIDER_PRESETS[activeP]?.defaultModel);
+        aiConfig.value.temperature = saved.temperature ?? data.temperature ?? 0.7;
+        aiConfig.value.topP = saved.topP ?? data.topP ?? 0.9;
+      } else {
+        const preset = PROVIDER_PRESETS[activeP] || PROVIDER_PRESETS['glm'];
+        aiConfig.value.baseUrl = data.baseUrl || preset.defaultBaseUrl;
+        aiConfig.value.apiKey = data.apiKey || '';
+        aiConfig.value.model = data.model || preset.defaultModel;
+        aiConfig.value.temperature = data.temperature ?? 0.7;
+        aiConfig.value.topP = data.topP ?? 0.9;
+        syncCurrentToProfile();
+      }
+
+      // 检查收起/展开状态：如配置项配置完成在下次进入的时候默认收起该板块
+      const savedCollapseState = localStorage.getItem('ai_config_collapsed');
+      if (savedCollapseState !== null) {
+        isConfigCollapsed.value = savedCollapseState === 'true';
+      } else {
+        // 配置已完成（存在有效 baseUrl 与 model），默认收起
+        const isConfigCompleted = Boolean(aiConfig.value.baseUrl && aiConfig.value.model);
+        isConfigCollapsed.value = isConfigCompleted;
+      }
+    }
+  } catch (e) {
+    // handled
+  }
+};
+
+const loadAllCards = async () => {
+  try {
+    const res: any = await apiGetCards();
+    if (res.code === 'SUCCESS' && res.data) {
+      if (res.data.cardBackReadingUrl) {
+        cardBackReadingUrl.value = res.data.cardBackReadingUrl;
+      }
+      allCards.value = res.data.cards || [];
+      const defaultScene = REAL_SCENARIOS[0];
+      selectedScenarioId.value = defaultScene.id;
+      simulatedQuestion.value = defaultScene.question;
+      // 备选默认卡牌
+      const candidate = allCards.value.find((c) => defaultScene.resonantCards.includes(c.index)) || allCards.value[0];
+      if (candidate) {
+        currentCard.value = candidate;
+        selectedCardIndex.value = candidate.index;
+      }
+    }
+  } catch (e) {
+    // fallback
+  }
 };
 
 onMounted(() => {
   loadAiConfig();
-  loadDemoCards();
+  loadAllCards();
 });
 </script>

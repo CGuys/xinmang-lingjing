@@ -46,11 +46,19 @@
           </template>
         </el-table-column>
 
+        <el-table-column label="今日免费消耗" width="120" align="center">
+          <template #default="{ row }">
+            <span class="font-mono text-slate-800 font-semibold">{{ row.freeUsedToday || 0 }}</span>
+            <span class="text-[10px] text-slate-400 ml-1">次</span>
+          </template>
+        </el-table-column>
+
         <el-table-column label="上次消耗免费点" width="130" align="center">
           <template #default="{ row }">
             <span class="font-mono text-slate-600">{{ row.lastFreeDate || '暂未消耗' }}</span>
           </template>
         </el-table-column>
+
 
         <el-table-column label="互动统计" width="140" align="center">
           <template #default="{ row }">

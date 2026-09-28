@@ -1,0 +1,64 @@
+{
+  "pages": [
+    {
+      "path": "pages/index/index",
+      "style": {
+        "navigationBarTitleText": "心芒灵境 · 灵境主台",
+        "navigationBarBackgroundColor": "#070913",
+        "navigationBarTextStyle": "white",
+        "backgroundColor": "#070913",
+        "enablePullDownRefresh": false
+      }
+    },
+    {
+      "path": "pages/reading/result",
+      "style": {
+        "navigationBarTitleText": "潜意识投射解析",
+        "navigationBarBackgroundColor": "#070913",
+        "navigationBarTextStyle": "white",
+        "backgroundColor": "#070913"
+      }
+    },
+    {
+      "path": "pages/poster/view",
+      "style": {
+        "navigationBarTitleText": "朋友圈能量卡",
+        "navigationBarBackgroundColor": "#070913",
+        "navigationBarTextStyle": "white",
+        "backgroundColor": "#070913"
+      }
+    },
+    {
+      "path": "pages/profile/history",
+      "style": {
+        "navigationBarTitleText": "往日回响 · 觉察记录",
+        "navigationBarBackgroundColor": "#070913",
+        "navigationBarTextStyle": "white",
+        "backgroundColor": "#070913",
+        "enablePullDownRefresh": true
+      }
+    }
+  ],
+  "tabBar": {
+    "color": "#94a3b8",
+    "selectedColor": "#f59e0b",
+    "backgroundColor": "#070913",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "灵境主台"
+      },
+      {
+        "pagePath": "pages/profile/history",
+        "text": "往日回响"
+      }
+    ]
+  },
+  "globalStyle": {
+    "navigationBarTextStyle": "white",
+    "navigationBarTitleText": "心芒灵境",
+    "navigationBarBackgroundColor": "#070913",
+    "backgroundColor": "#070913"
+  }
+}

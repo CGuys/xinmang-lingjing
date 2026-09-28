@@ -3,6 +3,7 @@ import { AdminService } from '../services/admin.service';
 import { ConfigService } from '../services/config.service';
 import { TarotService } from '../services/tarot.service';
 import { AiService } from '../services/ai.service';
+import { OssService } from '../services/oss.service';
 
 export class AdminController {
   static async login(req: Request, res: Response, next: NextFunction) {
@@ -112,7 +113,11 @@ export class AdminController {
   static async getCards(req: Request, res: Response, next: NextFunction) {
     try {
       const { category, search } = req.query;
-      let cards = TarotService.getAllCards(category as string);
+      let cards = await TarotService.loadDeckFromDb();
+
+      if (category && category !== 'all') {
+        cards = cards.filter((c) => c.category === category);
+      }
 
       if (search && typeof search === 'string' && search.trim()) {
         const q = search.trim().toLowerCase();
@@ -120,6 +125,7 @@ export class AdminController {
           (c) =>
             c.nameCn.toLowerCase().includes(q) ||
             c.nameEn.toLowerCase().includes(q) ||
+            (c.roman && c.roman.toLowerCase().includes(q)) ||
             c.tags.some((t) => t.toLowerCase().includes(q))
         );
       }
@@ -129,6 +135,10 @@ export class AdminController {
         message: '获取卡牌档案成功',
         data: {
           total: cards.length,
+          ossBucket: process.env.OSS_BUCKET || 'xinmang-lingjing-tarot',
+          ossRegion: process.env.OSS_REGION || 'oss-cn-hangzhou',
+          cardBackReadingUrl: OssService.getSignatureUrl('pages/reading/card_back.jpg'),
+          cardBackHomeUrl: OssService.getSignatureUrl('pages/home/card_back.jpg'),
           cards
         }
       });
@@ -227,11 +237,22 @@ export class AdminController {
 
   static async sandboxStream(req: Request, res: Response, next: NextFunction) {
     try {
-      const cardIndex = parseInt(req.query.card_index as string, 10) || 0;
-      const orientation = (req.query.orientation as string) || 'upright';
-      const question = (req.query.question as string) || '';
+      const cardIndex = parseInt((req.query.card_index || req.body?.card_index) as string, 10) || 0;
+      const orientation = ((req.query.orientation || req.body?.orientation) as string) || 'upright';
+      const question = ((req.query.question || req.body?.question) as string) || '';
 
-      await AdminService.sandboxStream(cardIndex, orientation, question, res);
+      const overrideConfig = {
+        provider: (req.query.provider || req.body?.provider) as string,
+        model: (req.query.model || req.body?.model) as string,
+        baseUrl: (req.query.baseUrl || req.body?.baseUrl) as string,
+        apiKey: (req.query.apiKey || req.body?.apiKey) as string,
+        systemPrompt: (req.query.systemPrompt || req.body?.systemPrompt) as string,
+        temperature: req.query.temperature 
+          ? parseFloat(req.query.temperature as string) 
+          : (req.body?.temperature !== undefined ? parseFloat(req.body.temperature) : undefined)
+      };
+
+      await AdminService.sandboxStream(cardIndex, orientation, question, res, overrideConfig);
     } catch (err) {
       next(err);
     }

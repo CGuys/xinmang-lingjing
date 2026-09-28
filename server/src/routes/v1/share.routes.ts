@@ -4,6 +4,8 @@ import { requireUserAuth } from '../../middlewares/auth.middleware';
 
 const router = Router();
 
+router.get('/qrcode', ShareController.getShareQrcode);
 router.post('/accept', requireUserAuth, ShareController.acceptShare);
 
 export default router;
+

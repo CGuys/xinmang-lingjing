@@ -14,14 +14,19 @@ export const ENV = {
   WECHAT_APP_SECRET: process.env.WECHAT_APP_SECRET || '',
   REDIS_URL: process.env.REDIS_URL || '',
   ASSETS_PATH: process.env.ASSETS_PATH || '../assets',
+  OSS_ACCESS_KEY_ID: process.env.OSS_ACCESS_KEY_ID || '',
+  OSS_ACCESS_KEY_SECRET: process.env.OSS_ACCESS_KEY_SECRET || '',
+  OSS_BUCKET: process.env.OSS_BUCKET || 'xinmang-lingjing-tarot',
+  OSS_REGION: process.env.OSS_REGION || 'oss-cn-hangzhou',
+  OSS_ENDPOINT: process.env.OSS_ENDPOINT || 'oss-cn-hangzhou.aliyuncs.com',
 };
 
 // 默认大模型参数
 export const DEFAULT_AI_CONFIG = {
-  provider: process.env.LLM_PROVIDER || 'deepseek',
+  provider: process.env.LLM_PROVIDER || 'glm',
   apiKey: process.env.LLM_API_KEY || '',
-  baseUrl: process.env.LLM_BASE_URL || 'https://api.deepseek.com/v1',
-  model: process.env.LLM_MODEL || 'deepseek-chat',
+  baseUrl: process.env.LLM_BASE_URL || 'https://open.bigmodel.cn/api/paas/v4',
+  model: process.env.LLM_MODEL || 'glm-4.7-flash',
   temperature: parseFloat(process.env.LLM_TEMPERATURE || '0.7'),
   topP: parseFloat(process.env.LLM_TOP_P || '0.9'),
   maxTokens: parseInt(process.env.LLM_MAX_TOKENS || '1000', 10),
@@ -37,8 +42,10 @@ export const DEFAULT_AI_CONFIG = {
 1. 【今日心灵定调】：（提炼 2~4 个字的核心情绪/能量意向，如“破茧沉淀”、“澄澈内观”）
 2. 【意象投射与潜意识映射】：（结合来访者的困惑与抽出的卡牌，剖析卡牌象征对当下的心理映照）
 3. 【思维盲区与视角转念】：（指出当下认知中的执念或误区，提供全新的觉察视角）
-4. 【正念行动微建议】：（给出 1~2 条切实可行的微小行动或自我关怀练习）`
+4. 【正念行动微建议】：（给出 1~2 条切实可行的微小行动或自我关怀练习）
+5. 【赋能金句】：（提炼一句富有启发与安宁的心灵箴言短句，如“穿透内心的迷雾，接纳潜意识深处的潮汐。”）`
 };
+
 
 // 默认业务策略配置项
 export const DEFAULT_STRATEGY_CONFIG = {
