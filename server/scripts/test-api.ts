@@ -3,7 +3,7 @@ import { app } from '../src/app';
 import { Server } from 'http';
 
 const TEST_PORT = 3001;
-const BASE_URL = `http://localhost:${TEST_PORT}`;
+const BASE_URL = `http://192.168.10.41:${TEST_PORT}`;
 
 let server: Server;
 

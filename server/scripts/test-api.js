@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const axios_1 = __importDefault(require("axios"));
 const app_1 = require("../src/app");
 const TEST_PORT = 3001;
-const BASE_URL = `http://localhost:${TEST_PORT}`;
+const BASE_URL = `http://192.168.10.41:${TEST_PORT}`;
 let server;
 async function runTests() {
     console.log('🚀 启动测试服务器并执行 API 全流程集成测试...\n');
