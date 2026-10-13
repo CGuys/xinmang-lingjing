@@ -153,41 +153,41 @@ const onWatchAd = async () => {
 
 .btn-primary {
   width: 100%;
-  height: 88rpx;
-  border-radius: 24rpx;
-  background: linear-gradient(135deg, #facc15 0%, #eab308 50%, #ca8a04 100%);
+  height: 76rpx;
+  border-radius: 20rpx;
+  background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%);
   color: #0b0c1b;
   font-weight: 700;
-  font-size: 28rpx;
+  font-size: 24rpx;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 12rpx;
-  box-shadow: 0 8rpx 20rpx rgba(234, 179, 8, 0.3);
+  box-shadow: 0 8rpx 20rpx rgba(245, 158, 11, 0.3);
   border: none;
 }
 
 .btn-secondary {
   width: 100%;
-  height: 88rpx;
-  border-radius: 24rpx;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #e2e8f0;
+  height: 76rpx;
+  border-radius: 20rpx;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
   font-weight: 600;
-  font-size: 28rpx;
+  font-size: 24rpx;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 12rpx;
+  border: none;
 }
 
 .btn-icon {
-  font-size: 30rpx;
+  font-size: 28rpx;
 }
 
 .btn-text {
-  font-size: 28rpx;
+  font-size: 24rpx;
 }
 
 .btn-cancel {
@@ -195,7 +195,7 @@ const onWatchAd = async () => {
 }
 
 .cancel-text {
-  font-size: 26rpx;
+  font-size: 22rpx;
   color: #64748b;
 }
 </style>

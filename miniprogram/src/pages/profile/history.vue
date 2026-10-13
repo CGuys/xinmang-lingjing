@@ -417,12 +417,12 @@ const formatDate = (dateStr: string) => {
 }
 
 .empty-btn {
-  height: 80rpx;
+  height: 72rpx;
   padding: 0 48rpx;
-  border-radius: 20rpx;
-  background: linear-gradient(135deg, #fde047 0%, #eab308 50%, #ca8a04 100%);
-  color: #0b0c1b;
-  font-size: 26rpx;
+  border-radius: 16rpx;
+  background: linear-gradient(90deg, #4f46e5 0%, #f59e0b 100%);
+  color: #ffffff;
+  font-size: 24rpx;
   font-weight: 700;
   display: flex;
   align-items: center;
@@ -438,11 +438,11 @@ const formatDate = (dateStr: string) => {
 
 .btn-draw-today {
   width: 100%;
-  height: 90rpx;
-  border-radius: 24rpx;
-  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #d97706 100%);
+  height: 76rpx;
+  border-radius: 20rpx;
+  background: linear-gradient(90deg, #4f46e5 0%, #f59e0b 100%);
   color: #ffffff;
-  font-size: 28rpx;
+  font-size: 24rpx;
   font-weight: 700;
   display: flex;
   align-items: center;

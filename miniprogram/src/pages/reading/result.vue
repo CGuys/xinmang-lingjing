@@ -424,13 +424,13 @@ onShareAppMessage(() => {
 .btn-retry {
   margin-top: 10rpx;
   padding: 0 40rpx;
-  height: 68rpx;
-  line-height: 68rpx;
+  height: 60rpx;
+  line-height: 60rpx;
   border-radius: 999rpx;
   background: rgba(245, 158, 11, 0.2);
   border: 1px solid rgba(245, 158, 11, 0.5);
   color: #fde047;
-  font-size: 24rpx;
+  font-size: 22rpx;
   font-weight: 600;
 }
 
@@ -523,41 +523,40 @@ onShareAppMessage(() => {
   line-height: 1.6;
 }
 
-/* 底部操作条 */
 .bottom-bar {
   display: grid;
-  grid-template-columns: 1fr 1.4fr;
+  grid-template-columns: 1fr 1fr;
   gap: 20rpx;
   flex-shrink: 0;
   padding-bottom: 20rpx;
 }
 
 .btn-save {
-  height: 90rpx;
-  border-radius: 24rpx;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #cbd5e1;
-  font-size: 26rpx;
-  font-weight: 600;
+  height: 72rpx;
+  border-radius: 16rpx;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  font-size: 24rpx;
+  font-weight: 500;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10rpx;
+  border: none;
 }
 
 .btn-poster {
-  height: 90rpx;
-  border-radius: 24rpx;
-  background: linear-gradient(135deg, #fde047 0%, #eab308 50%, #ca8a04 100%);
+  height: 72rpx;
+  border-radius: 16rpx;
+  background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%);
   color: #0b0c1b;
-  font-size: 28rpx;
+  font-size: 24rpx;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10rpx;
-  box-shadow: 0 8rpx 24rpx rgba(234, 179, 8, 0.3);
+  box-shadow: 0 4rpx 12rpx rgba(245, 158, 11, 0.3);
   border: none;
 }
 

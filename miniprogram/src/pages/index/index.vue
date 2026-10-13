@@ -344,14 +344,14 @@ onShareAppMessage(() => {
 
 .energy-pill-active {
   background: rgba(245, 158, 11, 0.15);
-  border: 1px solid rgba(245, 158, 11, 0.4);
+  border: 1px solid rgba(245, 158, 11, 0.3);
   color: #fde047;
 }
 
 .energy-pill-empty {
-  background: rgba(239, 68, 68, 0.15);
-  border: 1px solid rgba(239, 68, 68, 0.4);
-  color: #fca5a5;
+  background: rgba(136, 19, 55, 0.4);
+  border: 1px solid rgba(159, 18, 57, 0.6);
+  color: #fda4af;
 }
 
 .energy-icon {
@@ -369,11 +369,11 @@ onShareAppMessage(() => {
 
 .archetype-tag {
   font-size: 22rpx;
-  color: #c7d2fe;
-  background: rgba(99, 102, 241, 0.15);
-  padding: 8rpx 20rpx;
+  color: #a5b4fc;
+  background: rgba(30, 27, 75, 0.5);
+  padding: 8rpx 24rpx;
   border-radius: 999rpx;
-  border: 1px solid rgba(99, 102, 241, 0.3);
+  border: 1px solid rgba(49, 46, 129, 0.6);
 }
 
 .review-tag {
@@ -387,11 +387,10 @@ onShareAppMessage(() => {
 
 /* 意念/困惑输入卡片 */
 .question-card {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 32rpx;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 24rpx;
   padding: 24rpx;
-  backdrop-filter: blur(10px);
   margin-bottom: 24rpx;
 }
 
@@ -399,7 +398,7 @@ onShareAppMessage(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 24rpx;
+  font-size: 22rpx;
   color: #cbd5e1;
   margin-bottom: 16rpx;
 }
@@ -436,11 +435,11 @@ onShareAppMessage(() => {
 
 .preset-tag {
   font-size: 22rpx;
-  padding: 6rpx 16rpx;
-  border-radius: 14rpx;
-  background: rgba(255, 255, 255, 0.06);
-  color: #94a3b8;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 8rpx 16rpx;
+  border-radius: 12rpx;
+  background: rgba(255, 255, 255, 0.05);
+  color: #cbd5e1;
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .preset-tag-selected {
@@ -647,11 +646,11 @@ onShareAppMessage(() => {
 
 .btn-draw {
   width: 100%;
-  height: 92rpx;
-  border-radius: 28rpx;
+  height: 76rpx;
+  border-radius: 24rpx;
   background: linear-gradient(135deg, #fde047 0%, #eab308 50%, #ca8a04 100%);
   color: #0b0c1b;
-  font-size: 30rpx;
+  font-size: 26rpx;
   font-weight: 700;
   display: flex;
   align-items: center;
@@ -662,7 +661,7 @@ onShareAppMessage(() => {
 }
 
 .btn-symbol {
-  font-size: 32rpx;
+  font-size: 28rpx;
 }
 
 .action-grid {
@@ -672,34 +671,35 @@ onShareAppMessage(() => {
 }
 
 .btn-reset {
-  height: 90rpx;
-  border-radius: 24rpx;
+  height: 72rpx;
+  border-radius: 16rpx;
   background: rgba(255, 255, 255, 0.1);
-  color: #e2e8f0;
-  font-size: 26rpx;
+  color: #ffffff;
+  font-size: 24rpx;
   font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: none;
 }
 
 .btn-view {
-  height: 90rpx;
-  border-radius: 24rpx;
-  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #d97706 100%);
+  height: 72rpx;
+  border-radius: 16rpx;
+  background: linear-gradient(90deg, #4f46e5 0%, #f59e0b 100%);
   color: #ffffff;
-  font-size: 28rpx;
+  font-size: 24rpx;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8rpx;
-  box-shadow: 0 8rpx 24rpx rgba(99, 102, 241, 0.3);
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.3);
   border: none;
 }
 
 .btn-arrow {
-  font-size: 28rpx;
+  font-size: 20rpx;
+  margin-left: 4rpx;
 }
 </style>

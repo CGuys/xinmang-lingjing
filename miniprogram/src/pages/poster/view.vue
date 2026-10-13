@@ -608,17 +608,17 @@ onShareTimeline(() => {
 
 .btn-save-album {
   width: 100%;
-  height: 92rpx;
-  border-radius: 24rpx;
-  background: linear-gradient(135deg, #fde047 0%, #eab308 50%, #ca8a04 100%);
+  height: 80rpx;
+  border-radius: 20rpx;
+  background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%);
   color: #0b0c1b;
-  font-size: 28rpx;
+  font-size: 24rpx;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 12rpx;
-  box-shadow: 0 10rpx 30rpx rgba(234, 179, 8, 0.3);
+  box-shadow: 0 10rpx 30rpx rgba(245, 158, 11, 0.3);
   border: none;
 }
 
@@ -631,12 +631,12 @@ onShareTimeline(() => {
 .btn-share-friend,
 .btn-share-timeline {
   flex: 1;
-  height: 84rpx;
-  border-radius: 20rpx;
+  height: 72rpx;
+  border-radius: 16rpx;
   background: rgba(254, 240, 138, 0.12);
   border: 1px solid rgba(254, 240, 138, 0.35);
   color: #fef08a;
-  font-size: 26rpx;
+  font-size: 24rpx;
   font-weight: 600;
   display: flex;
   align-items: center;
@@ -653,12 +653,12 @@ onShareTimeline(() => {
 
 .btn-back {
   width: 100%;
-  height: 80rpx;
-  border-radius: 20rpx;
+  height: 68rpx;
+  border-radius: 16rpx;
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.12);
   color: #94a3b8;
-  font-size: 24rpx;
+  font-size: 22rpx;
   font-weight: 500;
   display: flex;
   align-items: center;

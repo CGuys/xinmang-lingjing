@@ -10,6 +10,7 @@
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push",
     "prisma:seed": "ts-node src/models/seed.ts",
+    "migrate:sqlite-to-mysql": "ts-node scripts/migrate-sqlite-to-mysql.ts",
     "test:api": "ts-node scripts/test-api.ts"
   },
   "keywords": [
@@ -31,6 +32,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "ioredis": "^6.0.0",
     "jsonwebtoken": "^9.0.2",
     "qrcode": "^1.5.4"
   },

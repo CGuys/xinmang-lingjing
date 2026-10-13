@@ -1,0 +1,39 @@
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# 安装 OpenSSL 运行环境支持 (Prisma 驱动所需)
+RUN apk add --no-cache openssl libc6-compat
+
+# 复制依赖定义
+COPY server/package*.json ./server/
+COPY server/prisma ./server/prisma/
+
+WORKDIR /app/server
+RUN npm ci --prefer-offline || npm install
+
+# 复制源码并构建
+COPY server/src ./src
+COPY server/tsconfig.json ./
+RUN npx prisma generate
+RUN npm run build
+
+# 生产运行阶段
+FROM node:20-alpine AS runner
+WORKDIR /app/server
+
+RUN apk add --no-cache openssl libc6-compat
+
+ENV NODE_ENV=production
+ENV PORT=3000
+ENV HOST=0.0.0.0
+
+COPY --from=builder /app/server/package*.json ./
+COPY --from=builder /app/server/node_modules ./node_modules
+COPY --from=builder /app/server/dist ./dist
+COPY --from=builder /app/server/prisma ./prisma
+COPY server/.env.example ./.env
+
+EXPOSE 3000
+
+CMD ["sh", "-c", "npx prisma db push && node dist/index.js"]

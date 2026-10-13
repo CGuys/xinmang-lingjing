@@ -1,0 +1,32 @@
+services:
+  server:
+    build:
+      context: .
+      dockerfile: deploy/docker/Dockerfile.server
+    container_name: xinmang-server
+    restart: always
+    env_file:
+      - ./server/.env
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - HOST=0.0.0.0
+    volumes:
+      - ./assets:/app/assets
+      - ./logs:/app/logs
+    ports:
+      - "3000:3000"
+
+  web:
+    image: nginx:alpine
+    container_name: xinmang-web
+    restart: always
+    depends_on:
+      - server
+    ports:
+      - "80:80"     # H5 访问端口
+      - "8080:8080" # 运营后台访问端口
+    volumes:
+      - ./deploy/nginx/docker-nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./miniprogram/dist/build/h5:/usr/share/nginx/html/h5:ro
+      - ./admin/dist:/usr/share/nginx/html/admin:ro

@@ -5,6 +5,7 @@ import fs from 'fs';
 import apiRoutes from './routes';
 import { errorHandler } from './middlewares/error.middleware';
 import { ENV } from './config/constants';
+import { cache } from './utils/cache';
 
 export const app = express();
 
@@ -25,6 +26,8 @@ app.get('/health', (req, res) => {
   res.json({
     status: 'ok',
     service: '心芒灵境 · 心理疗愈卡牌服务',
+    database: 'MySQL (xinmang_lingjing)',
+    cache: cache.getStatus(),
     time: new Date().toISOString()
   });
 });

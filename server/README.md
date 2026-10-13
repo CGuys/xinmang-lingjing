@@ -20,10 +20,10 @@
 
 - **运行时环境**：Node.js (>= 18) + TypeScript
 - **Web 框架**：Express 4.x + CORS 跨域支持
-- **ORM 与数据库**：Prisma 5.x + SQLite（默认开箱即用，支持一键无缝切换 PostgreSQL / MySQL）
+- **ORM 与数据库**：Prisma 5.x + MySQL（已全面接入生产级 MySQL，库名 `xinmang_lingjing`）
 - **身份认证**：JWT (jsonwebtoken) + bcryptjs
 - **大模型支持**：DeepSeek / 智谱 GLM / OpenAI 兼容协议，支持 SSE (Server-Sent Events) 流式响应
-- **防刷机制**：内存原子计数 / Redis 降级策略，邀请裂变防自刷、防同日重复套现、每日上限阈值控制
+- **缓存与防刷**：Redis (ioredis) 企业级分布式缓存 + 内存弹性降级，邀请裂变防自刷、防同日重复套现、每日上限阈值控制
 - **合规网关**：内置心理学投射规范 System Prompt、敏感迷信词黑名单拦截、微信安全接口预留
 
 ---
@@ -41,18 +41,21 @@ npm install
 ```bash
 cp .env.example .env
 ```
-*(默认配置下已启用 SQLite `file:./dev.db`，可直接启动)*
+*(默认配置下已启用 MySQL `mysql://root@127.0.0.1:3306/xinmang_lingjing` 与 Redis `redis://127.0.0.1:6379`)*
 
 ### 3. 生成 Prisma Client 与初始化数据库
 ```bash
 # 生成 Prisma Client
 npm run prisma:generate
 
-# 推送数据表模型到 SQLite 数据库
+# 推送数据表模型到 MySQL 数据库
 npm run prisma:push
 
 # 初始化后台超级管理员账号 (默认: admin / Admin@2026)
 npm run prisma:seed
+
+# (可选) 若需要从历史 SQLite 数据库全量迁移数据至 MySQL：
+npm run migrate:sqlite-to-mysql
 ```
 
 ### 4. 启动开发服务器
@@ -100,14 +103,14 @@ npm run dev
 | `PORT` | `3000` | HTTP 服务监听端口 |
 | `HOST` | `0.0.0.0` | 监听主机地址，`0.0.0.0` 允许局域网设备通过 IP 访问 |
 | `NODE_ENV` | `development` | 运行环境（development / production） |
-| `DATABASE_URL` | `"file:./dev.db"` | 数据库连接字符串（SQLite/PostgreSQL/MySQL） |
+| `DATABASE_URL` | `"mysql://root@127.0.0.1:3306/xinmang_lingjing"` | MySQL 数据库连接串 |
 | `JWT_SECRET` | 随机默认串 | 普通用户 Token 签名密钥 |
 | `JWT_EXPIRES_IN` | `7d` | 用户 Token 有效期 |
 | `ADMIN_JWT_SECRET` | 随机默认串 | 管理后台 Token 签名密钥 |
 | `ADMIN_JWT_EXPIRES_IN` | `2d` | 管理员 Token 有效期 |
 | `WECHAT_APP_ID` | `""` | 微信小程序 AppID（留空时自动开启开发者 Mock 模式） |
 | `WECHAT_APP_SECRET`| `""` | 微信小程序 AppSecret |
-| `REDIS_URL` | `""` | Redis 连接串（留空或连接失败自动降级为内置 Map 缓存） |
+| `REDIS_URL` | `"redis://127.0.0.1:6379"` | Redis 连接串（连接异常自动弹性降级为内存缓存） |
 | `LLM_PROVIDER` | `deepseek` | 大模型提供商 (`deepseek` / `glm` / `openai`) |
 | `LLM_API_KEY` | `""` | 大模型 API Key（留空时返回高质量拟真流式响应） |
 | `LLM_BASE_URL` | `https://api.deepseek.com/v1` | 大模型 Base URL |
