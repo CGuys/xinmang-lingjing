@@ -9,7 +9,10 @@
       <view class="preview-inner">
         <!-- 顶栏标题与日期 -->
         <view class="poster-head">
-          <text class="poster-brand">INNER GLOW · 心芒灵境</text>
+          <view class="poster-brand-row">
+            <image class="brand-logo-img" src="/static/logo.png" mode="aspectFit" />
+            <text class="poster-brand">INNER GLOW · 心芒灵境</text>
+          </view>
           <text class="poster-date">{{ todayFormatted }}</text>
         </view>
 
@@ -180,7 +183,8 @@ const generatePosterCore = (callback: (path: string) => void) => {
   const query = uni.createSelectorQuery();
   query
     .select('#posterCanvas')
-    .fields({ node: true, size: true })
+    // @ts-ignore
+    .fields({ node: true, size: true }, () => {})
     .exec(async (res: any) => {
       if (!res[0] || !res[0].node) {
         isGenerating.value = false;
@@ -459,6 +463,18 @@ onShareTimeline(() => {
   align-items: center;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   padding-bottom: 12rpx;
+}
+
+.poster-brand-row {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.brand-logo-img {
+  width: 24rpx;
+  height: 24rpx;
+  border-radius: 4rpx;
 }
 
 .poster-brand {

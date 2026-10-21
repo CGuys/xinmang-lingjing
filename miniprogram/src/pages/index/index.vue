@@ -21,6 +21,7 @@
         <text>🛡️ 心理自省模式</text>
       </view>
       <view v-else class="archetype-tag">
+        <image class="brand-logo-mini" src="/static/logo.png" mode="aspectFit" />
         <text>荣格潜意识投射</text>
       </view>
     </view>
@@ -67,7 +68,10 @@
         @click="handleCardTap"
       >
         <!-- 卡牌背面 (从后台接口加载艺术卡背 OSS 资源) -->
-        <view class="card-face card-face-back backface-hidden gold-border">
+        <view
+          class="card-face card-face-back backface-hidden gold-border"
+          :class="{ 'face-hidden': isCardFlipped }"
+        >
           <view class="inner-frame">
             <image
               class="card-img"
@@ -87,7 +91,10 @@
         </view>
 
         <!-- 卡牌正面 (使用当前抽出的卡牌后台 OSS 资源) -->
-        <view class="card-face card-face-front backface-hidden rotate-y-180 gold-border">
+        <view
+          class="card-face card-face-front backface-hidden rotate-y-180 gold-border"
+          :class="{ 'face-hidden': !isCardFlipped }"
+        >
           <view class="inner-frame" v-if="displayCard">
             <!-- 卡牌插画大图 (后台 OSS 直链) -->
             <image
@@ -135,13 +142,13 @@
       </button>
 
       <view v-else class="action-grid">
-        <button class="btn-reset" @click="resetCardState">
+        <view class="btn-reset" hover-class="btn-reset-hover" @click="resetCardState">
           <text>重置卡牌</text>
-        </button>
-        <button class="btn-view" @click="goToResult">
+        </view>
+        <view class="btn-view" hover-class="btn-view-hover" @click="goToResult">
           <text>查看解读报告</text>
           <text class="btn-arrow">→</text>
-        </button>
+        </view>
       </view>
     </view>
 
@@ -368,12 +375,21 @@ onShareAppMessage(() => {
 }
 
 .archetype-tag {
+  display: flex;
+  align-items: center;
   font-size: 22rpx;
-  color: #a5b4fc;
-  background: rgba(30, 27, 75, 0.5);
-  padding: 8rpx 24rpx;
+  color: #fde047;
+  background: rgba(30, 27, 75, 0.6);
+  padding: 6rpx 20rpx 6rpx 14rpx;
   border-radius: 999rpx;
-  border: 1px solid rgba(49, 46, 129, 0.6);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+}
+
+.brand-logo-mini {
+  width: 28rpx;
+  height: 28rpx;
+  border-radius: 6rpx;
+  margin-right: 10rpx;
 }
 
 .review-tag {
@@ -489,6 +505,57 @@ onShareAppMessage(() => {
   box-sizing: border-box;
   padding: 8rpx;
   background: #0d0a21;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+}
+
+.card-face-back {
+  z-index: 2;
+  transform: rotateY(0deg) translateZ(1px);
+  transition: opacity 0.2s ease, visibility 0.2s;
+}
+
+/* 卡牌正面细节 */
+.card-face-front {
+  background: #090814;
+  z-index: 1;
+  transform: rotateY(180deg) translateZ(1px);
+  transition: opacity 0.2s ease, visibility 0.2s;
+}
+
+/* 杜绝 iOS WebKit 3D 穿透镜像倒影与文字重叠 (解决 ТОЯАТ ЯАТН21 与 翻转觉察 重影) */
+.face-hidden {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+}
+
+.card-box.rotate-y-180 .card-face-back {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+}
+
+.card-box.rotate-y-180 .card-face-front {
+  opacity: 1 !important;
+  visibility: visible !important;
+  z-index: 5 !important;
+}
+
+.card-box:not(.rotate-y-180) .card-face-front {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+}
+
+.card-box:not(.rotate-y-180) .card-face-back {
+  opacity: 1 !important;
+  visibility: visible !important;
+  z-index: 5 !important;
 }
 
 .inner-frame {
@@ -553,11 +620,6 @@ onShareAppMessage(() => {
   font-size: 22rpx;
   color: #fde047;
   font-weight: 500;
-}
-
-/* 卡牌正面细节 */
-.card-face-front {
-  background: #090814;
 }
 
 .front-overlay-top {
@@ -625,6 +687,7 @@ onShareAppMessage(() => {
   font-style: italic;
   display: -webkit-box;
   -webkit-line-clamp: 1;
+  line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -640,66 +703,106 @@ onShareAppMessage(() => {
 
 /* 底部操作 */
 .bottom-actions {
-  padding-top: 20rpx;
-  padding-bottom: 20rpx;
+  width: 100%;
+  box-sizing: border-box;
+  padding-top: 16rpx;
+  padding-bottom: calc(20rpx + env(safe-area-inset-bottom, 12rpx));
 }
 
 .btn-draw {
-  width: 100%;
-  height: 76rpx;
-  border-radius: 24rpx;
+  width: 100% !important;
+  max-width: 100% !important;
+  height: 84rpx;
+  border-radius: 20rpx;
   background: linear-gradient(135deg, #fde047 0%, #eab308 50%, #ca8a04 100%);
   color: #0b0c1b;
   font-size: 26rpx;
   font-weight: 700;
-  display: flex;
+  display: flex !important;
   align-items: center;
   justify-content: center;
   gap: 12rpx;
-  box-shadow: 0 10rpx 30rpx rgba(234, 179, 8, 0.3);
-  border: none;
+  box-shadow: 0 8rpx 24rpx rgba(234, 179, 8, 0.3);
+  border: none !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+  transition: all 0.2s;
+}
+
+.btn-draw:active {
+  transform: scale(0.98);
+  box-shadow: 0 4rpx 14rpx rgba(234, 179, 8, 0.2);
 }
 
 .btn-symbol {
   font-size: 28rpx;
 }
 
+/* 微信小程序端高保真原型：grid grid-cols-2 gap-2 两等列左右撑满 */
 .action-grid {
   display: grid;
-  grid-template-columns: 1fr 1.6fr;
-  gap: 20rpx;
+  grid-template-columns: 1fr 1fr;
+  gap: 16rpx;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.btn-reset,
+.btn-view {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding: 0 10rpx !important;
+  box-sizing: border-box !important;
+  height: 80rpx;
+  border-radius: 20rpx;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  line-height: normal !important;
+}
+
+.btn-draw::after,
+.btn-reset::after,
+.btn-view::after {
+  border: none !important;
+  display: none !important;
 }
 
 .btn-reset {
-  height: 72rpx;
-  border-radius: 16rpx;
-  background: rgba(255, 255, 255, 0.1);
-  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  color: #ffffff !important;
   font-size: 24rpx;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.btn-reset:active {
+  background: rgba(255, 255, 255, 0.18) !important;
 }
 
 .btn-view {
-  height: 72rpx;
-  border-radius: 16rpx;
-  background: linear-gradient(90deg, #4f46e5 0%, #f59e0b 100%);
-  color: #ffffff;
+  background: linear-gradient(90deg, #4f46e5 0%, #f59e0b 100%) !important;
+  color: #ffffff !important;
   font-size: 24rpx;
   font-weight: 700;
-  display: flex;
+  border: none !important;
+  box-shadow: 0 4rpx 14rpx rgba(79, 70, 229, 0.35);
+  display: flex !important;
   align-items: center;
   justify-content: center;
-  gap: 8rpx;
-  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.3);
-  border: none;
+  gap: 6rpx;
+  transition: all 0.2s;
+}
+
+.btn-view:active {
+  opacity: 0.9;
 }
 
 .btn-arrow {
-  font-size: 20rpx;
+  font-size: 22rpx;
   margin-left: 4rpx;
 }
 </style>

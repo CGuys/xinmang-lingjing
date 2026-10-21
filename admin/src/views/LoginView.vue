@@ -7,8 +7,8 @@
     <div class="w-full max-w-md bg-slate-900/90 backdrop-blur-xl border border-slate-800 rounded-2xl p-8 shadow-2xl relative z-10 gold-border-subtle">
       <!-- Logo 与标题 -->
       <div class="text-center mb-8">
-        <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-500 to-amber-400 mx-auto flex items-center justify-center text-white mb-4 shadow-lg shadow-indigo-500/30">
-          <i class="fa-solid fa-sparkles text-2xl"></i>
+        <div class="w-16 h-16 rounded-2xl overflow-hidden mx-auto mb-4 shadow-lg shadow-indigo-500/30 border border-amber-400/40">
+          <img src="/logo.png" alt="心芒灵境 Logo" class="w-full h-full object-cover" />
         </div>
         <h1 class="text-2xl font-bold font-cinzel text-white tracking-wider">心芒灵境</h1>
         <p class="text-sm text-slate-400 mt-1">运营管控中枢 · 管理员登录</p>

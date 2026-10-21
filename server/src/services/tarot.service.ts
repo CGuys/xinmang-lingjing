@@ -300,6 +300,10 @@ export class TarotService {
         roman: selectedCard.roman,
         tags: selectedCard.tags,
         quote: selectedCard.quote,
+        insight: selectedCard.insight,
+        challenge: selectedCard.challenge,
+        guidance: selectedCard.guidance,
+        affirmation: selectedCard.affirmation || selectedCard.quote,
         // 多页面 OSS 资源图片统一对外输出
         image: selectedCard.image, // 首页 3D 抽牌缩略图 OSS 签名地址
         imageLarge: selectedCard.imageLarge, // 结果页与海报页高清大图 OSS 签名地址
@@ -403,6 +407,10 @@ export class TarotService {
             roman: card.roman,
             tags: card.tags,
             quote: card.quote,
+            insight: card.insight,
+            challenge: card.challenge,
+            guidance: card.guidance,
+            affirmation: card.affirmation || card.quote,
             image: card.image,
             imageLarge: card.imageLarge,
             backImage: card.backImage,

@@ -9,6 +9,11 @@ export const getApiBaseUrl = (): string => {
     if (custom && typeof custom === 'string' && custom.trim()) {
       return custom.trim().replace(/\/+$/, '');
     }
+    // #ifdef H5
+    if (typeof window !== 'undefined' && window.location && window.location.origin) {
+      return window.location.origin;
+    }
+    // #endif
   } catch {
     // ignore
   }

@@ -124,9 +124,15 @@ export function streamTarotReading(
         Authorization: `Bearer ${token}`
       },
       enableChunked: true,
-      responseType: 'arraybuffer', // iOS 真机流式必须显式指定为 arraybuffer
-      success: () => {
+      success: (res: any) => {
         if (!isAborted) {
+          if (!accumulated && res?.data) {
+            const chunkStr = typeof res.data === 'string' ? res.data : utf8Decoder.decode(res.data);
+            const lines = chunkStr.split('\n');
+            for (const line of lines) {
+              handleLine(line);
+            }
+          }
           callbacks.onDone?.(accumulated);
         }
       },
@@ -139,10 +145,15 @@ export function streamTarotReading(
     });
 
     // 监听二进制分块数据
-    task.onChunkReceived((res: { data: ArrayBuffer }) => {
+    task.onChunkReceived((res: any) => {
       if (isAborted || !res.data) return;
       try {
-        const chunkStr = utf8Decoder.decode(res.data);
+        let chunkStr = '';
+        if (typeof res.data === 'string') {
+          chunkStr = res.data;
+        } else if (res.data instanceof ArrayBuffer || (res.data && res.data.byteLength !== undefined)) {
+          chunkStr = utf8Decoder.decode(res.data);
+        }
         if (!chunkStr) return;
 
         bufferStr += chunkStr;

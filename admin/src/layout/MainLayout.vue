@@ -5,8 +5,8 @@
       <div>
         <!-- Logo Header -->
         <div class="h-16 flex items-center px-6 border-b border-slate-800 bg-slate-950/40">
-          <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-500 to-amber-400 flex items-center justify-center text-white mr-3 shadow-md shadow-indigo-500/20">
-            <i class="fa-solid fa-sparkles text-sm"></i>
+          <div class="w-8 h-8 rounded-lg overflow-hidden mr-3 shadow-md shadow-indigo-500/20 border border-amber-400/30">
+            <img src="/logo.png" alt="Logo" class="w-full h-full object-cover" />
           </div>
           <div>
             <h1 class="font-bold text-white tracking-wide text-sm font-cinzel">心芒灵境</h1>

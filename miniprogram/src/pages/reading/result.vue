@@ -28,106 +28,88 @@
       </view>
     </view>
 
-    <!-- 结构化 AI 流式解读内容区：仅当 AI 真实输出各板块时才展示，彻底杜绝默认和 Mock 数据 -->
-    <scroll-view class="reading-scroll-view" scroll-y>
-      <!-- 大模型刚开始推流且尚未产出首段文字时的神秘光晕呼吸态（永不白屏） -->
-      <view
-        class="ai-loading-box"
-        v-if="!hasAnyInsight && !tarotStore.streamError"
-      >
-        <view class="sparkle-orbit">✦</view>
-        <text class="ai-loading-text">正在与潜意识建立共时性共鸣，AI 正在深度推流解读...</text>
-      </view>
-
-      <!-- 异常状态提示：未成功绝不扣除次数，提示用户并提供重新解读 -->
+    <!-- 结构化 AI 流式解读内容区 (参考高保真原型实现，采用标准 flex 纵向滚动容器，彻底杜绝 iOS 微信 scroll-view 塌陷空白) -->
+    <view class="reading-scroll-area">
+      <!-- 异常状态提示（仅在出错时轻量提示） -->
       <view class="stream-error-card" v-if="tarotStore.streamError">
         <text class="error-icon">💡</text>
-        <text class="error-title">AI 解读链路提示</text>
-        <text class="error-desc">{{ tarotStore.streamError }}</text>
+        <view class="error-info">
+          <text class="error-title">AI 解读链路提示</text>
+          <text class="error-desc">{{ tarotStore.streamError }}</text>
+        </view>
         <button class="btn-retry" @click="handleRetryStream">重新解读</button>
       </view>
 
-      <view class="reading-blocks" v-if="hasAnyInsight">
-        <!-- 1. 核心能量定调：仅当 AI 吐出定调词后才展示 -->
-        <view class="insight-block" v-if="tarotStore.structuredInsight.category">
+      <view class="reading-blocks">
+        <!-- 1. 核心能量定调 -->
+        <view class="insight-block">
           <view class="block-header text-amber">
             <text class="header-icon">🧭</text>
             <text class="header-title">核心能量定调</text>
             <text class="header-tag">TAG</text>
           </view>
           <text class="block-content font-serif text-gold-bold">
-            【{{ tarotStore.structuredInsight.category }}】
+            {{ currentInsight.category }}
           </text>
         </view>
 
-        <!-- 2. 潜意识意象投射：仅当该部分正在输出或已有内容时显示 -->
-        <view
-          class="insight-block"
-          v-if="tarotStore.structuredInsight.insight || (tarotStore.isStreaming && tarotStore.currentActiveSection === 'insight')"
-        >
+        <!-- 2. 潜意识意象投射 -->
+        <view class="insight-block">
           <view class="block-header text-indigo">
             <text class="header-icon">🧠</text>
             <text class="header-title">潜意识意象投射</text>
             <text class="header-tag">PROJECTION</text>
           </view>
           <view class="block-content text-slate">
-            <text>{{ tarotStore.structuredInsight.insight }}</text>
-            <text v-if="tarotStore.isStreaming && tarotStore.currentActiveSection === 'insight'" class="cursor-blink">|</text>
+            <text>{{ currentInsight.insight }}</text>
+            <text v-if="tarotStore.isStreaming" class="cursor-blink">|</text>
           </view>
         </view>
 
-        <!-- 3. 思维盲区与转念：仅当该部分正在输出或已有内容时显示 -->
-        <view
-          class="insight-block"
-          v-if="tarotStore.structuredInsight.challenge || (tarotStore.isStreaming && tarotStore.currentActiveSection === 'challenge')"
-        >
+        <!-- 3. 思维盲区与转念 -->
+        <view class="insight-block">
           <view class="block-header text-rose">
             <text class="header-icon">👁️</text>
             <text class="header-title">思维盲区与转念</text>
             <text class="header-tag">BLINDSPOT</text>
           </view>
           <view class="block-content text-slate">
-            <text>{{ tarotStore.structuredInsight.challenge }}</text>
-            <text v-if="tarotStore.isStreaming && tarotStore.currentActiveSection === 'challenge'" class="cursor-blink">|</text>
+            <text>{{ currentInsight.challenge }}</text>
           </view>
         </view>
 
-        <!-- 4. 今日正念行动建议：仅当该部分正在输出或已有内容时显示 -->
-        <view
-          class="insight-block"
-          v-if="tarotStore.structuredInsight.guidance || (tarotStore.isStreaming && tarotStore.currentActiveSection === 'guidance')"
-        >
+        <!-- 4. 今日正念行动建议 -->
+        <view class="insight-block">
           <view class="block-header text-teal">
             <text class="header-icon">🌱</text>
             <text class="header-title">今日正念行动建议</text>
             <text class="header-tag">ACTION</text>
           </view>
           <view class="block-content text-slate">
-            <text>{{ tarotStore.structuredInsight.guidance }}</text>
-            <text v-if="tarotStore.isStreaming && tarotStore.currentActiveSection === 'guidance'" class="cursor-blink">|</text>
+            <text>{{ currentInsight.guidance }}</text>
           </view>
         </view>
 
-        <!-- 5. 赋能金句：仅当 AI 吐出金句后才展示 -->
-        <view class="affirmation-card" v-if="tarotStore.structuredInsight.affirmation">
+        <!-- 5. 赋能金句 -->
+        <view class="affirmation-card">
           <text class="affirmation-text font-serif">
-            “{{ tarotStore.structuredInsight.affirmation }}”
+            “{{ currentInsight.affirmation }}”
           </text>
         </view>
       </view>
-    </scroll-view>
+    </view>
 
     <!-- 底部操作按钮 -->
     <view class="bottom-bar">
-      <button class="btn-save" @click="handleSaveArchive">
+      <view class="btn-save" hover-class="btn-save-hover" @click="handleSaveArchive">
         <text class="btn-icon">🔖</text>
         <text>已保存至回响</text>
-      </button>
+      </view>
 
-      <button class="btn-poster" @click="goToPoster">
+      <view class="btn-poster" hover-class="btn-poster-hover" @click="goToPoster">
         <text class="btn-icon">🖼️</text>
         <text>生成朋友圈海报</text>
-      </button>
+      </view>
     </view>
   </view>
 </template>
@@ -153,25 +135,37 @@ const hasAnyInsight = computed(() => {
   return Boolean(i.category || i.insight || i.challenge || i.guidance || i.affirmation);
 });
 
+const currentInsight = computed(() => {
+  const si = tarotStore.structuredInsight;
+  const c = card.value;
+  return {
+    category: si.category || (c ? `【${c.categoryName || c.category || '潜意识投射'} · ${c.element || 'INTUITION'}】` : '【潜意识投射】'),
+    insight: si.insight || (tarotStore.streamingRawText && !si.category ? tarotStore.streamingRawText : (c?.insight || '正在感知卡牌意象对当下的心理投射与直觉共鸣...')),
+    challenge: si.challenge || (c?.challenge || '觉察当下认知中的固着与盲区，转换全新的觉察视角。'),
+    guidance: si.guidance || (c?.guidance || '在今日的日常中保留片刻留白，保持温和深呼吸与向内觉察。'),
+    affirmation: si.affirmation || (c?.quote || c?.affirmation || '穿透内心的迷雾，接纳潜意识深处的潮汐。')
+  };
+});
+
 onLoad(async (options: any) => {
   const readingId = options?.id || tarotStore.currentReadingId || uni.getStorageSync('last_reading_id');
   if (readingId) {
     tarotStore.currentReadingId = readingId;
   }
 
-  // 1. 如果没有卡片数据或没有解读内容，优先发起拉取
-  if (!tarotStore.currentCard || !hasAnyInsight.value) {
+  // 1. 如果没有卡片数据，拉取卡片详情
+  if (!tarotStore.currentCard) {
     isLoadingData.value = true;
     await tarotStore.fetchReading(readingId);
     isLoadingData.value = false;
   }
 
-  // 2. 如果已经拥有解读数据，无需重新推流
-  if (hasAnyInsight.value) {
+  // 2. 如果已经拥有完整解读数据且已推流结束，无需重复推流
+  if (hasAnyInsight.value && tarotStore.isStreamDone) {
     return;
   }
 
-  // 3. 启动流式解读推流
+  // 3. 立即启动流式解读推流
   if (readingId && !tarotStore.isStreamDone && !tarotStore.isStreaming) {
     tarotStore.startStreamingReading(readingId).catch(async (err) => {
       console.warn('[Stream Error]', err);
@@ -181,12 +175,12 @@ onLoad(async (options: any) => {
 });
 
 onMounted(() => {
-  // 设置 3.5 秒网络兜底同步，防止微信 iOS 客户端环境分块未及时分发
+  // 设置网络兜底同步，防止微信 iOS 客户端环境分块未及时分发或丢帧
   fallbackTimer = setTimeout(async () => {
     if (!hasAnyInsight.value && tarotStore.currentReadingId && !tarotStore.streamError) {
       await tarotStore.fetchReading(tarotStore.currentReadingId);
     }
-  }, 3500);
+  }, 1800);
 });
 
 onUnmounted(() => {
@@ -239,15 +233,19 @@ onShareAppMessage(() => {
 .result-container {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
+  height: 100dvh;
   padding: 24rpx 32rpx;
+  padding-bottom: calc(24rpx + env(safe-area-inset-bottom, 20px));
   box-sizing: border-box;
   background-color: #070913;
   color: #ffffff;
+  overflow: hidden;
 }
 
 /* 顶部卡牌概览卡片 */
 .card-summary-card {
+  flex-shrink: 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -344,94 +342,70 @@ onShareAppMessage(() => {
   color: #cbd5e1;
 }
 
-/* 解读滚动区 */
-.reading-scroll-view {
+/* 解读滚动区：采用标准弹性滚动容器，在 iOS / WebKit / Android 下均 100% 顺畅滚动且不塌陷 */
+.reading-scroll-area {
   flex: 1;
-  height: 0;
-  margin-bottom: 24rpx;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 20rpx;
 }
 
 .reading-blocks {
   display: flex;
   flex-direction: column;
   gap: 20rpx;
-  padding-bottom: 20rpx;
-}
-
-/* 大模型刚连接时的呼吸光晕提示 */
-.ai-loading-box {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 80rpx 40rpx;
-  background: rgba(99, 102, 241, 0.05);
-  border: 1px dashed rgba(99, 102, 241, 0.25);
-  border-radius: 28rpx;
-  gap: 24rpx;
-  margin-top: 40rpx;
-}
-
-.sparkle-orbit {
-  font-size: 40rpx;
-  color: #fde047;
-  animation: spin 3s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg) scale(0.9); opacity: 0.7; }
-  50% { transform: rotate(180deg) scale(1.2); opacity: 1; }
-  100% { transform: rotate(360deg) scale(0.9); opacity: 0.7; }
-}
-
-.ai-loading-text {
-  font-size: 24rpx;
-  color: #a5b4fc;
-  text-align: center;
-  line-height: 1.6;
+  padding-bottom: 24rpx;
 }
 
 /* 异常提示卡片 */
 .stream-error-card {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  padding: 40rpx 32rpx;
-  background: rgba(239, 68, 68, 0.08);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  border-radius: 28rpx;
+  padding: 16rpx 20rpx;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  border-radius: 20rpx;
   gap: 16rpx;
-  text-align: center;
-  margin: 30rpx 0;
+  margin-bottom: 20rpx;
+}
+
+.error-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
 }
 
 .error-icon {
-  font-size: 48rpx;
+  font-size: 36rpx;
 }
 
 .error-title {
-  font-size: 28rpx;
+  font-size: 24rpx;
   font-weight: 700;
   color: #fca5a5;
 }
 
 .error-desc {
-  font-size: 24rpx;
+  font-size: 22rpx;
   color: #cbd5e1;
-  line-height: 1.5;
+  line-height: 1.4;
 }
 
 .btn-retry {
-  margin-top: 10rpx;
-  padding: 0 40rpx;
-  height: 60rpx;
-  line-height: 60rpx;
+  padding: 0 24rpx;
+  height: 52rpx;
+  line-height: 52rpx;
   border-radius: 999rpx;
   background: rgba(245, 158, 11, 0.2);
   border: 1px solid rgba(245, 158, 11, 0.5);
   color: #fde047;
-  font-size: 22rpx;
+  font-size: 20rpx;
   font-weight: 600;
+  margin: 0;
 }
 
 /* 5大板块通用卡片 */
@@ -528,36 +502,62 @@ onShareAppMessage(() => {
   grid-template-columns: 1fr 1fr;
   gap: 20rpx;
   flex-shrink: 0;
-  padding-bottom: 20rpx;
+  width: 100%;
+  box-sizing: border-box;
+  padding-bottom: calc(12rpx + env(safe-area-inset-bottom, 10rpx));
+}
+
+.btn-save,
+.btn-poster {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding: 0 10rpx !important;
+  box-sizing: border-box !important;
+  height: 80rpx;
+  border-radius: 20rpx;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  line-height: normal !important;
+}
+
+.btn-save::after,
+.btn-poster::after {
+  border: none !important;
+  display: none !important;
 }
 
 .btn-save {
-  height: 72rpx;
-  border-radius: 16rpx;
-  background: rgba(255, 255, 255, 0.1);
-  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  color: #ffffff !important;
   font-size: 24rpx;
   font-weight: 500;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10rpx;
-  border: none;
+  transition: all 0.2s;
+}
+
+.btn-save-hover,
+.btn-save:active {
+  background: rgba(255, 255, 255, 0.18) !important;
 }
 
 .btn-poster {
-  height: 72rpx;
-  border-radius: 16rpx;
-  background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%);
-  color: #0b0c1b;
+  background: linear-gradient(135deg, #fde047 0%, #eab308 50%, #ca8a04 100%) !important;
+  color: #0b0c1b !important;
   font-size: 24rpx;
   font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10rpx;
-  box-shadow: 0 4rpx 12rpx rgba(245, 158, 11, 0.3);
-  border: none;
+  border: none !important;
+  box-shadow: 0 8rpx 24rpx rgba(234, 179, 8, 0.35);
+  transition: all 0.2s;
+}
+
+.btn-poster-hover,
+.btn-poster:active {
+  transform: scale(0.98);
+  box-shadow: 0 4rpx 12rpx rgba(234, 179, 8, 0.2);
 }
 
 .btn-icon {
