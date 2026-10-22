@@ -67,73 +67,64 @@
       <text>晨起清心 · 静默深呼吸，抽取今日觉察卡</text>
     </view>
 
-    <!-- 3D 核心抽牌翻转舞台 (PRD 2.2) -->
-    <view class="card-stage perspective-1000">
+    <!-- 灵境主台核心卡牌展示台 (升级市面上主流抽卡弹窗体验) -->
+    <view class="altar-stage">
+      <!-- 未抽卡状态：灵境原石卡背与呼吸法阵光晕 -->
       <view
-        class="card-box transform-style-3d"
-        :class="[
-          isCardFlipped ? 'rotate-y-180' : '',
-          isShuffling ? 'is-shuffling' : ''
-        ]"
-        @click="handleCardTap"
+        v-if="!hasDrawnCard"
+        class="altar-card-box altar-card-back gold-border-subtle"
+        hover-class="altar-card-hover"
+        @click="triggerDraw"
       >
-        <!-- 卡牌背面 (从后台接口加载艺术卡背 OSS 资源) -->
-        <view
-          class="card-face card-face-back backface-hidden gold-border"
-          :class="{ 'face-hidden': isCardFlipped }"
-        >
-          <view class="inner-frame">
-            <image
-              class="card-img"
-              :src="tarotStore.cardBackUrl || tarotStore.currentCard?.backImage"
-              mode="aspectFill"
-            />
-            <view class="back-overlay-top">
-              <text class="back-title">ISHTAR TAROT</text>
-            </view>
-            <view class="back-overlay-bottom">
-              <view class="hint-badge">
-                <text class="hint-icon">👆</text>
-                <text class="hint-text">轻触翻转觉察</text>
-              </view>
-            </view>
-          </view>
+        <image
+          class="altar-card-img"
+          :src="tarotStore.cardBackUrl || '/static/tarot/back.jpg'"
+          mode="aspectFill"
+        />
+        <view class="altar-rune-seal">
+          <text class="rune-icon">✦</text>
+          <text class="rune-text">ISHTAR TAROT</text>
+          <text class="rune-icon">✦</text>
         </view>
+        <view class="altar-hint-pill">
+          <text class="altar-hand">🔮</text>
+          <text class="altar-hint-text">轻触开启灵境抽卡</text>
+        </view>
+      </view>
 
-        <!-- 卡牌正面 (使用当前抽出的卡牌后台 OSS 资源) -->
-        <view
-          class="card-face card-face-front backface-hidden rotate-y-180 gold-border"
-          :class="{ 'face-hidden': !isCardFlipped }"
-        >
-          <view class="inner-frame" v-if="displayCard">
-            <!-- 卡牌插画大图 (后台 OSS 直链) -->
-            <image
-              class="card-img"
-              :src="displayCard.image"
-              mode="aspectFill"
-            />
-            <!-- 顶部头衔 -->
-            <view class="front-overlay-top">
-              <text class="card-roman">{{ displayCard.roman || ('#' + displayCard.index) }}</text>
-              <text class="card-name">{{ displayCard.nameCn }}</text>
-              <text class="card-orientation">{{ displayCard.orientationName || '正位' }}</text>
-            </view>
-            <!-- 底部启示 -->
-            <view class="front-overlay-bottom">
-              <view class="card-tags">
-                <text v-for="t in (displayCard.tags || [])" :key="t" class="card-tag-badge">
-                  {{ t }}
-                </text>
-              </view>
-              <text class="card-quote">“{{ displayCard.quote }}”</text>
-            </view>
+      <!-- 已抽卡状态：霸气典藏卡牌展示 -->
+      <view
+        v-else
+        class="altar-card-box altar-card-front gold-border"
+        hover-class="altar-card-hover"
+        @click="openGachaShowcase"
+      >
+        <image
+          class="altar-card-img"
+          :src="displayCard?.imageLarge || displayCard?.image"
+          mode="aspectFill"
+        />
+        <view class="altar-card-top">
+          <text class="altar-roman">{{ displayCard?.roman || ('#' + displayCard?.index) }}</text>
+          <text class="altar-orientation">{{ displayCard?.orientationName || '正位' }}</text>
+        </view>
+        <view class="altar-card-bottom">
+          <text class="altar-name">{{ displayCard?.nameCn }}</text>
+          <view class="altar-tags">
+            <text v-for="t in (displayCard?.tags || []).slice(0, 3)" :key="t" class="altar-tag-item">
+              {{ t }}
+            </text>
+          </view>
+          <view class="altar-preview-badge">
+            <text class="preview-spark">✨</text>
+            <text class="preview-label">轻触体验 3D 全息特写</text>
           </view>
         </view>
       </view>
 
       <view class="stage-hint">
         <text class="hint-label">
-          {{ isCardFlipped ? '✦ 牌面已呈现 · 点击卡片查看深度解读' : '✦ 轻触卡牌或点击下方开始抽牌' }}
+          {{ hasDrawnCard ? '✦ 牌面已唤醒 · 点击卡片体验全屏全息特效 ✦' : '✦ 轻触卡牌或点击下方开启潜意识召唤 ✦' }}
         </text>
       </view>
     </view>
@@ -141,7 +132,7 @@
     <!-- 底部操作按钮栏 -->
     <view class="bottom-actions">
       <button
-        v-if="!isCardFlipped"
+        v-if="!hasDrawnCard"
         class="btn-draw"
         :loading="isLoading"
         :disabled="isLoading"
@@ -152,8 +143,8 @@
       </button>
 
       <view v-else class="action-grid">
-        <view class="btn-reset" hover-class="btn-reset-hover" @click="resetCardState">
-          <text>重置卡牌</text>
+        <view class="btn-reset" hover-class="btn-reset-hover" @click="handleReDrawClick">
+          <text>重新抽牌</text>
         </view>
         <view class="btn-view" hover-class="btn-view-hover" @click="goToResult">
           <text>查看解读报告</text>
@@ -161,6 +152,16 @@
         </view>
       </view>
     </view>
+
+    <!-- 主流游戏级抽卡弹窗 (破茧迸发、万丈光芒与3D全息交互) -->
+    <GachaRevealModal
+      v-model:visible="showGachaModal"
+      :card="tarotStore.currentCard"
+      :cardBackUrl="tarotStore.cardBackUrl"
+      :isLoading="isLoading"
+      @view-result="goToResult"
+      @close="handleModalClose"
+    />
 
     <!-- 能量充盈弹窗 -->
     <EnergyModal
@@ -177,6 +178,7 @@ import { useUserStore } from '../../stores/user';
 import { useTarotStore } from '../../stores/tarot';
 import { apiGetMindTags, type MindTagItem } from '../../api/tarot';
 import EnergyModal from '../../components/EnergyModal.vue';
+import GachaRevealModal from '../../components/GachaRevealModal.vue';
 import type { TarotCard } from '../../types';
 
 const userStore = useUserStore();
@@ -221,9 +223,15 @@ const isShuffling = ref(false);
 const isLoading = ref(false);
 const isVibrating = ref(false);
 const showEnergyModal = ref(false);
+const showGachaModal = ref(false);
 
 const displayCard = computed<TarotCard | null>(() => {
   return tarotStore.currentCard;
+});
+
+// 是否已经抽取了卡牌并在主台呈现
+const hasDrawnCard = computed(() => {
+  return isCardFlipped.value && Boolean(tarotStore.currentCard);
 });
 
 const triggerHaptic = () => {
@@ -284,6 +292,10 @@ onShow(() => {
   }
   tarotStore.fetchCardBackResource().catch(() => {});
   fetchDynamicMindTags(false).catch(() => {});
+
+  if (tarotStore.currentCard) {
+    isCardFlipped.value = true;
+  }
 });
 
 const handleEnergyClick = () => {
@@ -304,7 +316,7 @@ const handleEnergyClick = () => {
 };
 
 /**
- * 抽牌核心交互
+ * 抽牌核心交互：拉起主流游戏级震撼抽卡弹窗
  */
 const triggerDraw = async () => {
   if (isLoading.value) return;
@@ -316,32 +328,19 @@ const triggerDraw = async () => {
     return;
   }
 
+  // 2. 立即拉起全屏抽卡仪式弹窗 (进入蓄势共鸣)
+  showGachaModal.value = true;
   isLoading.value = true;
-  isCardFlipped.value = false;
-  isShuffling.value = true;
   triggerHaptic();
 
   try {
     // 真实发起后台抽牌请求并扣除能量
     await tarotStore.drawCard(userQuestion.value);
-
-    // 维持洗牌动效约 1 秒
-    setTimeout(() => {
-      isShuffling.value = false;
-      isCardFlipped.value = true;
-      isLoading.value = false;
-      triggerHaptic();
-
-      if (tarotStore.currentCard) {
-        uni.showToast({
-          title: `已抽取【${tarotStore.currentCard.nameCn}】`,
-          icon: 'none'
-        });
-      }
-    }, 900);
-  } catch (err: any) {
-    isShuffling.value = false;
+    isCardFlipped.value = true;
     isLoading.value = false;
+  } catch (err: any) {
+    isLoading.value = false;
+    showGachaModal.value = false;
     if (err.message && err.message.includes('消耗完毕')) {
       showEnergyModal.value = true;
     } else {
@@ -353,21 +352,29 @@ const triggerDraw = async () => {
   }
 };
 
-const handleCardTap = () => {
-  if (!isCardFlipped.value) {
-    triggerDraw();
-  } else {
-    goToResult();
-  }
+// 点击已抽取的卡牌，重新拉起全屏全息特写
+const openGachaShowcase = () => {
+  triggerHaptic();
+  showGachaModal.value = true;
 };
 
-const resetCardState = () => {
-  isCardFlipped.value = false;
-  triggerHaptic();
+// 主台点击重新抽牌
+const handleReDrawClick = () => {
+  if (userStore.totalEnergy <= 0) {
+    showEnergyModal.value = true;
+    triggerHaptic();
+    return;
+  }
+  triggerDraw();
+};
+
+const handleModalClose = () => {
+  showGachaModal.value = false;
 };
 
 const goToResult = () => {
   triggerHaptic();
+  showGachaModal.value = false;
   const rid = tarotStore.currentReadingId || uni.getStorageSync('last_reading_id') || '';
   uni.navigateTo({
     url: `/pages/reading/result${rid ? `?id=${rid}` : ''}`
@@ -614,164 +621,133 @@ onShareAppMessage(() => {
   margin-bottom: 24rpx;
 }
 
-/* 3D 抽牌舞台 */
-.card-stage {
+/* 灵境主台核心展示舞台 (升级主流卡牌台与仪式感) */
+.altar-stage {
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 20rpx 0;
+  padding: 24rpx 0;
+  position: relative;
 }
 
-.card-box {
+.altar-card-box {
   width: 380rpx;
   height: 570rpx;
   border-radius: 36rpx;
   position: relative;
-  transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 30rpx 70rpx rgba(15, 23, 42, 0.9);
+  overflow: hidden;
+  box-sizing: border-box;
+  background: #0d0a21;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s ease;
 }
 
-.card-face {
+.altar-card-hover {
+  transform: scale(0.97) translateY(4rpx);
+}
+
+.altar-card-img {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  border-radius: 36rpx;
-  overflow: hidden;
-  box-sizing: border-box;
-  padding: 8rpx;
-  background: #0d0a21;
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-  transform-style: preserve-3d;
 }
 
-.card-face-back {
-  z-index: 2;
-  transform: rotateY(0deg) translateZ(1px);
-  transition: opacity 0.2s ease, visibility 0.2s;
+/* 未抽卡：神秘悬浮卡背 */
+.altar-card-back {
+  border: 2rpx solid rgba(253, 224, 71, 0.45);
+  box-shadow: 0 20rpx 60rpx rgba(0, 0, 0, 0.8), 0 0 30rpx rgba(245, 158, 11, 0.25);
+  animation: altarFloat 3.6s ease-in-out infinite;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24rpx 16rpx;
 }
 
-/* 卡牌正面细节 */
-.card-face-front {
-  background: #090814;
-  z-index: 1;
-  transform: rotateY(180deg) translateZ(1px);
-  transition: opacity 0.2s ease, visibility 0.2s;
+@keyframes altarFloat {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-12rpx); }
+  100% { transform: translateY(0); }
 }
 
-/* 杜绝 iOS WebKit 3D 穿透镜像倒影与文字重叠 (解决 ТОЯАТ ЯАТН21 与 翻转觉察 重影) */
-.face-hidden {
-  opacity: 0 !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
-  z-index: 1 !important;
-}
-
-.card-box.rotate-y-180 .card-face-back {
-  opacity: 0 !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
-  z-index: 1 !important;
-}
-
-.card-box.rotate-y-180 .card-face-front {
-  opacity: 1 !important;
-  visibility: visible !important;
-  z-index: 5 !important;
-}
-
-.card-box:not(.rotate-y-180) .card-face-front {
-  opacity: 0 !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
-  z-index: 1 !important;
-}
-
-.card-box:not(.rotate-y-180) .card-face-back {
-  opacity: 1 !important;
-  visibility: visible !important;
-  z-index: 5 !important;
-}
-
-.inner-frame {
-  width: 100%;
-  height: 100%;
-  border-radius: 28rpx;
-  overflow: hidden;
+.altar-rune-seal {
   position: relative;
-  border: 1px solid rgba(212, 175, 55, 0.4);
+  z-index: 2;
+  margin-top: 20rpx;
+  display: inline-flex;
+  align-items: center;
+  gap: 8rpx;
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(253, 224, 71, 0.4);
+  padding: 6rpx 20rpx;
+  border-radius: 999rpx;
+}
+
+.rune-icon {
+  font-size: 20rpx;
+  color: #fde047;
+}
+
+.rune-text {
+  font-size: 20rpx;
+  font-weight: 600;
+  color: #fef08a;
+  letter-spacing: 3rpx;
+}
+
+.altar-hint-pill {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 8rpx;
+  background: rgba(0, 0, 0, 0.75);
+  border: 1px solid rgba(253, 224, 71, 0.45);
+  border-radius: 999rpx;
+  padding: 10rpx 24rpx;
+  box-shadow: 0 0 16rpx rgba(245, 158, 11, 0.35);
+  animation: pulseHint 2s infinite ease-in-out;
+}
+
+@keyframes pulseHint {
+  0% { transform: scale(0.96); }
+  50% { transform: scale(1.04); }
+  100% { transform: scale(0.96); }
+}
+
+.altar-hand {
+  font-size: 22rpx;
+}
+
+.altar-hint-text {
+  font-size: 22rpx;
+  color: #fde047;
+  font-weight: 600;
+}
+
+/* 已抽卡：典藏正面展示 */
+.altar-card-front {
+  border: 2rpx solid #fde047;
+  box-shadow: 0 20rpx 60rpx rgba(0, 0, 0, 0.8), 0 0 40rpx rgba(245, 158, 11, 0.4);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 }
 
-.card-img {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
-
-.back-overlay-top {
-  position: relative;
-  z-index: 2;
-  text-align: center;
-  padding-top: 20rpx;
-}
-
-.back-title {
-  font-size: 20rpx;
-  color: #fef08a;
-  letter-spacing: 4rpx;
-  background: rgba(0, 0, 0, 0.6);
-  padding: 4rpx 16rpx;
-  border-radius: 999rpx;
-  border: 1px solid rgba(212, 175, 55, 0.3);
-}
-
-.back-overlay-bottom {
-  position: relative;
-  z-index: 2;
-  text-align: center;
-  padding-bottom: 24rpx;
-}
-
-.hint-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8rpx;
-  background: rgba(0, 0, 0, 0.7);
-  border: 1px solid rgba(212, 175, 55, 0.4);
-  border-radius: 999rpx;
-  padding: 8rpx 24rpx;
-}
-
-.hint-icon {
-  font-size: 20rpx;
-}
-
-.hint-text {
-  font-size: 22rpx;
-  color: #fde047;
-  font-weight: 500;
-}
-
-.front-overlay-top {
+.altar-card-top {
   position: relative;
   z-index: 2;
   padding: 16rpx 20rpx;
-  background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 60%, transparent 100%);
+  background: linear-gradient(180deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 60%, transparent 100%);
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.card-roman {
+.altar-roman {
   font-size: 20rpx;
   color: #fde047;
   font-family: serif;
@@ -781,13 +757,7 @@ onShareAppMessage(() => {
   border: 1px solid rgba(212, 175, 55, 0.3);
 }
 
-.card-name {
-  font-size: 28rpx;
-  font-weight: 700;
-  color: #ffffff;
-}
-
-.card-orientation {
+.altar-orientation {
   font-size: 20rpx;
   color: #fef08a;
   background: rgba(245, 158, 11, 0.3);
@@ -796,28 +766,60 @@ onShareAppMessage(() => {
   border: 1px solid rgba(245, 158, 11, 0.4);
 }
 
-.front-overlay-bottom {
+.altar-card-bottom {
   position: relative;
   z-index: 2;
-  padding: 20rpx 16rpx;
-  background: linear-gradient(0deg, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.7) 70%, transparent 100%);
+  padding: 20rpx 16rpx 16rpx 16rpx;
+  background: linear-gradient(0deg, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.7) 65%, transparent 100%);
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
 }
 
-.card-tags {
+.altar-name {
+  font-size: 32rpx;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 2rpx;
+  text-shadow: 0 2rpx 8rpx rgba(0,0,0,0.8);
+}
+
+.altar-tags {
   display: flex;
   justify-content: center;
   gap: 8rpx;
-  margin-bottom: 8rpx;
+  flex-wrap: wrap;
 }
 
-.card-tag-badge {
+.altar-tag-item {
   font-size: 18rpx;
   color: #fef08a;
   background: rgba(245, 158, 11, 0.2);
   border: 1px solid rgba(245, 158, 11, 0.35);
   padding: 2rpx 12rpx;
   border-radius: 999rpx;
+}
+
+.altar-preview-badge {
+  margin-top: 6rpx;
+  display: inline-flex;
+  align-items: center;
+  gap: 6rpx;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(253, 224, 71, 0.3);
+  border-radius: 999rpx;
+  padding: 4rpx 18rpx;
+}
+
+.preview-spark {
+  font-size: 18rpx;
+}
+
+.preview-label {
+  font-size: 20rpx;
+  color: #cbd5e1;
 }
 
 .card-quote {
