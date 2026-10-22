@@ -1,6 +1,28 @@
 import { request } from '../utils/request';
 import type { TarotCard, DrawCardResult, HistoryRecord } from '../types';
 
+export interface MindTagItem {
+  name: string;
+  hint: string;
+  prompt: string;
+  category: string;
+}
+
+export interface MindTagResponse {
+  period: string;
+  periodName: string;
+  greeting: string;
+  tags: MindTagItem[];
+}
+
+export function apiGetMindTags(excludeNames: string[] = []): Promise<MindTagResponse> {
+  const query = excludeNames.length > 0 ? `?exclude=${encodeURIComponent(excludeNames.join(','))}` : '';
+  return request<MindTagResponse>({
+    url: `/api/v1/tarot/mind-tags${query}`,
+    method: 'GET'
+  });
+}
+
 export interface CardResourceResult {
   card: TarotCard;
   assets: {

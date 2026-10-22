@@ -250,40 +250,97 @@ export const useTarotStore = defineStore('tarot', {
 
     /**
      * 实时精准解析大模型五段式内容（严格保证真实大模型输出，杜绝任何默认与 Mock 填充）
+     * 1. 彻底防泄漏：严禁下一个板块的标题（如【思维盲区...】）出现在前一个板块末尾
+     * 2. 彻底去除【】：正念行动建议全面剔除任何【】分类标签与小标题，仅保留纯粹可落地的编号行动
      */
     parseStructuredText(raw: string) {
       if (!raw || !raw.trim()) return;
 
+      const HEADER_2 = '【(?:意象投射与潜意识映射|潜意识意象投射|潜意识映射|潜意识意象|意象投射|心理投射|潜意识)】';
+      const HEADER_3 = '【(?:思维盲区与视角转念|思维盲区与转念|认知盲区与转念|思维盲区|视角转念|认知盲区|挑战与转念)】';
+      const HEADER_4 = '【(?:正念行动微建议|今日正念行动建议|正念行动建议|正念微行动|行动微建议|正念行动|行动建议)】';
+      const HEADER_5 = '【(?:赋能金句|心灵真言|心灵箴言|赋能箴言|今日金句|心灵金句|真言)】';
+
+      // 辅助清洗函数：剥离末尾正在流入的下一个板块的开头，防止下一板块标题泄漏到当前板块末尾
+      const cleanTrailingHeader = (text: string) => {
+        if (!text) return '';
+        let cleaned = text.replace(/\s*【[^】\n\r]*$/, '');
+        cleaned = cleaned.replace(/\s*【(?:思维盲区|视角转念|认知盲区|正念行动|行动微建议|行动建议|赋能金句|心灵真言|今日金句|真言)[^】\n\r]*】[：:]?\s*$/, '');
+        return cleaned.trim();
+      };
+
+      // 彻底清洗正念行动建议：去除多余重复序号（如 1. 1.）及各类小标题标签（如 深度反思：、模拟实验：、模拟实现：、心智练习：等），直接保留纯粹正文
+      const cleanGuidanceContent = (text: string) => {
+        if (!text) return '';
+        const rawParagraphs = text.split(/\n+/);
+        const cleanedParagraphs = rawParagraphs.map(p => {
+          let l = p.trim();
+          if (!l) return '';
+
+          // 匹配 1. 或 2. 等序号开头的条目
+          const numMatch = l.match(/^(\d+[\.、]\s*)(.*)$/);
+          if (numMatch) {
+            const numPrefix = numMatch[1].replace('、', '.'); // 统一格式为 1. 或 2.
+            let rest = numMatch[2].trim();
+
+            // 1. 去除多余重复出现的序号，如 1. 1. 或 1. 1 或 2. 2.
+            rest = rest.replace(/^\d+[\.、]?\s*/, '');
+
+            // 2. 去除【...】及其后的冒号
+            rest = rest.replace(/^【[^】]+】[：:]?\s*/, '');
+
+            // 3. 去除各种常见的小标题前缀（如 深度反思：、深度觉察：、模拟实验：、模拟实现：、心智练习：、行为实验：等）
+            rest = rest.replace(/^(?:深度反思|深度觉察|模拟实验|模拟实现|行为实验|习惯实验|心智练习|内在觉察|现实行动|认知转念|微习惯)[：:]?\s*/, '');
+
+            // 4. 去除通用的 2-6 字小标题带冒号
+            rest = rest.replace(/^[\u4e00-\u9fa5]{2,6}[：:]\s*/, '');
+
+            // 5. 如果处于流式输入中途，正好只打出了小标题词但还没打冒号正文，也提前清除
+            rest = rest.replace(/^(?:深度反思|深度觉察|模拟实验|模拟实现|行为实验|习惯实验|心智练习|内在觉察|现实行动)$/, '');
+
+            return numPrefix + rest;
+          }
+
+          // 非数字开头的行，同样清洗可能存在的小标题前缀
+          l = l.replace(/^【[^】]+】[：:]?\s*/, '');
+          l = l.replace(/^(?:深度反思|深度觉察|模拟实验|模拟实现|行为实验|习惯实验|心智练习|内在觉察|现实行动|认知转念|微习惯)[：:]?\s*/, '');
+          l = l.replace(/^[\u4e00-\u9fa5]{2,6}[：:]\s*/, '');
+          return l;
+        }).filter(Boolean);
+
+        return cleanedParagraphs.join('\n\n');
+      };
+
       // 1. 今日心灵定调
-      const catMatch = raw.match(/【(?:今日)?(?:心灵|能量)?定调】[：:]?\s*([^\n\r【]+)/);
+      const catMatch = raw.match(new RegExp(`【(?:今日)?(?:核心)?(?:心灵|能量)?(?:定调|主题)】[：:]?\\s*([^\\n\\r]+?)(?=(?:${HEADER_2}|${HEADER_3}|${HEADER_4}|${HEADER_5})|\\n|\\r|$)`));
       if (catMatch && catMatch[1] && catMatch[1].trim()) {
-        this.structuredInsight.category = catMatch[1].trim();
+        this.structuredInsight.category = cleanTrailingHeader(catMatch[1].trim().replace(/^[“"']+|[”"']+$/g, ''));
       }
 
       // 2. 意象投射与潜意识映射
-      const insightMatch = raw.match(/【(?:意象投射与潜意识映射|潜意识意象投射|潜意识意象|意象投射|心理投射|潜意识)】[：:]?\s*([\s\S]*?)(?=【|$)/);
+      const insightMatch = raw.match(new RegExp(`${HEADER_2}[：:]?\\s*([\\s\\S]*?)(?=(?:${HEADER_3}|${HEADER_4}|${HEADER_5})|$)`));
       if (insightMatch && insightMatch[1] && insightMatch[1].trim()) {
-        this.structuredInsight.insight = insightMatch[1].trim();
+        this.structuredInsight.insight = cleanTrailingHeader(insightMatch[1].trim());
       } else if (!raw.includes('【') && raw.trim()) {
-        this.structuredInsight.insight = raw.trim();
+        this.structuredInsight.insight = cleanTrailingHeader(raw.trim());
       }
 
       // 3. 思维盲区与视角转念
-      const challengeMatch = raw.match(/【(?:思维盲区与视角转念|思维盲区与转念|思维盲区|挑战与转念)】[：:]?\s*([\s\S]*?)(?=【|$)/);
+      const challengeMatch = raw.match(new RegExp(`${HEADER_3}[：:]?\\s*([\\s\\S]*?)(?=(?:${HEADER_4}|${HEADER_5})|$)`));
       if (challengeMatch && challengeMatch[1] && challengeMatch[1].trim()) {
-        this.structuredInsight.challenge = challengeMatch[1].trim();
+        this.structuredInsight.challenge = cleanTrailingHeader(challengeMatch[1].trim());
       }
 
-      // 4. 正念行动微建议
-      const guidanceMatch = raw.match(/【(?:正念行动微建议|今日正念行动建议|正念行动建议|行动微建议|正念行动|行动建议)】[：:]?\s*([\s\S]*?)(?=【|$)/);
+      // 4. 正念行动微建议（必须以第5段【赋能金句】或结束符作为边界，且彻底剔除【】分类标签）
+      const guidanceMatch = raw.match(new RegExp(`${HEADER_4}[：:]?\\s*([\\s\\S]*?)(?=(?:${HEADER_5})|$)`));
       if (guidanceMatch && guidanceMatch[1] && guidanceMatch[1].trim()) {
-        this.structuredInsight.guidance = guidanceMatch[1].trim();
+        this.structuredInsight.guidance = cleanGuidanceContent(cleanTrailingHeader(guidanceMatch[1].trim()));
       }
 
       // 5. 赋能金句 / 心灵真言
-      const affMatch = raw.match(/【(?:赋能金句|心灵真言|心灵箴言|赋能箴言|今日金句|真言)】[：:]?\s*[“"']?([^”"'\n\r【]+)[”"']?/);
+      const affMatch = raw.match(new RegExp(`${HEADER_5}[：:]?\\s*[“"'\`]?([^”"'\`\\n\\r]+)[”"'\`]?`));
       if (affMatch && affMatch[1] && affMatch[1].trim()) {
-        this.structuredInsight.affirmation = affMatch[1].trim();
+        this.structuredInsight.affirmation = affMatch[1].trim().replace(/^[“"']+|[”"']+$/g, '');
       }
     }
   }

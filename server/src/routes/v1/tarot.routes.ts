@@ -7,6 +7,9 @@ const router = Router();
 // 卡牌档案库（公开）
 router.get('/cards', TarotController.getCards);
 
+// 时辰心绪动态推荐标签 (公开接口，支持换一批)
+router.get('/mind-tags', TarotController.getMindTags);
+
 // AI 智能识别与卡牌对应 OSS 页面资源检索 (支持 GET / POST)
 router.get('/card-resource', TarotController.matchCardResource);
 router.post('/card-resource', TarotController.matchCardResource);

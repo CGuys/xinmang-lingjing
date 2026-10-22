@@ -270,28 +270,36 @@ export class AiService {
 卡牌核心象征：${cardMeta?.tags?.join(' / ') || ''}。
 卡牌心理投射原型：${cardMeta?.insight || ''}。
 
-请严格根据 System Prompt 的五段结构进行流式解读：`;
+【解读要求】：
+请严格根据 System Prompt 的五段结构进行流式解读。特别在【正念行动微建议】部分，必须针对来访者的困惑与本张卡牌特质给出 2 条深度定制、互不相同的具体方案，严格输出两行，直接以“1. ”和“2. ”开头输出具体建议内容（严禁出现“1. 1.”等重复序号，严禁包含“深度反思：”、“模拟实验：”、“模拟实现：”等任何小标题或冒号标签，直接输出正文内容），杜绝“与信任的朋友或家人讨论”、“寻求专业人士交流”等千篇一律的模板套话！`;
 
         const rawBase = (aiConfig.baseUrl || 'https://open.bigmodel.cn/api/paas/v4').replace(/\/+$/, '');
         const completionsUrl = rawBase.endsWith('/chat/completions')
           ? rawBase
           : `${rawBase}/chat/completions`;
 
-        // 智能模型切换与容错：首选配置的模型 (如 glm-4.7-flash)，如果遇到 1305 官方并发/流量过载，自动降级备选模型 (glm-4-flash)
-        const primaryModel = aiConfig.model || 'glm-4.7-flash';
-        const candidateModels = [primaryModel];
-        if (primaryModel.includes('glm-4.7') || primaryModel.includes('4.7')) {
-          candidateModels.push('glm-4-flash');
-        } else if (primaryModel === 'glm-4-flash') {
-          candidateModels.push('glm-4-flashx');
+        // 智能模型切换与容错：构建高可用备选候选模型链
+        const configuredModel = (aiConfig.model || 'glm-4-flash').trim();
+        const candidateModels: string[] = [];
+        if (configuredModel === 'glm-4.7-flash') {
+          // 4.7-flash 官方并发压力大易报 1305，优先使用极速稳定的 glm-4-flash / glm-4-flashx 作为主力
+          candidateModels.push('glm-4-flash', 'glm-4-flashx', 'glm-4.7-flash');
+        } else {
+          candidateModels.push(configuredModel);
+          if (configuredModel === 'glm-4-flash') {
+            candidateModels.push('glm-4-flashx');
+          } else if (configuredModel.includes('glm')) {
+            candidateModels.push('glm-4-flash', 'glm-4-flashx');
+          }
         }
 
-        let response: any = null;
-        let lastReqError: any = null;
+        let streamSucceeded = false;
+        let lastErrorMsg = '';
 
         for (const candidate of candidateModels) {
+          fullText = '';
           try {
-            response = await axios({
+            const response = await axios({
               method: 'post',
               url: completionsUrl,
               headers: {
@@ -310,54 +318,60 @@ export class AiService {
                 stream: true
               },
               responseType: 'stream',
-              timeout: 60000
+              timeout: 45000
             });
-            break;
+
+            // 维护行缓冲区，防止 TCP 分包切断 JSON 行
+            let streamBuffer = '';
+            await new Promise<void>((resolve, reject) => {
+              response.data.on('data', (chunk: Buffer) => {
+                streamBuffer += chunk.toString('utf8');
+                const lines = streamBuffer.split('\n');
+                streamBuffer = lines.pop() || '';
+
+                for (const line of lines) {
+                  const trimmed = line.trim();
+                  if (!trimmed || !trimmed.startsWith('data:')) continue;
+                  if (trimmed === 'data: [DONE]' || trimmed === 'data:[DONE]') {
+                    continue;
+                  }
+
+                  try {
+                    const jsonStr = trimmed.replace(/^data:\s*/, '');
+                    const parsed = JSON.parse(jsonStr);
+                    if (parsed.error) {
+                      console.warn(`[AiService] 模型【${candidate}】流内返回错误:`, parsed.error);
+                      continue;
+                    }
+                    const content = parsed.choices?.[0]?.delta?.content || '';
+                    if (content) {
+                      fullText += content;
+                      sendSseEvent({ type: 'chunk', text: content });
+                    }
+                  } catch (e) {
+                    // 忽略不完整片段
+                  }
+                }
+              });
+
+              response.data.on('end', () => resolve());
+              response.data.on('error', (err: any) => reject(err));
+            });
+
+            if (fullText && fullText.trim().length > 0) {
+              streamSucceeded = true;
+              break;
+            } else {
+              console.warn(`[AiService] 模型【${candidate}】未产生有效输出内容，自动切换备选模型...`);
+            }
           } catch (e: any) {
-            lastReqError = e;
-            console.warn(`[AiService] 模型【${candidate}】调用受限或繁忙，尝试降级备选模型...`);
+            lastErrorMsg = e.response?.data?.error?.message || e.message;
+            console.warn(`[AiService] 模型【${candidate}】调用失败 (${lastErrorMsg})，自动尝试备选模型...`);
           }
         }
 
-        if (!response) {
-          throw lastReqError || new Error('大模型连接建立失败');
-        }
-
-        // 维护行缓冲区，防止 TCP 分包切断 JSON 行
-        let streamBuffer = '';
-        response.data.on('data', (chunk: Buffer) => {
-          streamBuffer += chunk.toString('utf8');
-          const lines = streamBuffer.split('\n');
-          streamBuffer = lines.pop() || '';
-
-          for (const line of lines) {
-            const trimmed = line.trim();
-            if (!trimmed || !trimmed.startsWith('data:')) continue;
-            if (trimmed === 'data: [DONE]' || trimmed === 'data:[DONE]') {
-              continue;
-            }
-
-            try {
-              const jsonStr = trimmed.replace(/^data:\s*/, '');
-              const parsed = JSON.parse(jsonStr);
-              const content = parsed.choices?.[0]?.delta?.content || '';
-              if (content) {
-                fullText += content;
-                sendSseEvent({ type: 'chunk', text: content });
-              }
-            } catch (e) {
-              // 忽略不完整片段
-            }
-          }
-        });
-
-        await new Promise((resolve, reject) => {
-          response.data.on('end', resolve);
-          response.data.on('error', reject);
-        });
-
-        if (!fullText || fullText.trim().length === 0) {
-          throw new Error('大模型未产生有效输出内容');
+        if (!streamSucceeded || !fullText || fullText.trim().length === 0) {
+          throw new Error(lastErrorMsg || '大模型未产生有效输出内容');
         }
 
         // 解读成功：固化记录为 completed

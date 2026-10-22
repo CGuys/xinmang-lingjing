@@ -50,7 +50,7 @@
           <view class="footer-qr">
             <image
               class="qr-img"
-              src="/static/mp_qrcode.png"
+              :src="posterQrCodePath || '/static/mp_qrcode.png'"
               mode="aspectFit"
             />
           </view>
@@ -115,6 +115,7 @@ import { onShareAppMessage, onShareTimeline } from '@dcloudio/uni-app';
 import { useTarotStore } from '../../stores/tarot';
 import { useUserStore } from '../../stores/user';
 import { renderTarotPoster } from '../../utils/canvas';
+import { getShareQrcodeUrl } from '../../api/share';
 import type { TarotCard } from '../../types';
 
 const tarotStore = useTarotStore();
@@ -123,6 +124,7 @@ const userStore = useUserStore();
 const isSaving = ref(false);
 const isGenerating = ref(false);
 const generatedFilePath = ref('');
+const posterQrCodePath = ref('');
 
 const card = computed<TarotCard | null>(() => {
   return tarotStore.currentCard;
@@ -153,7 +155,44 @@ const quoteText = computed(() => {
   );
 });
 
-onMounted(() => {
+/**
+ * 动态加载当前用户专属的小程序裂变码（带 scene=uid=xxx）
+ */
+const loadExclusiveQrcode = async (): Promise<string> => {
+  if (posterQrCodePath.value) return posterQrCodePath.value;
+  const uid = userStore.userId;
+  if (!uid) return '/static/mp_qrcode.png';
+
+  return new Promise((resolve) => {
+    // #ifdef MP-WEIXIN
+    const downloadUrl = getShareQrcodeUrl(uid);
+    uni.downloadFile({
+      url: downloadUrl,
+      success: (res) => {
+        if (res.statusCode === 200 && res.tempFilePath) {
+          posterQrCodePath.value = res.tempFilePath;
+          resolve(res.tempFilePath);
+        } else {
+          resolve('/static/mp_qrcode.png');
+        }
+      },
+      fail: () => {
+        resolve('/static/mp_qrcode.png');
+      }
+    });
+    // #endif
+
+    // #ifndef MP-WEIXIN
+    const qrcodeUrl = getShareQrcodeUrl(uid);
+    posterQrCodePath.value = qrcodeUrl;
+    resolve(qrcodeUrl);
+    // #endif
+  });
+};
+
+onMounted(async () => {
+  // 提前预拉取专属小程序码
+  await loadExclusiveQrcode();
   // 进入页面静默预渲染海报，提高用户点击保存时的响应速度
   setTimeout(() => {
     generatePosterQuietly();
@@ -171,13 +210,14 @@ const generatePosterQuietly = () => {
 /**
  * 核心 Canvas 2D 海报渲染逻辑
  */
-const generatePosterCore = (callback: (path: string) => void) => {
+const generatePosterCore = async (callback: (path: string) => void) => {
   if (!card.value) {
     callback('');
     return;
   }
 
   isGenerating.value = true;
+  const qrcodeFile = await loadExclusiveQrcode();
 
   // #ifdef MP-WEIXIN
   const query = uni.createSelectorQuery();
@@ -198,7 +238,7 @@ const generatePosterCore = (callback: (path: string) => void) => {
           dateStr: todayFormatted.value,
           tag: energyTag.value,
           quote: quoteText.value,
-          qrcodeUrl: '/static/mp_qrcode.png'
+          qrcodeUrl: qrcodeFile || '/static/mp_qrcode.png'
         });
         generatedFilePath.value = tempPath;
         isGenerating.value = false;

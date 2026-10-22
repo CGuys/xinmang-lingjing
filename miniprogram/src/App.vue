@@ -4,9 +4,25 @@ import { useUserStore } from "./stores/user";
 
 onLaunch((options) => {
   const userStore = useUserStore();
-  // 捕获分享裂变带来的 inviter_id 参数
-  if (options?.query && options.query.inviter_id) {
-    userStore.setInviterId(options.query.inviter_id);
+  // 捕获分享裂变带来的 inviter_id 参数（支持普通分享 query 与朋友圈扫码 scene 参数）
+  let inviterId = options?.query?.inviter_id;
+  if (!inviterId && options?.query?.scene) {
+    try {
+      const decodedScene = decodeURIComponent(options.query.scene);
+      if (/^[0-9a-fA-F]{32}$/.test(decodedScene)) {
+        inviterId = `${decodedScene.slice(0, 8)}-${decodedScene.slice(8, 12)}-${decodedScene.slice(12, 16)}-${decodedScene.slice(16, 20)}-${decodedScene.slice(20)}`;
+      } else if (decodedScene.startsWith('uid=')) {
+        inviterId = decodedScene.replace('uid=', '');
+      } else {
+        inviterId = decodedScene;
+      }
+    } catch (e) {
+      console.warn('[Parse scene error]', e);
+    }
+  }
+
+  if (inviterId) {
+    userStore.setInviterId(inviterId);
   }
   // 静默登录
   userStore.silentLogin();

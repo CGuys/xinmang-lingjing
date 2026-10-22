@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { TarotService } from '../services/tarot.service';
 import { AiService } from '../services/ai.service';
+import { MindTagService } from '../services/mind-tag.service';
 import { AppError } from '../middlewares/error.middleware';
 
 export class TarotController {
@@ -154,6 +155,25 @@ export class TarotController {
         code: 'SUCCESS',
         message: '获取抽牌记录成功',
         data: reading
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  /**
+   * 获取当下时辰推荐的心绪标签池 (支持换一批)
+   */
+  static async getMindTags(req: Request, res: Response, next: NextFunction) {
+    try {
+      const period = req.query.period as string | undefined;
+      const exclude = typeof req.query.exclude === 'string' ? req.query.exclude.split(',') : [];
+      const data = await MindTagService.getRecommendedTags(period, exclude);
+
+      res.json({
+        code: 'SUCCESS',
+        message: '获取推荐标签成功',
+        data
       });
     } catch (err) {
       next(err);

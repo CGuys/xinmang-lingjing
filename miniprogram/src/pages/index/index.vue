@@ -29,7 +29,7 @@
     <!-- 意念/困惑输入模块 (PRD 2.2) -->
     <view v-if="!userStore.isInReview" class="question-card">
       <view class="question-header">
-        <text class="question-title">🪶 输入当下的困惑或心绪：</text>
+        <text class="question-title">{{ currentGreeting || '🪶 输入当下的困惑或心绪：' }}</text>
         <text class="char-count">{{ userQuestion.length }}/50</text>
       </view>
       <input
@@ -40,16 +40,26 @@
         placeholder="例如：面临职业转折，不知道是该坚守还是探索新方向..."
         placeholder-class="placeholder-style"
       />
-      <!-- 快捷预设标签 -->
-      <view class="tag-row">
-        <view
-          v-for="tag in presetTags"
-          :key="tag"
-          class="preset-tag"
-          :class="{ 'preset-tag-selected': userQuestion.includes(tag) }"
-          @click="selectPresetTag(tag)"
-        >
-          <text>【{{ tag }}】</text>
+      <!-- 快捷预设心绪标签 (时辰心境 + AI/大数据动态推荐) -->
+      <view class="tag-section">
+        <view class="tag-section-header">
+          <text class="tag-hint-label">✨ {{ periodName ? `${periodName}心境推荐：` : '当下潜意识共鸣：' }}</text>
+          <view class="btn-refresh-tags" :class="{ 'refreshing-spin': isRefreshingTags }" @click="handleRefreshTags">
+            <text class="refresh-icon">🎲</text>
+            <text class="refresh-text">换一批</text>
+          </view>
+        </view>
+        <view class="tag-row">
+          <view
+            v-for="item in currentMindTags"
+            :key="item.name"
+            class="preset-tag"
+            :class="{ 'preset-tag-selected': selectedTagName === item.name || userQuestion.includes(item.name) }"
+            @click="selectMindTag(item)"
+          >
+            <text class="tag-main-text">【{{ item.name }}】</text>
+            <text v-if="item.hint" class="tag-sub-hint">{{ item.hint }}</text>
+          </view>
         </view>
       </view>
     </view>
@@ -165,14 +175,46 @@ import { ref, computed } from 'vue';
 import { onShow, onShareAppMessage } from '@dcloudio/uni-app';
 import { useUserStore } from '../../stores/user';
 import { useTarotStore } from '../../stores/tarot';
+import { apiGetMindTags, type MindTagItem } from '../../api/tarot';
 import EnergyModal from '../../components/EnergyModal.vue';
 import type { TarotCard } from '../../types';
 
 const userStore = useUserStore();
 const tarotStore = useTarotStore();
 
-const userQuestion = ref('面临职业转折，不知道是该坚守还是探索新方向...');
-const presetTags = ['自我探索', '亲密关系', '职场瓶颈', '今日灵感'];
+const userQuestion = ref('');
+const periodName = ref('当下');
+const currentGreeting = ref('');
+const isRefreshingTags = ref(false);
+const selectedTagName = ref('');
+
+// 本地离线高质感心理学初始心绪池 (保障首屏秒开无任何白屏/闪烁)
+const currentMindTags = ref<MindTagItem[]>([
+  {
+    name: '职场瓶颈',
+    hint: '突破平台期',
+    prompt: '当前职业发展陷入平台期或迷茫，希望发现隐藏的突破契机与资源',
+    category: '职场发展'
+  },
+  {
+    name: '人际沟通',
+    hint: '化解关系张力',
+    prompt: '面对复杂微妙的合作与人际沟通，希望看清认知盲区与平衡之道',
+    category: '人际互动'
+  },
+  {
+    name: '情绪内耗',
+    hint: '中止无序自耗',
+    prompt: '工作推进中感到疲惫与精神内耗，希望找寻能量回血的关键切入点',
+    category: '情绪调适'
+  },
+  {
+    name: '亲密关系',
+    hint: '探察真实联结',
+    prompt: '在亲密关系中感到隐秘的不安或隔阂，希望看见彼此真实的心理联结',
+    category: '亲密情感'
+  }
+]);
 
 const isCardFlipped = ref(false);
 const isShuffling = ref(false);
@@ -182,13 +224,6 @@ const showEnergyModal = ref(false);
 
 const displayCard = computed<TarotCard | null>(() => {
   return tarotStore.currentCard;
-});
-
-onShow(() => {
-  if (userStore.isLoggedIn) {
-    userStore.fetchProfile().catch(() => {});
-  }
-  tarotStore.fetchCardBackResource().catch(() => {});
 });
 
 const triggerHaptic = () => {
@@ -208,10 +243,48 @@ const triggerHaptic = () => {
   }
 };
 
-const selectPresetTag = (tag: string) => {
-  userQuestion.value = `当下面临【${tag}】方面的困惑与选择，希望获得潜意识指引`;
+/**
+ * 获取当下时辰的动态大数据/AI 推荐心绪标签
+ */
+const fetchDynamicMindTags = async (isManualRefresh = false) => {
+  if (isRefreshingTags.value) return;
+  isRefreshingTags.value = true;
+  if (isManualRefresh) triggerHaptic();
+
+  try {
+    const exclude = isManualRefresh ? currentMindTags.value.map((t) => t.name) : [];
+    const res = await apiGetMindTags(exclude);
+    if (res && res.tags && res.tags.length > 0) {
+      currentMindTags.value = res.tags;
+      periodName.value = res.periodName || '时辰';
+      currentGreeting.value = res.greeting || '';
+    }
+  } catch (e) {
+    console.warn('[fetchDynamicMindTags fallback to local cache]', e);
+  } finally {
+    setTimeout(() => {
+      isRefreshingTags.value = false;
+    }, 300);
+  }
+};
+
+const handleRefreshTags = () => {
+  fetchDynamicMindTags(true);
+};
+
+const selectMindTag = (item: MindTagItem) => {
+  selectedTagName.value = item.name;
+  userQuestion.value = item.prompt;
   triggerHaptic();
 };
+
+onShow(() => {
+  if (userStore.isLoggedIn) {
+    userStore.fetchProfile().catch(() => {});
+  }
+  tarotStore.fetchCardBackResource().catch(() => {});
+  fetchDynamicMindTags(false).catch(() => {});
+});
 
 const handleEnergyClick = () => {
   if (userStore.totalEnergy <= 0) {
@@ -442,26 +515,92 @@ onShareAppMessage(() => {
   font-size: 24rpx;
 }
 
+.tag-section {
+  margin-top: 18rpx;
+}
+
+.tag-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14rpx;
+}
+
+.tag-hint-label {
+  font-size: 20rpx;
+  color: #94a3b8;
+  letter-spacing: 0.5rpx;
+}
+
+.btn-refresh-tags {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+  padding: 4rpx 14rpx;
+  border-radius: 999rpx;
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  font-size: 20rpx;
+  color: #fde047;
+  transition: all 0.2s ease;
+}
+
+.btn-refresh-tags:active {
+  transform: scale(0.95);
+  background: rgba(245, 158, 11, 0.2);
+}
+
+.refresh-icon {
+  font-size: 20rpx;
+}
+
+.refreshing-spin .refresh-icon {
+  animation: tagSpin 0.6s linear infinite;
+}
+
+@keyframes tagSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 .tag-row {
   display: flex;
   flex-wrap: wrap;
   gap: 12rpx;
-  margin-top: 16rpx;
 }
 
 .preset-tag {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
   font-size: 22rpx;
   padding: 8rpx 16rpx;
-  border-radius: 12rpx;
+  border-radius: 14rpx;
   background: rgba(255, 255, 255, 0.05);
   color: #cbd5e1;
   border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.2s ease;
+}
+
+.tag-main-text {
+  font-size: 22rpx;
+}
+
+.tag-sub-hint {
+  font-size: 18rpx;
+  color: #94a3b8;
+  opacity: 0.85;
 }
 
 .preset-tag-selected {
-  background: rgba(245, 158, 11, 0.25);
+  background: rgba(245, 158, 11, 0.22);
   color: #fef08a;
-  border-color: rgba(245, 158, 11, 0.5);
+  border-color: rgba(245, 158, 11, 0.55);
+  box-shadow: 0 0 12rpx rgba(245, 158, 11, 0.2);
+}
+
+.preset-tag-selected .tag-sub-hint {
+  color: #fde047;
 }
 
 .review-greeting {
