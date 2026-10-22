@@ -104,9 +104,38 @@ npm run dev:mp-weixin
    - **AppID**：使用您的微信小程序 AppID（已内置配置）
    - **不校验合法域名**：开发设置中勾选「不校验合法域名、web-view（业务域名）、TLS版本以及HTTPS证书」
 
-#### 方式 B：打包构建模式
+#### 方式 B：打包构建模式（支持指定生产/测试/开发环境）
+
+**快捷脚本构建（推荐）：**
+在项目根目录下直接运行交互式构建脚本：
+```bash
+./build-miniprogram.sh          # 交互式选择环境
+./build-miniprogram.sh prod     # 生产环境 / 云端体验版 (http://8.148.201.178)
+./build-miniprogram.sh dev      # 本地开发环境 (http://192.168.110.41:3000)
+./build-miniprogram.sh test     # 独立测试环境
+```
+
+**npm 命令构建：**
 ```bash
 cd miniprogram
-npm run build:mp-weixin
+
+# 1. 生产环境 / 云端体验版 (默认):
+npm run build:mp-weixin:prod
+# 或直接: npm run build:mp-weixin
+
+# 2. 本地开发环境 (局域网联调):
+npm run build:mp-weixin:dev
+
+# 3. 独立测试环境:
+npm run build:mp-weixin:test
 ```
 微信开发者工具导入目录：`/Users/clao/心芒灵境/miniprogram/dist/build/mp-weixin`。
+
+---
+
+## 🌍 环境变量说明 (`.env`)
+
+小程序支持基于 Vite 的多环境配置文件：
+- `.env.production`：生产环境 / 云端体验版配置，默认 API 为 `http://8.148.201.178`
+- `.env.development`：本地开发环境配置，默认 API 为 `http://192.168.110.41:3000`
+- `.env.test`：测试环境配置

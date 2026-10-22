@@ -1,7 +1,9 @@
 /**
  * 应用全局配置
  */
-const DEFAULT_API_BASE = 'http://192.168.110.41:3000';
+// 优先从环境变量读取构建目标 API，若未指定则兜底局域网开发地址
+const ENV_API_BASE = (import.meta.env.VITE_API_BASE as string | undefined)?.trim();
+const DEFAULT_API_BASE = ENV_API_BASE || 'http://192.168.110.41:3000';
 
 export const getApiBaseUrl = (): string => {
   try {
@@ -28,5 +30,8 @@ export const APP_CONFIG = {
   appName: '心芒灵境',
   subTitle: '荣格潜意识心理投射 · 3D抽牌 · 灵感疗愈',
   version: '1.0.0',
-  defaultCardBack: '/static/tarot/back.jpg'
+  defaultCardBack: '/static/tarot/back.jpg',
+  env: import.meta.env.VITE_APP_ENV || import.meta.env.MODE || 'development',
+  mode: import.meta.env.MODE || 'development',
+  apiBase: DEFAULT_API_BASE
 };

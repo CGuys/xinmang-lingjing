@@ -131,9 +131,9 @@ build_artifacts() {
     log_success "运营管理后台编译完成 -> admin/dist"
 
     # 2. 小程序编译 (同时编译微信小程序原生目录与 H5 预览)
-    log_info ">> [2/3] 编译微信小程序产物 (mp-weixin)..."
+    log_info ">> [2/3] 编译微信小程序产物 (mp-weixin 本地环境)..."
     cd "${MINI_DIR}"
-    npm run build:mp-weixin
+    npm run build:mp-weixin:dev
     log_success "微信小程序产物编译完成 -> miniprogram/dist/build/mp-weixin"
 
     log_info ">> [3/3] 编译小程序 H5 网页版 (h5)..."
