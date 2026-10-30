@@ -1,9 +1,9 @@
 /**
  * 应用全局配置
  */
-// 优先从环境变量读取构建目标 API，若未指定则兜底局域网开发地址
+// 优先从环境变量读取构建目标 API，若未指定则兜底云端正式服务器地址
 const ENV_API_BASE = (import.meta.env.VITE_API_BASE as string | undefined)?.trim();
-const DEFAULT_API_BASE = ENV_API_BASE || 'http://192.168.110.41:3000';
+const DEFAULT_API_BASE = ENV_API_BASE || 'http://8.148.201.178';
 
 export const getApiBaseUrl = (): string => {
   try {
